@@ -1,0 +1,282 @@
+{
+  "爸": {
+    "char_type": "形声",
+    "similar_chars": ["巴", "把"],
+    "example_words": ["爸爸", "老爸"],
+    "example_sentences": [{ "text": "爸爸带我去公园", "highlight_index": 0 }],
+    "teaching": { "animation_type": "decompose", "decompose_parts": ["父", "巴"], "decompose_desc": "父表示父亲，巴是声旁", "emoji_fallback": "👨" }
+  },
+  "妈": {
+    "char_type": "形声",
+    "similar_chars": ["马", "吗"],
+    "example_words": ["妈妈", "大妈"],
+    "example_sentences": [{ "text": "妈妈做的饭真好吃", "highlight_index": 0 }],
+    "teaching": { "animation_type": "decompose", "decompose_parts": ["女", "马"], "decompose_desc": "女表示女性，马是声旁", "emoji_fallback": "👩" }
+  },
+  "马": {
+    "char_type": "象形",
+    "similar_chars": ["鸟", "妈"],
+    "example_words": ["小马", "马路", "木马"],
+    "example_sentences": [{ "text": "草原上有一匹马", "highlight_index": 6 }],
+    "teaching": { "animation_type": "origin", "origin_desc": "像一匹奔跑的马", "emoji_fallback": "🐴" }
+  },
+  "土": {
+    "char_type": "象形",
+    "similar_chars": ["士", "王", "工"],
+    "example_words": ["土地", "泥土", "国土"],
+    "example_sentences": [{ "text": "花盆里有泥土", "highlight_index": 5 }],
+    "teaching": { "animation_type": "origin", "origin_desc": "像地面上堆起的土堆", "emoji_fallback": "🪴" }
+  },
+  "不": {
+    "char_type": "指事",
+    "similar_chars": ["木", "本"],
+    "example_words": ["不好", "不对", "不行"],
+    "example_sentences": [{ "text": "这样做不对", "highlight_index": 4 }],
+    "teaching": { "animation_type": "scene", "scene_desc": "摇头表示否定", "emoji_fallback": "🙅" }
+  },
+  "画": {
+    "char_type": "会意",
+    "similar_chars": ["话", "划"],
+    "example_words": ["画画", "图画", "画家"],
+    "example_sentences": [{ "text": "我喜欢画画", "highlight_index": 3 }],
+    "teaching": { "animation_type": "scene", "scene_desc": "小朋友在纸上画画", "emoji_fallback": "🎨" }
+  },
+  "打": {
+    "char_type": "形声",
+    "similar_chars": ["灯", "订"],
+    "example_words": ["打开", "打球", "打电话"],
+    "example_sentences": [{ "text": "我会打篮球", "highlight_index": 2 }],
+    "teaching": { "animation_type": "scene", "scene_desc": "用手进行动作", "emoji_fallback": "✊" }
+  },
+  "棋": {
+    "char_type": "形声",
+    "similar_chars": ["其", "期"],
+    "example_words": ["下棋", "棋子", "象棋"],
+    "example_sentences": [{ "text": "爷爷教我下棋", "highlight_index": 5 }],
+    "teaching": { "animation_type": "decompose", "decompose_parts": ["木", "其"], "decompose_desc": "木表示棋盘是木头做的，其是声旁", "emoji_fallback": "♟️" }
+  },
+  "鸡": {
+    "char_type": "形声",
+    "similar_chars": ["鸭", "鹅"],
+    "example_words": ["小鸡", "公鸡", "母鸡"],
+    "example_sentences": [{ "text": "小鸡在院子里找虫吃", "highlight_index": 1 }],
+    "teaching": { "animation_type": "decompose", "decompose_parts": ["又", "鸟"], "decompose_desc": "鸟表示是禽类", "emoji_fallback": "🐔" }
+  },
+  "字": {
+    "char_type": "会意",
+    "similar_chars": ["学", "子"],
+    "example_words": ["写字", "汉字", "生字"],
+    "example_sentences": [{ "text": "我在学习写字", "highlight_index": 5 }],
+    "teaching": { "animation_type": "decompose", "decompose_parts": ["宀", "子"], "decompose_desc": "宝盖头像房子，里面有孩子在学习", "emoji_fallback": "✍️" }
+  },
+  "词": {
+    "char_type": "形声",
+    "similar_chars": ["语", "诗"],
+    "example_words": ["词语", "生词", "歌词"],
+    "example_sentences": [{ "text": "老师教我们新词语", "highlight_index": 7 }],
+    "teaching": { "animation_type": "decompose", "decompose_parts": ["讠", "司"], "decompose_desc": "言字旁表示和语言有关", "emoji_fallback": "📝" }
+  },
+  "语": {
+    "char_type": "形声",
+    "similar_chars": ["词", "话"],
+    "example_words": ["语文", "说话", "外语"],
+    "example_sentences": [{ "text": "我最喜欢语文课", "highlight_index": 4 }],
+    "teaching": { "animation_type": "decompose", "decompose_parts": ["讠", "吾"], "decompose_desc": "言字旁表示说话，吾是声旁", "emoji_fallback": "💬" }
+  },
+  "句": {
+    "char_type": "形声",
+    "similar_chars": ["勾", "狗"],
+    "example_words": ["句子", "一句话", "造句"],
+    "example_sentences": [{ "text": "这是一个完整的句子", "highlight_index": 8 }],
+    "teaching": { "animation_type": "scene", "scene_desc": "一句完整的话", "emoji_fallback": "💭" }
+  },
+  "桌": {
+    "char_type": "形声",
+    "similar_chars": ["卓", "棹"],
+    "example_words": ["桌子", "书桌", "餐桌"],
+    "example_sentences": [{ "text": "我在桌子上写作业", "highlight_index": 2 }],
+    "teaching": { "animation_type": "decompose", "decompose_parts": ["木", "卓"], "decompose_desc": "木表示桌子是木头做的", "emoji_fallback": "🪑" }
+  },
+  "纸": {
+    "char_type": "形声",
+    "similar_chars": ["低", "底"],
+    "example_words": ["白纸", "纸张", "作业纸"],
+    "example_sentences": [{ "text": "我在纸上画画", "highlight_index": 2 }],
+    "teaching": { "animation_type": "decompose", "decompose_parts": ["纟", "氏"], "decompose_desc": "纟表示和丝线有关，古代纸用丝做", "emoji_fallback": "📄" }
+  },
+  "文": {
+    "char_type": "象形",
+    "similar_chars": ["字", "交"],
+    "example_words": ["语文", "文字", "作文"],
+    "example_sentences": [{ "text": "我喜欢学语文", "highlight_index": 5 }],
+    "teaching": { "animation_type": "origin", "origin_desc": "像人胸前的花纹", "emoji_fallback": "📖" }
+  },
+  "数": {
+    "char_type": "形声",
+    "similar_chars": ["楼", "搂"],
+    "example_words": ["数学", "数字", "数一数"],
+    "example_sentences": [{ "text": "我在数星星", "highlight_index": 2 }],
+    "teaching": { "animation_type": "scene", "scene_desc": "数数字1234", "emoji_fallback": "🔢" }
+  },
+  "学": {
+    "char_type": "会意",
+    "similar_chars": ["字", "觉"],
+    "example_words": ["学习", "学校", "学生"],
+    "example_sentences": [{ "text": "我每天去学校学习", "highlight_index": 7 }],
+    "teaching": { "animation_type": "decompose", "decompose_parts": ["⺍", "子"], "decompose_desc": "上面是老师的手在教，下面是孩子在学", "emoji_fallback": "📚" }
+  },
+  "音": {
+    "char_type": "会意",
+    "similar_chars": ["意", "暗"],
+    "example_words": ["声音", "音乐", "读音"],
+    "example_sentences": [{ "text": "小鸟的声音真好听", "highlight_index": 4 }],
+    "teaching": { "animation_type": "decompose", "decompose_parts": ["立", "日"], "decompose_desc": "口中发出的声音", "emoji_fallback": "🔊" }
+  },
+  "乐": {
+    "char_type": "象形",
+    "similar_chars": ["药", "东"],
+    "example_words": ["音乐", "快乐", "乐园"],
+    "example_sentences": [{ "text": "听音乐让我很快乐", "highlight_index": 2 }],
+    "teaching": { "animation_type": "origin", "origin_desc": "像古代的乐器", "emoji_fallback": "🎵" }
+  },
+  "秋": {
+    "char_type": "会意",
+    "similar_chars": ["秒", "科"],
+    "example_words": ["秋天", "秋风", "秋叶"],
+    "example_sentences": [{ "text": "秋天树叶变黄了", "highlight_index": 0 }],
+    "teaching": { "animation_type": "decompose", "decompose_parts": ["禾", "火"], "decompose_desc": "庄稼成熟了，像火一样红", "emoji_fallback": "🍂" }
+  },
+  "气": {
+    "char_type": "象形",
+    "similar_chars": ["乞", "汽"],
+    "example_words": ["天气", "空气", "生气"],
+    "example_sentences": [{ "text": "今天天气真好", "highlight_index": 3 }],
+    "teaching": { "animation_type": "origin", "origin_desc": "像上升的气流", "emoji_fallback": "💨" }
+  },
+  "了": {
+    "char_type": "象形",
+    "similar_chars": ["子", "于"],
+    "example_words": ["好了", "来了", "走了"],
+    "example_sentences": [{ "text": "我吃饱了", "highlight_index": 3 }],
+    "teaching": { "animation_type": "scene", "scene_desc": "表示动作完成", "emoji_fallback": "✅" }
+  },
+  "树": {
+    "char_type": "形声",
+    "similar_chars": ["村", "材"],
+    "example_words": ["大树", "树叶", "树木"],
+    "example_sentences": [{ "text": "院子里有一棵大树", "highlight_index": 7 }],
+    "teaching": { "animation_type": "decompose", "decompose_parts": ["木", "对", "寸"], "decompose_desc": "木表示树是植物", "emoji_fallback": "🌳" }
+  },
+  "叶": {
+    "char_type": "形声",
+    "similar_chars": ["业", "页"],
+    "example_words": ["树叶", "叶子", "绿叶"],
+    "example_sentences": [{ "text": "树叶从树上飘落", "highlight_index": 1 }],
+    "teaching": { "animation_type": "decompose", "decompose_parts": ["口", "十"], "decompose_desc": "口像叶子的形状", "emoji_fallback": "🍃" }
+  },
+  "片": {
+    "char_type": "象形",
+    "similar_chars": ["版", "牌"],
+    "example_words": ["一片", "片刻", "照片"],
+    "example_sentences": [{ "text": "一片树叶飘下来", "highlight_index": 1 }],
+    "teaching": { "animation_type": "origin", "origin_desc": "像一半木头劈开的样子", "emoji_fallback": "📄" }
+  },
+  "大": {
+    "char_type": "象形",
+    "similar_chars": ["太", "天", "夫"],
+    "example_words": ["大小", "大人", "大家"],
+    "example_sentences": [{ "text": "大象的身体很大", "highlight_index": 0 }],
+    "teaching": { "animation_type": "origin", "origin_desc": "像一个人张开双臂", "emoji_fallback": "👐" }
+  },
+  "飞": {
+    "char_type": "象形",
+    "similar_chars": ["非", "北"],
+    "example_words": ["飞机", "飞鸟", "起飞"],
+    "example_sentences": [{ "text": "小鸟在天上飞", "highlight_index": 5 }],
+    "teaching": { "animation_type": "origin", "origin_desc": "像鸟张开翅膀飞翔", "emoji_fallback": "✈️" }
+  },
+  "会": {
+    "char_type": "会意",
+    "similar_chars": ["云", "合"],
+    "example_words": ["开会", "学会", "会议"],
+    "example_sentences": [{ "text": "我会写字了", "highlight_index": 1 }],
+    "teaching": { "animation_type": "scene", "scene_desc": "人们聚在一起", "emoji_fallback": "🤝" }
+  },
+  "个": {
+    "char_type": "象形",
+    "similar_chars": ["人", "介"],
+    "example_words": ["一个", "个人", "个子"],
+    "example_sentences": [{ "text": "我有一个苹果", "highlight_index": 3 }],
+    "teaching": { "animation_type": "scene", "scene_desc": "用于计数的量词", "emoji_fallback": "1️⃣" }
+  },
+  "的": {
+    "char_type": "形声",
+    "similar_chars": ["地", "得", "白"],
+    "example_words": ["我的", "红的", "大的"],
+    "example_sentences": [{ "text": "红红的苹果真好吃", "highlight_index": 2 }],
+    "teaching": { "animation_type": "scene", "scene_desc": "表示所属或修饰", "emoji_fallback": "🔗" }
+  },
+  "船": {
+    "char_type": "形声",
+    "similar_chars": ["般", "航"],
+    "example_words": ["小船", "轮船", "船只"],
+    "example_sentences": [{ "text": "河里有一艘小船", "highlight_index": 7 }],
+    "teaching": { "animation_type": "decompose", "decompose_parts": ["舟", "㕣"], "decompose_desc": "舟表示船是水上交通工具", "emoji_fallback": "⛵" }
+  },
+  "两": {
+    "char_type": "会意",
+    "similar_chars": ["雨", "满"],
+    "example_words": ["两个", "两只", "两边"],
+    "example_sentences": [{ "text": "我有两只手", "highlight_index": 2 }],
+    "teaching": { "animation_type": "scene", "scene_desc": "表示数量二", "emoji_fallback": "✌️" }
+  },
+  "头": {
+    "char_type": "象形",
+    "similar_chars": ["买", "实"],
+    "example_words": ["头发", "点头", "木头"],
+    "example_sentences": [{ "text": "我的头上戴着帽子", "highlight_index": 2 }],
+    "teaching": { "animation_type": "origin", "origin_desc": "像人的头部", "emoji_fallback": "👤" }
+  },
+  "在": {
+    "char_type": "会意",
+    "similar_chars": ["存", "有"],
+    "example_words": ["在家", "现在", "正在"],
+    "example_sentences": [{ "text": "我在家里做作业", "highlight_index": 1 }],
+    "teaching": { "animation_type": "scene", "scene_desc": "表示位置或存在", "emoji_fallback": "📍" }
+  },
+  "里": {
+    "char_type": "会意",
+    "similar_chars": ["理", "埋"],
+    "example_words": ["这里", "家里", "心里"],
+    "example_sentences": [{ "text": "书在书包里", "highlight_index": 4 }],
+    "teaching": { "animation_type": "scene", "scene_desc": "表示内部位置", "emoji_fallback": "📦" }
+  },
+  "看": {
+    "char_type": "会意",
+    "similar_chars": ["着", "省"],
+    "example_words": ["看见", "看书", "好看"],
+    "example_sentences": [{ "text": "我在看书", "highlight_index": 2 }],
+    "teaching": { "animation_type": "decompose", "decompose_parts": ["手", "目"], "decompose_desc": "手搭在眼睛上看远方", "emoji_fallback": "👀" }
+  },
+  "见": {
+    "char_type": "会意",
+    "similar_chars": ["贝", "现"],
+    "example_words": ["看见", "再见", "见面"],
+    "example_sentences": [{ "text": "我看见一只小鸟", "highlight_index": 2 }],
+    "teaching": { "animation_type": "decompose", "decompose_parts": ["目", "儿"], "decompose_desc": "眼睛看到东西", "emoji_fallback": "👁️" }
+  },
+  "闪": {
+    "char_type": "会意",
+    "similar_chars": ["门", "问"],
+    "example_words": ["闪电", "闪光", "闪闪"],
+    "example_sentences": [{ "text": "星星闪闪发光", "highlight_index": 2 }],
+    "teaching": { "animation_type": "decompose", "decompose_parts": ["门", "人"], "decompose_desc": "门里有人快速闪过", "emoji_fallback": "⚡" }
+  },
+  "星": {
+    "char_type": "会意",
+    "similar_chars": ["晴", "青"],
+    "example_words": ["星星", "明星", "星空"],
+    "example_sentences": [{ "text": "夜空中有很多星星", "highlight_index": 6 }],
+    "teaching": { "animation_type": "decompose", "decompose_parts": ["日", "生"], "decompose_desc": "天上发光的星体", "emoji_fallback": "⭐" }
+  }
+}

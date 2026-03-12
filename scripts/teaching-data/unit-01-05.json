@@ -1,0 +1,247 @@
+{
+  "天": {
+    "char_type": "会意",
+    "similar_chars": ["大", "夫", "夭"],
+    "example_words": ["天空", "今天", "天气"],
+    "example_sentences": [{ "text": "蓝蓝的天空真美", "highlight_index": 3 }],
+    "teaching": { "animation_type": "decompose", "decompose_parts": ["一", "大"], "decompose_desc": "一横在大字上面，表示人头顶上的天空", "emoji_fallback": "🌤️" }
+  },
+  "地": {
+    "char_type": "形声",
+    "similar_chars": ["他", "池", "她"],
+    "example_words": ["大地", "土地", "地上"],
+    "example_sentences": [{ "text": "小草从地上长出来", "highlight_index": 3 }],
+    "teaching": { "animation_type": "scene", "scene_desc": "展示大地和泥土", "emoji_fallback": "🌍" }
+  },
+  "人": {
+    "char_type": "象形",
+    "similar_chars": ["入", "八", "大"],
+    "example_words": ["人们", "大人", "人口"],
+    "example_sentences": [{ "text": "爸爸是一个大人", "highlight_index": 5 }],
+    "teaching": { "animation_type": "origin", "origin_desc": "像一个侧身站立的人", "emoji_fallback": "🧍" }
+  },
+  "你": {
+    "char_type": "会意",
+    "similar_chars": ["您", "尔"],
+    "example_words": ["你好", "你们", "你的"],
+    "example_sentences": [{ "text": "你好，我是小明", "highlight_index": 0 }],
+    "teaching": { "animation_type": "scene", "scene_desc": "两个小朋友打招呼", "emoji_fallback": "👋" }
+  },
+  "我": {
+    "char_type": "会意",
+    "similar_chars": ["找", "或"],
+    "example_words": ["我们", "我的", "自我"],
+    "example_sentences": [{ "text": "我是一年级的小学生", "highlight_index": 0 }],
+    "teaching": { "animation_type": "scene", "scene_desc": "小朋友指着自己", "emoji_fallback": "🙋" }
+  },
+  "他": {
+    "char_type": "形声",
+    "similar_chars": ["地", "她", "池"],
+    "example_words": ["他们", "他的", "其他"],
+    "example_sentences": [{ "text": "他是我的好朋友", "highlight_index": 0 }],
+    "teaching": { "animation_type": "scene", "scene_desc": "指向另一个小男孩", "emoji_fallback": "👦" }
+  },
+  "一": {
+    "char_type": "指事",
+    "similar_chars": ["二", "三"],
+    "example_words": ["一个", "一天", "一起"],
+    "example_sentences": [{ "text": "我有一个苹果", "highlight_index": 2 }],
+    "teaching": { "animation_type": "origin", "origin_desc": "一横代表数字一", "emoji_fallback": "1️⃣" }
+  },
+  "二": {
+    "char_type": "指事",
+    "similar_chars": ["一", "三", "土"],
+    "example_words": ["二月", "第二", "二十"],
+    "example_sentences": [{ "text": "我今年二年级", "highlight_index": 3 }],
+    "teaching": { "animation_type": "origin", "origin_desc": "两横代表数字二", "emoji_fallback": "2️⃣" }
+  },
+  "三": {
+    "char_type": "指事",
+    "similar_chars": ["一", "二", "王"],
+    "example_words": ["三个", "三月", "三天"],
+    "example_sentences": [{ "text": "我有三本书", "highlight_index": 2 }],
+    "teaching": { "animation_type": "origin", "origin_desc": "三横代表数字三", "emoji_fallback": "3️⃣" }
+  },
+  "四": {
+    "char_type": "指事",
+    "similar_chars": ["西", "回"],
+    "example_words": ["四个", "四月", "四方"],
+    "example_sentences": [{ "text": "桌子有四条腿", "highlight_index": 3 }],
+    "teaching": { "animation_type": "origin", "origin_desc": "古人用四横表示四，后来简化", "emoji_fallback": "4️⃣" }
+  },
+  "五": {
+    "char_type": "指事",
+    "similar_chars": ["王", "玉"],
+    "example_words": ["五个", "五月", "五星"],
+    "example_sentences": [{ "text": "一只手有五个手指", "highlight_index": 4 }],
+    "teaching": { "animation_type": "origin", "origin_desc": "上下两横中间交叉表示五", "emoji_fallback": "5️⃣" }
+  },
+  "上": {
+    "char_type": "指事",
+    "similar_chars": ["下", "土", "止"],
+    "example_words": ["上面", "上学", "上课"],
+    "example_sentences": [{ "text": "小鸟飞到树上", "highlight_index": 5 }],
+    "teaching": { "animation_type": "decompose", "decompose_desc": "一横上面有一竖，表示向上的方向", "emoji_fallback": "⬆️" }
+  },
+  "下": {
+    "char_type": "指事",
+    "similar_chars": ["上", "卜"],
+    "example_words": ["下面", "下雨", "下课"],
+    "example_sentences": [{ "text": "小猫躲在桌子下", "highlight_index": 6 }],
+    "teaching": { "animation_type": "decompose", "decompose_desc": "一横下面有一竖，表示向下的方向", "emoji_fallback": "⬇️" }
+  },
+  "口": {
+    "char_type": "象形",
+    "similar_chars": ["日", "目", "回"],
+    "example_words": ["口水", "开口", "人口"],
+    "example_sentences": [{ "text": "张开口说话", "highlight_index": 2 }],
+    "teaching": { "animation_type": "origin", "origin_desc": "像一张张开的嘴巴", "emoji_fallback": "👄" }
+  },
+  "耳": {
+    "char_type": "象形",
+    "similar_chars": ["目", "自"],
+    "example_words": ["耳朵", "耳机", "木耳"],
+    "example_sentences": [{ "text": "小兔子的耳朵长长的", "highlight_index": 4 }],
+    "teaching": { "animation_type": "origin", "origin_desc": "像人的耳朵形状", "emoji_fallback": "👂" }
+  },
+  "目": {
+    "char_type": "象形",
+    "similar_chars": ["日", "口", "自"],
+    "example_words": ["眼目", "目光", "目标"],
+    "example_sentences": [{ "text": "我用目光看着妈妈", "highlight_index": 3 }],
+    "teaching": { "animation_type": "origin", "origin_desc": "像一只眼睛的形状", "emoji_fallback": "👁️" }
+  },
+  "手": {
+    "char_type": "象形",
+    "similar_chars": ["毛", "牛"],
+    "example_words": ["小手", "手心", "拍手"],
+    "example_sentences": [{ "text": "我有两只小手", "highlight_index": 5 }],
+    "teaching": { "animation_type": "origin", "origin_desc": "像一只张开的手掌", "emoji_fallback": "✋" }
+  },
+  "足": {
+    "char_type": "象形",
+    "similar_chars": ["走", "是"],
+    "example_words": ["足球", "手足", "满足"],
+    "example_sentences": [{ "text": "我喜欢踢足球", "highlight_index": 4 }],
+    "teaching": { "animation_type": "origin", "origin_desc": "像一只脚的形状", "emoji_fallback": "🦶" }
+  },
+  "站": {
+    "char_type": "形声",
+    "similar_chars": ["立", "占"],
+    "example_words": ["站立", "站起", "车站"],
+    "example_sentences": [{ "text": "小朋友们站起来", "highlight_index": 4 }],
+    "teaching": { "animation_type": "decompose", "decompose_parts": ["立", "占"], "decompose_desc": "立是形旁表示站立，占是声旁", "emoji_fallback": "🧍" }
+  },
+  "坐": {
+    "char_type": "会意",
+    "similar_chars": ["座", "做"],
+    "example_words": ["坐下", "坐好", "乘坐"],
+    "example_sentences": [{ "text": "请坐下来休息", "highlight_index": 1 }],
+    "teaching": { "animation_type": "decompose", "decompose_parts": ["从", "土"], "decompose_desc": "两个人坐在土地上", "emoji_fallback": "🪑" }
+  },
+  "日": {
+    "char_type": "象形",
+    "similar_chars": ["目", "白", "田"],
+    "example_words": ["日子", "日出", "今日"],
+    "example_sentences": [{ "text": "太阳每日升起", "highlight_index": 4 }],
+    "teaching": { "animation_type": "origin", "origin_desc": "像圆圆的太阳，中间一横表示光芒", "emoji_fallback": "☀️" }
+  },
+  "月": {
+    "char_type": "象形",
+    "similar_chars": ["用", "肉"],
+    "example_words": ["月亮", "月光", "明月"],
+    "example_sentences": [{ "text": "晚上月亮弯弯的", "highlight_index": 2 }],
+    "teaching": { "animation_type": "origin", "origin_desc": "像弯弯的月亮形状", "emoji_fallback": "🌙" }
+  },
+  "水": {
+    "char_type": "象形",
+    "similar_chars": ["冰", "永"],
+    "example_words": ["喝水", "水果", "河水"],
+    "example_sentences": [{ "text": "我口渴了要喝水", "highlight_index": 7 }],
+    "teaching": { "animation_type": "origin", "origin_desc": "像流动的水流", "emoji_fallback": "💧" }
+  },
+  "火": {
+    "char_type": "象形",
+    "similar_chars": ["大", "太", "灭"],
+    "example_words": ["火车", "大火", "火山"],
+    "example_sentences": [{ "text": "红红的火真暖和", "highlight_index": 3 }],
+    "teaching": { "animation_type": "origin", "origin_desc": "像燃烧的火焰向上窜", "emoji_fallback": "🔥" }
+  },
+  "山": {
+    "char_type": "象形",
+    "similar_chars": ["出", "岁"],
+    "example_words": ["大山", "山上", "山水"],
+    "example_sentences": [{ "text": "远处有一座大山", "highlight_index": 6 }],
+    "teaching": { "animation_type": "origin", "origin_desc": "像高高低低的山峰", "emoji_fallback": "⛰️" }
+  },
+  "石": {
+    "char_type": "象形",
+    "similar_chars": ["右", "百"],
+    "example_words": ["石头", "石子", "岩石"],
+    "example_sentences": [{ "text": "路边有一块大石头", "highlight_index": 7 }],
+    "teaching": { "animation_type": "origin", "origin_desc": "像山崖下的一块石头", "emoji_fallback": "🪨" }
+  },
+  "田": {
+    "char_type": "象形",
+    "similar_chars": ["由", "申", "电"],
+    "example_words": ["田地", "水田", "田野"],
+    "example_sentences": [{ "text": "农民伯伯在田里种菜", "highlight_index": 6 }],
+    "teaching": { "animation_type": "origin", "origin_desc": "像一块被分成四格的田地", "emoji_fallback": "🌾" }
+  },
+  "禾": {
+    "char_type": "象形",
+    "similar_chars": ["和", "木", "米"],
+    "example_words": ["禾苗", "禾田"],
+    "example_sentences": [{ "text": "田里的禾苗绿绿的", "highlight_index": 3 }],
+    "teaching": { "animation_type": "origin", "origin_desc": "像一株成熟的庄稼，穗子弯下来", "emoji_fallback": "🌾" }
+  },
+  "对": {
+    "char_type": "会意",
+    "similar_chars": ["树", "村"],
+    "example_words": ["对面", "对不起", "正对"],
+    "example_sentences": [{ "text": "云对雨，雪对风", "highlight_index": 1 }],
+    "teaching": { "animation_type": "scene", "scene_desc": "两个相对的事物", "emoji_fallback": "🔄" }
+  },
+  "云": {
+    "char_type": "象形",
+    "similar_chars": ["去", "会"],
+    "example_words": ["白云", "云朵", "乌云"],
+    "example_sentences": [{ "text": "天上有白白的云", "highlight_index": 6 }],
+    "teaching": { "animation_type": "origin", "origin_desc": "像天上飘着的云朵", "emoji_fallback": "☁️" }
+  },
+  "雨": {
+    "char_type": "象形",
+    "similar_chars": ["两", "雪"],
+    "example_words": ["下雨", "雨水", "大雨"],
+    "example_sentences": [{ "text": "外面下雨了", "highlight_index": 3 }],
+    "teaching": { "animation_type": "origin", "origin_desc": "像从天上落下的雨点", "emoji_fallback": "🌧️" }
+  },
+  "风": {
+    "char_type": "象形",
+    "similar_chars": ["凤", "飞"],
+    "example_words": ["大风", "风车", "风筝"],
+    "example_sentences": [{ "text": "今天的风真大", "highlight_index": 4 }],
+    "teaching": { "animation_type": "origin", "origin_desc": "古字像风吹动的样子", "emoji_fallback": "💨" }
+  },
+  "花": {
+    "char_type": "形声",
+    "similar_chars": ["华", "草"],
+    "example_words": ["花朵", "开花", "红花"],
+    "example_sentences": [{ "text": "公园里的花真美", "highlight_index": 5 }],
+    "teaching": { "animation_type": "origin", "origin_desc": "草字头表示植物，化是声旁", "emoji_fallback": "🌸" }
+  },
+  "鸟": {
+    "char_type": "象形",
+    "similar_chars": ["乌", "马"],
+    "example_words": ["小鸟", "鸟儿", "飞鸟"],
+    "example_sentences": [{ "text": "小鸟在树上唱歌", "highlight_index": 1 }],
+    "teaching": { "animation_type": "origin", "origin_desc": "像一只站立的鸟", "emoji_fallback": "🐦" }
+  },
+  "虫": {
+    "char_type": "象形",
+    "similar_chars": ["虾", "蚂"],
+    "example_words": ["小虫", "虫子", "毛虫"],
+    "example_sentences": [{ "text": "树叶上有一只小虫", "highlight_index": 8 }],
+    "teaching": { "animation_type": "origin", "origin_desc": "像一条弯曲的虫子", "emoji_fallback": "🐛" }
+  }
+}

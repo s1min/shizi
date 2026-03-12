@@ -1,0 +1,303 @@
+{
+  "影": {
+    "char_type": "形声",
+    "similar_chars": ["景", "京"],
+    "example_words": ["影子", "电影", "身影"],
+    "example_sentences": [{ "text": "我的影子跟着我", "highlight_index": 2 }],
+    "teaching": { "animation_type": "decompose", "decompose_parts": ["日", "京", "彡"], "decompose_desc": "阳光照射产生的影子", "emoji_fallback": "👤" }
+  },
+  "前": {
+    "char_type": "会意",
+    "similar_chars": ["后", "剪"],
+    "example_words": ["前面", "前进", "以前"],
+    "example_sentences": [{ "text": "我走在前面", "highlight_index": 3 }],
+    "teaching": { "animation_type": "scene", "scene_desc": "面对的方向", "emoji_fallback": "⬆️" }
+  },
+  "后": {
+    "char_type": "会意",
+    "similar_chars": ["前", "后"],
+    "example_words": ["后面", "以后", "最后"],
+    "example_sentences": [{ "text": "小狗跟在后面", "highlight_index": 4 }],
+    "teaching": { "animation_type": "scene", "scene_desc": "背对的方向", "emoji_fallback": "⬇️" }
+  },
+  "黑": {
+    "char_type": "会意",
+    "similar_chars": ["墨", "默"],
+    "example_words": ["黑色", "黑夜", "黑板"],
+    "example_sentences": [{ "text": "夜晚天黑了", "highlight_index": 3 }],
+    "teaching": { "animation_type": "scene", "scene_desc": "没有光的颜色", "emoji_fallback": "🖤" }
+  },
+  "狗": {
+    "char_type": "形声",
+    "similar_chars": ["猫", "句"],
+    "example_words": ["小狗", "狗狗", "热狗"],
+    "example_sentences": [{ "text": "我家有一只小狗", "highlight_index": 6 }],
+    "teaching": { "animation_type": "decompose", "decompose_parts": ["犭", "句"], "decompose_desc": "犬字旁表示动物", "emoji_fallback": "🐕" }
+  },
+  "左": {
+    "char_type": "会意",
+    "similar_chars": ["右", "在"],
+    "example_words": ["左边", "左手", "左右"],
+    "example_sentences": [{ "text": "我用左手写字", "highlight_index": 2 }],
+    "teaching": { "animation_type": "scene", "scene_desc": "一边的方向", "emoji_fallback": "⬅️" }
+  },
+  "右": {
+    "char_type": "会意",
+    "similar_chars": ["左", "有"],
+    "example_words": ["右边", "右手", "左右"],
+    "example_sentences": [{ "text": "我用右手吃饭", "highlight_index": 2 }],
+    "teaching": { "animation_type": "scene", "scene_desc": "另一边的方向", "emoji_fallback": "➡️" }
+  },
+  "它": {
+    "char_type": "会意",
+    "similar_chars": ["他", "她"],
+    "example_words": ["它们", "它的"],
+    "example_sentences": [{ "text": "小猫很可爱，它会抓老鼠", "highlight_index": 6 }],
+    "teaching": { "animation_type": "scene", "scene_desc": "指动物或事物", "emoji_fallback": "🐾" }
+  },
+  "好": {
+    "char_type": "会意",
+    "similar_chars": ["女", "子"],
+    "example_words": ["好人", "你好", "好吃"],
+    "example_sentences": [{ "text": "今天天气真好", "highlight_index": 5 }],
+    "teaching": { "animation_type": "decompose", "decompose_parts": ["女", "子"], "decompose_desc": "女子在一起表示美好", "emoji_fallback": "👍" }
+  },
+  "朋": {
+    "char_type": "会意",
+    "similar_chars": ["友", "明"],
+    "example_words": ["朋友", "小朋友"],
+    "example_sentences": [{ "text": "我有很多朋友", "highlight_index": 5 }],
+    "teaching": { "animation_type": "decompose", "decompose_parts": ["月", "月"], "decompose_desc": "两个月并排，像两个人肩并肩", "emoji_fallback": "👫" }
+  },
+  "友": {
+    "char_type": "会意",
+    "similar_chars": ["有", "朋"],
+    "example_words": ["朋友", "友好", "友谊"],
+    "example_sentences": [{ "text": "他是我的好朋友", "highlight_index": 6 }],
+    "teaching": { "animation_type": "decompose", "decompose_parts": ["又", "又"], "decompose_desc": "两只手握在一起表示友好", "emoji_fallback": "🤝" }
+  },
+  "比": {
+    "char_type": "会意",
+    "similar_chars": ["北", "此"],
+    "example_words": ["比赛", "比较", "对比"],
+    "example_sentences": [{ "text": "我们来比一比", "highlight_index": 3 }],
+    "teaching": { "animation_type": "decompose", "decompose_desc": "两个人站在一起比较", "emoji_fallback": "⚖️" }
+  },
+  "尾": {
+    "char_type": "会意",
+    "similar_chars": ["屋", "尿"],
+    "example_words": ["尾巴", "尾声", "结尾"],
+    "example_sentences": [{ "text": "小狗的尾巴摇啊摇", "highlight_index": 3 }],
+    "teaching": { "animation_type": "decompose", "decompose_parts": ["尸", "毛"], "decompose_desc": "身体后面有毛的部分", "emoji_fallback": "🐕" }
+  },
+  "巴": {
+    "char_type": "象形",
+    "similar_chars": ["爸", "把"],
+    "example_words": ["尾巴", "嘴巴", "下巴"],
+    "example_sentences": [{ "text": "猴子的尾巴长长的", "highlight_index": 4 }],
+    "teaching": { "animation_type": "origin", "origin_desc": "像蛇张开嘴的样子", "emoji_fallback": "🐍" }
+  },
+  "谁": {
+    "char_type": "形声",
+    "similar_chars": ["准", "推"],
+    "example_words": ["谁的", "是谁", "谁呀"],
+    "example_sentences": [{ "text": "这是谁的书包", "highlight_index": 2 }],
+    "teaching": { "animation_type": "decompose", "decompose_parts": ["讠", "隹"], "decompose_desc": "言字旁表示询问", "emoji_fallback": "❓" }
+  },
+  "长": {
+    "char_type": "象形",
+    "similar_chars": ["短", "张"],
+    "example_words": ["长短", "长大", "很长"],
+    "example_sentences": [{ "text": "大象的鼻子很长", "highlight_index": 6 }],
+    "teaching": { "animation_type": "origin", "origin_desc": "像一个人长长的头发", "emoji_fallback": "📏" }
+  },
+  "短": {
+    "char_type": "形声",
+    "similar_chars": ["长", "矮"],
+    "example_words": ["长短", "短小", "很短"],
+    "example_sentences": [{ "text": "兔子的尾巴短短的", "highlight_index": 6 }],
+    "teaching": { "animation_type": "decompose", "decompose_parts": ["矢", "豆"], "decompose_desc": "矢表示箭，短箭", "emoji_fallback": "📐" }
+  },
+  "把": {
+    "char_type": "形声",
+    "similar_chars": ["爸", "巴"],
+    "example_words": ["把手", "一把", "把握"],
+    "example_sentences": [{ "text": "我把书放好了", "highlight_index": 1 }],
+    "teaching": { "animation_type": "decompose", "decompose_parts": ["扌", "巴"], "decompose_desc": "手抓住东西", "emoji_fallback": "🤲" }
+  },
+  "伞": {
+    "char_type": "象形",
+    "similar_chars": ["金", "全"],
+    "example_words": ["雨伞", "打伞", "伞下"],
+    "example_sentences": [{ "text": "下雨了，我打开雨伞", "highlight_index": 8 }],
+    "teaching": { "animation_type": "origin", "origin_desc": "像撑开的雨伞", "emoji_fallback": "☂️" }
+  },
+  "兔": {
+    "char_type": "象形",
+    "similar_chars": ["免", "晚"],
+    "example_words": ["小兔", "兔子", "白兔"],
+    "example_sentences": [{ "text": "小白兔真可爱", "highlight_index": 2 }],
+    "teaching": { "animation_type": "origin", "origin_desc": "像一只蹲着的兔子", "emoji_fallback": "🐰" }
+  },
+  "最": {
+    "char_type": "形声",
+    "similar_chars": ["取", "聚"],
+    "example_words": ["最好", "最大", "最后"],
+    "example_sentences": [{ "text": "这个苹果最大", "highlight_index": 5 }],
+    "teaching": { "animation_type": "scene", "scene_desc": "程度最高", "emoji_fallback": "🏆" }
+  },
+  "公": {
+    "char_type": "会意",
+    "similar_chars": ["私", "松"],
+    "example_words": ["公园", "公共", "公鸡"],
+    "example_sentences": [{ "text": "我去公园玩", "highlight_index": 2 }],
+    "teaching": { "animation_type": "decompose", "decompose_parts": ["八", "厶"], "decompose_desc": "分开私心就是公", "emoji_fallback": "🏛️" }
+  },
+  "写": {
+    "char_type": "形声",
+    "similar_chars": ["字", "画"],
+    "example_words": ["写字", "书写", "写作"],
+    "example_sentences": [{ "text": "我在写字", "highlight_index": 2 }],
+    "teaching": { "animation_type": "scene", "scene_desc": "用笔写出字来", "emoji_fallback": "✍️" }
+  },
+  "诗": {
+    "char_type": "形声",
+    "similar_chars": ["词", "时"],
+    "example_words": ["诗歌", "古诗", "诗人"],
+    "example_sentences": [{ "text": "我会背古诗", "highlight_index": 4 }],
+    "teaching": { "animation_type": "decompose", "decompose_parts": ["讠", "寺"], "decompose_desc": "言字旁表示和语言有关", "emoji_fallback": "📜" }
+  },
+  "点": {
+    "char_type": "形声",
+    "similar_chars": ["占", "店"],
+    "example_words": ["一点", "点头", "雨点"],
+    "example_sentences": [{ "text": "天上有一点星星", "highlight_index": 4 }],
+    "teaching": { "animation_type": "scene", "scene_desc": "很小的一个", "emoji_fallback": "•" }
+  },
+  "要": {
+    "char_type": "会意",
+    "similar_chars": ["西", "票"],
+    "example_words": ["要求", "想要", "重要"],
+    "example_sentences": [{ "text": "我要吃苹果", "highlight_index": 1 }],
+    "teaching": { "animation_type": "scene", "scene_desc": "想得到或必须", "emoji_fallback": "🙋" }
+  },
+  "过": {
+    "char_type": "形声",
+    "similar_chars": ["边", "进"],
+    "example_words": ["过来", "过去", "经过"],
+    "example_sentences": [{ "text": "小鸟飞过天空", "highlight_index": 3 }],
+    "teaching": { "animation_type": "decompose", "decompose_parts": ["辶", "寸"], "decompose_desc": "走之旁表示经过", "emoji_fallback": "🚶" }
+  },
+  "给": {
+    "char_type": "形声",
+    "similar_chars": ["合", "答"],
+    "example_words": ["给你", "送给", "给予"],
+    "example_sentences": [{ "text": "妈妈给我一个苹果", "highlight_index": 2 }],
+    "teaching": { "animation_type": "decompose", "decompose_parts": ["纟", "合"], "decompose_desc": "丝字旁，给予东西", "emoji_fallback": "🎁" }
+  },
+  "当": {
+    "char_type": "会意",
+    "similar_chars": ["尚", "党"],
+    "example_words": ["当时", "当然", "当作"],
+    "example_sentences": [{ "text": "我当小老师", "highlight_index": 1 }],
+    "teaching": { "animation_type": "scene", "scene_desc": "担任某个角色", "emoji_fallback": "👩‍🏫" }
+  },
+  "串": {
+    "char_type": "象形",
+    "similar_chars": ["中", "申"],
+    "example_words": ["一串", "串门", "羊肉串"],
+    "example_sentences": [{ "text": "我有一串葡萄", "highlight_index": 3 }],
+    "teaching": { "animation_type": "origin", "origin_desc": "像用绳子串起来的东西", "emoji_fallback": "🍇" }
+  },
+  "们": {
+    "char_type": "形声",
+    "similar_chars": ["门", "问"],
+    "example_words": ["我们", "你们", "他们"],
+    "example_sentences": [{ "text": "我们一起玩", "highlight_index": 1 }],
+    "teaching": { "animation_type": "decompose", "decompose_parts": ["亻", "门"], "decompose_desc": "人字旁表示多个人", "emoji_fallback": "👨‍👩‍👧‍👦" }
+  },
+  "以": {
+    "char_type": "象形",
+    "similar_chars": ["已", "己"],
+    "example_words": ["以后", "可以", "以前"],
+    "example_sentences": [{ "text": "我可以出去玩吗", "highlight_index": 2 }],
+    "teaching": { "animation_type": "scene", "scene_desc": "用来表示", "emoji_fallback": "💭" }
+  },
+  "成": {
+    "char_type": "会意",
+    "similar_chars": ["城", "诚"],
+    "example_words": ["成功", "成为", "完成"],
+    "example_sentences": [{ "text": "我完成作业了", "highlight_index": 2 }],
+    "teaching": { "animation_type": "scene", "scene_desc": "做完做好", "emoji_fallback": "✅" }
+  },
+  "彩": {
+    "char_type": "形声",
+    "similar_chars": ["采", "菜"],
+    "example_words": ["彩色", "彩虹", "精彩"],
+    "example_sentences": [{ "text": "彩虹有七种颜色", "highlight_index": 0 }],
+    "teaching": { "animation_type": "decompose", "decompose_parts": ["采", "彡"], "decompose_desc": "三撇表示颜色多彩", "emoji_fallback": "🌈" }
+  },
+  "半": {
+    "char_type": "指事",
+    "similar_chars": ["伴", "胖"],
+    "example_words": ["一半", "半天", "半个"],
+    "example_sentences": [{ "text": "我吃了半个苹果", "highlight_index": 3 }],
+    "teaching": { "animation_type": "origin", "origin_desc": "把一个东西分成两半", "emoji_fallback": "➗" }
+  },
+  "空": {
+    "char_type": "形声",
+    "similar_chars": ["穴", "孔"],
+    "example_words": ["天空", "空气", "空的"],
+    "example_sentences": [{ "text": "天空很蓝", "highlight_index": 1 }],
+    "teaching": { "animation_type": "decompose", "decompose_parts": ["穴", "工"], "decompose_desc": "穴宝盖表示洞穴，里面是空的", "emoji_fallback": "🌌" }
+  },
+  "问": {
+    "char_type": "会意",
+    "similar_chars": ["门", "闻"],
+    "example_words": ["问题", "提问", "请问"],
+    "example_sentences": [{ "text": "我问老师一个问题", "highlight_index": 1 }],
+    "teaching": { "animation_type": "decompose", "decompose_parts": ["门", "口"], "decompose_desc": "门里有口，开口询问", "emoji_fallback": "❓" }
+  },
+  "到": {
+    "char_type": "形声",
+    "similar_chars": ["倒", "道"],
+    "example_words": ["到达", "来到", "到处"],
+    "example_sentences": [{ "text": "我们到学校了", "highlight_index": 2 }],
+    "teaching": { "animation_type": "decompose", "decompose_parts": ["至", "刂"], "decompose_desc": "至表示到达某处", "emoji_fallback": "📍" }
+  },
+  "方": {
+    "char_type": "象形",
+    "similar_chars": ["万", "房"],
+    "example_words": ["地方", "方向", "方法"],
+    "example_sentences": [{ "text": "这个地方很漂亮", "highlight_index": 3 }],
+    "teaching": { "animation_type": "origin", "origin_desc": "像一块方正的土地", "emoji_fallback": "⬜" }
+  },
+  "没": {
+    "char_type": "形声",
+    "similar_chars": ["每", "海"],
+    "example_words": ["没有", "没事", "没关系"],
+    "example_sentences": [{ "text": "我没有铅笔", "highlight_index": 1 }],
+    "teaching": { "animation_type": "scene", "scene_desc": "表示不存在", "emoji_fallback": "🚫" }
+  },
+  "更": {
+    "char_type": "会意",
+    "similar_chars": ["便", "使"],
+    "example_words": ["更好", "更大", "更多"],
+    "example_sentences": [{ "text": "明天会更好", "highlight_index": 4 }],
+    "teaching": { "animation_type": "scene", "scene_desc": "程度增加", "emoji_fallback": "⬆️" }
+  },
+  "绿": {
+    "char_type": "形声",
+    "similar_chars": ["录", "缘"],
+    "example_words": ["绿色", "绿叶", "绿草"],
+    "example_sentences": [{ "text": "小草是绿色的", "highlight_index": 3 }],
+    "teaching": { "animation_type": "decompose", "decompose_parts": ["纟", "录"], "decompose_desc": "丝字旁，绿色的丝绸", "emoji_fallback": "💚" }
+  },
+  "出": {
+    "char_type": "会意",
+    "similar_chars": ["山", "击"],
+    "example_words": ["出去", "出来", "出门"],
+    "example_sentences": [{ "text": "我出门去上学", "highlight_index": 1 }],
+    "teaching": { "animation_type": "decompose", "decompose_parts": ["屮", "凵"], "decompose_desc": "像植物从土里长出来", "emoji_fallback": "🌱" }
+  }
+}

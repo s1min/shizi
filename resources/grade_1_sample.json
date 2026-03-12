@@ -1,0 +1,86 @@
+[
+  {
+    "id": "1001",
+    "char": "天",
+    "pinyin": "tiān",
+    "pinyin_tone": 1,
+    "definition": "天空，头顶上方的无限空间。",
+    "grade": 1,
+    "term": 1,
+    "type": "read_write",
+    "strokes": 4,
+    "radicals": "大",
+    "assets": {
+      "audio_url": "https://example.com/audio/tian1.mp3",
+      "origin_img_url": "https://example.com/origin/tian.png",
+      "stroke_data": "SVG_PATH_DATA_HERE"
+    },
+    "ai_context": {
+      "tags": ["自然", "大"],
+      "common_words": ["蓝天", "天上", "白天"]
+    }
+  },
+  {
+    "id": "1002",
+    "char": "地",
+    "pinyin": "dì",
+    "pinyin_tone": 4,
+    "definition": "大地，我们脚下踩着的土地。",
+    "grade": 1,
+    "term": 1,
+    "type": "read_write",
+    "strokes": 6,
+    "radicals": "土",
+    "assets": {
+      "audio_url": "https://example.com/audio/di4.mp3",
+      "origin_img_url": "https://example.com/origin/di.png",
+      "stroke_data": "SVG_PATH_DATA_HERE"
+    },
+    "ai_context": {
+      "tags": ["自然", "土"],
+      "common_words": ["土地", "地上", "种地"]
+    }
+  },
+  {
+    "id": "1003",
+    "char": "人",
+    "pinyin": "rén",
+    "pinyin_tone": 2,
+    "definition": "能制造工具并使用工具进行劳动的高等动物。",
+    "grade": 1,
+    "term": 1,
+    "type": "read_write",
+    "strokes": 2,
+    "radicals": "人",
+    "assets": {
+      "audio_url": "https://example.com/audio/ren2.mp3",
+      "origin_img_url": "https://example.com/origin/ren.png",
+      "stroke_data": "SVG_PATH_DATA_HERE"
+    },
+    "ai_context": {
+      "tags": ["人物"],
+      "common_words": ["大人", "人们", "好人"]
+    }
+  },
+  {
+    "id": "1004",
+    "char": "火",
+    "pinyin": "huǒ",
+    "pinyin_tone": 3,
+    "definition": "燃烧，物质燃烧时发出的光和热。",
+    "grade": 1,
+    "term": 1,
+    "type": "read_write",
+    "strokes": 4,
+    "radicals": "火",
+    "assets": {
+      "audio_url": "https://example.com/audio/huo3.mp3",
+      "origin_img_url": "https://example.com/origin/huo.png",
+      "stroke_data": "SVG_PATH_DATA_HERE"
+    },
+    "ai_context": {
+      "tags": ["自然", "热", "危险"],
+      "common_words": ["着火", "火苗", "大火"]
+    }
+  }
+]
