@@ -1,5 +1,10 @@
 <template>
   <div class="complete-container">
+    <button class="top-home-entry" @click="goHome">
+      <text class="top-home-icon">←</text>
+      <text class="top-home-text">首页</text>
+    </button>
+
     <div class="stars-area">
       <div
         v-for="i in 3"
@@ -111,16 +116,16 @@
 </template>
 
 <script lang="ts" setup>
+import { onShareAppMessage, onShareTimeline } from '@dcloudio/uni-app'
+import { computed, getCurrentInstance, nextTick, onMounted, ref } from 'vue'
+import { useLearnStore } from '@/store'
+
 definePage({
   style: {
     navigationBarTitleText: '学习完成',
     navigationStyle: 'custom',
   },
 })
-
-import { onShareAppMessage, onShareTimeline } from '@dcloudio/uni-app'
-import { computed, getCurrentInstance, nextTick, onMounted, ref } from 'vue'
-import { useLearnStore } from '@/store'
 
 const instance = getCurrentInstance()
 const learnStore = useLearnStore()
@@ -180,6 +185,10 @@ onShareTimeline(() => ({
   title: `趣字宝打卡：今天学会了 ${learnedChars.value.length} 个汉字！`,
 }))
 
+function goHome() {
+  uni.switchTab({ url: '/pages/home/index' })
+}
+
 function goNext() {
   if (hasNextUnit.value) {
     // 跳转到下一单元的学习页
@@ -191,7 +200,7 @@ function goNext() {
       return
     }
   }
-  uni.switchTab({ url: '/pages/home/index' })
+  goHome()
 }
 
 // ─── 海报绘制 ─────────────────────────────────────────────────────
@@ -433,7 +442,30 @@ function savePosterH5() {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 120rpx 40rpx 60rpx;
+  padding: calc(env(safe-area-inset-top) + 24rpx) 40rpx 60rpx;
+}
+
+.top-home-entry {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 8rpx;
+  padding: 12rpx 20rpx;
+  margin-bottom: 32rpx;
+  border: none;
+  border-radius: 999rpx;
+  background: rgba(255, 255, 255, 0.72);
+  color: #8c6b1f;
+}
+
+.top-home-icon {
+  font-size: 24rpx;
+  line-height: 1;
+}
+
+.top-home-text {
+  font-size: 24rpx;
+  line-height: 1;
 }
 
 .stars-area {
@@ -642,4 +674,3 @@ function savePosterH5() {
   color: #fff;
 }
 </style>
-
