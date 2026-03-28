@@ -1,0 +1,136 @@
+name: Bug Report
+description: Report a reproducible problem for fixing and regression tracking
+title: "[Bug] "
+labels:
+  - bug
+  - needs-repro
+body:
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: Impact level used for fix priority
+      options:
+        - S0 (blocking core flow or submission)
+        - S1 (major functional issue)
+        - S2 (minor issue / non-core)
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: platform
+    attributes:
+      label: Platform
+      description: Affected runtime
+      options:
+        - label: iOS (WeChat Mini Program)
+        - label: Android (WeChat Mini Program)
+        - label: H5
+        - label: Backend API
+    validations:
+      required: true
+
+  - type: dropdown
+    id: module
+    attributes:
+      label: Module
+      options:
+        - Login
+        - Home
+        - Learn
+        - Review
+        - Me
+        - Library
+        - API
+        - Deploy
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: reproducibility
+    attributes:
+      label: Reproducibility
+      options:
+        - 100%
+        - High (>=70%)
+        - Medium (30%-70%)
+        - Low (<30%)
+        - Unknown
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Reproduction Steps
+      description: Provide stable, minimal steps
+      placeholder: |
+        1. Open xxx
+        2. Tap xxx
+        3. Observe xxx
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Result
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Result
+    validations:
+      required: true
+
+  - type: input
+    id: endpoint
+    attributes:
+      label: API Endpoint (if any)
+      description: method + URL
+      placeholder: POST http://localhost:8001/api/auth/wxLogin
+    validations:
+      required: false
+
+  - type: textarea
+    id: request_response
+    attributes:
+      label: Request / Response Snapshot
+      description: Include status code and key response body
+      placeholder: |
+        request:
+        response:
+    validations:
+      required: false
+
+  - type: input
+    id: app_version
+    attributes:
+      label: App / Build Version
+      placeholder: mini-program build id or git commit
+    validations:
+      required: true
+
+  - type: input
+    id: env
+    attributes:
+      label: Device / OS / WeChat Version
+      placeholder: iPhone 14 / iOS 18.x / WeChat 8.x.x
+    validations:
+      required: true
+
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence
+      description: Screenshot/video/log links or file paths
+      placeholder: |
+        - screenshot:
+        - video:
+        - log:
+    validations:
+      required: true
+

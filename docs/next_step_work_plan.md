@@ -417,3 +417,19 @@ Gate status:
 - Outcome:
   - Real-device testing now has a closed-loop path: discover -> log -> fix -> regress -> close.
   - Remaining action for submission gate: fill iOS/Android evidence and close `S0`/`S1` issues in ledger.
+
+### Step 6 (2026-03-28, GitHub Issues Workflow Landing) - Completed
+
+- Migrated collaboration baseline to GitHub Issues as primary bug source.
+- Added issue template assets:
+  - `.github/ISSUE_TEMPLATE/bug.yml`
+  - `.github/ISSUE_TEMPLATE/config.yml`
+- Added automation scripts:
+  - `scripts/bootstrap-github-labels.ps1` (idempotent label setup/update)
+  - `scripts/sync-github-issues.ps1` (sync open bug issues to local JSON)
+- Added workflow documentation:
+  - `docs/github_issues_workflow.md`
+  - updated `docs/bug_reports/README.md` to make GitHub Issues the default source.
+- Validation:
+  - both PowerShell scripts pass parse check.
+  - workflow can run with `GITHUB_TOKEN` + repository `origin` auto-detection.

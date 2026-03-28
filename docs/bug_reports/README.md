@@ -14,26 +14,32 @@
 3. 可追踪：有唯一编号和状态流转。
 4. 可回归：修复后能按同一用例复测并关闭。
 
+当前默认缺陷主源：`GitHub Issues`。  
+本地文档用于测试现场补充和提审证据汇总。
+
 ---
 
 ## 2. 文件结构
 
-1. `docs/bug_reports/_bug_report_template.md`  
+1. `docs/github_issues_workflow.md`  
+GitHub 提单、标签初始化、同步到本地 JSON 的主流程。
+2. `docs/bug_reports/_bug_report_template.md`  
 单条缺陷模板，确认问题后复制一份并填写。
-2. `docs/bug_reports/session_2026-03-28.md`  
+3. `docs/bug_reports/session_2026-03-28.md`  
 当天实机测试台账，先快速记录，再拆分为单条缺陷文档。
-3. `docs/device_regression_evidence.md`  
+4. `docs/device_regression_evidence.md`  
 提审证据文档，引用 Bug ID 和截图/录屏。
 
 ---
 
 ## 3. 使用流程
 
-1. 发现问题：先记到 `session_YYYY-MM-DD.md`，至少写平台、页面、现象、是否可稳定复现。
-2. 问题确认：复制 `_bug_report_template.md` 生成单条缺陷文档，补齐复现步骤和证据。
-3. 开始修复：状态改为 `FIXING`，填写计划修复版本和负责人。
-4. 修复完成：状态改为 `FIXED`，补充代码提交信息和验证说明。
-5. 回归通过：状态改为 `VERIFIED` 或 `CLOSED`，在会话台账中同步结果。
+1. 发现问题：优先在 GitHub 建立 issue（用 bug 模板）。
+2. 本地同步：执行 `scripts/sync-github-issues.ps1` 生成本地 JSON。
+3. 现场补充：必要时在 `session_YYYY-MM-DD.md` 记录测试上下文。
+4. 开始修复：issue 状态/标签进入修复中（如 `S0/S1/S2`）。
+5. 修复完成：打上 `fixed-await-regression`，等待实机回归。
+6. 回归通过：关闭 issue，并把结果同步到证据文档。
 
 ---
 

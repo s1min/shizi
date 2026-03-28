@@ -288,3 +288,14 @@
 - Gate implication:
   - C1 execution is no longer blocked by “how to record bugs”.
   - Remaining C-phase blockers stay the same: production secret injection + iOS/Android evidence completion.
+
+### C Phase Update (GitHub Issues Integration)
+- Repository remote has been switched to GitHub (`origin`) while retaining Gitee as backup remote (`gitee`).
+- Added GitHub issue-management baseline for personal-dev velocity:
+  - issue form: `.github/ISSUE_TEMPLATE/bug.yml`
+  - label bootstrap script: `scripts/bootstrap-github-labels.ps1`
+  - issue sync script: `scripts/sync-github-issues.ps1`
+  - usage guide: `docs/github_issues_workflow.md`
+- Operational effect:
+  - bug reporting source is unified on GitHub Issues;
+  - local JSON sync enables direct AI-assisted fix workflow without manual copy/paste from web UI.
