@@ -1,5 +1,11 @@
 <template>
   <div class="page-container">
+    <SecondaryPageNavbar
+      title="隐私政策"
+      fallback-url="/pages/me/index"
+      :fallback-is-tab="true"
+    />
+
     <div class="content">
       <div class="title">
         趣字宝隐私政策
@@ -135,12 +141,14 @@
 </template>
 
 <script lang="ts" setup>
+import SecondaryPageNavbar from '@/components/navigation/SecondaryPageNavbar.vue'
+
 definePage({
   style: {
     navigationBarTitleText: '隐私政策',
+    navigationStyle: 'custom',
   },
 })
-
 </script>
 
 <style lang="scss" scoped>
@@ -150,7 +158,7 @@ definePage({
 }
 
 .content {
-  padding: 40rpx;
+  padding: 24rpx 40rpx 40rpx;
 }
 
 .title {
@@ -186,4 +194,3 @@ definePage({
   margin-bottom: 8rpx;
 }
 </style>
-

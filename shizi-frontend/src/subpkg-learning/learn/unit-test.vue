@@ -136,17 +136,18 @@
 </template>
 
 <script lang="ts" setup>
+import type { Character } from '@/types/character'
+import { computed, onMounted, ref } from 'vue'
+import { useLearnStore } from '@/store'
+import { navigateBackOrTo } from '@/utils/navigation'
+import { speakText } from '@/utils/tts'
+
 definePage({
   style: {
     navigationBarTitleText: '单元测试',
     navigationStyle: 'custom',
   },
 })
-
-import type { Character } from '@/types/character'
-import { computed, onMounted, ref } from 'vue'
-import { useLearnStore } from '@/store'
-import { speakText } from '@/utils/tts'
 
 type QuizType = 'char-to-image' | 'image-to-char' | 'audio-to-char' | 'pinyin-to-char' | 'context'
 
@@ -428,10 +429,11 @@ function goToComplete() {
 function handleClose() {
   uni.showModal({
     title: '确定退出吗？',
-    content: '测试进度不会保存',
+    content: '当前测试进度不会保留，建议完成后再退出',
     success: (res) => {
-      if (res.confirm)
-        uni.navigateBack()
+      if (res.confirm) {
+        navigateBackOrTo('/pages/home/index', true)
+      }
     },
   })
 }
@@ -823,4 +825,3 @@ onMounted(() => initTest())
   box-shadow: 0 8rpx 24rpx rgba(245, 166, 35, 0.4);
 }
 </style>
-

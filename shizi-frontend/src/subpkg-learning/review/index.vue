@@ -121,16 +121,17 @@
 </template>
 
 <script lang="ts" setup>
+import type { Character } from '@/types/character'
+import { computed, onMounted, ref } from 'vue'
+import { useLearnStore } from '@/store'
+import { navigateBackOrTo } from '@/utils/navigation'
+
 definePage({
   style: {
     navigationBarTitleText: '复习',
     navigationStyle: 'custom',
   },
 })
-
-import type { Character } from '@/types/character'
-import { computed, onMounted, ref } from 'vue'
-import { useLearnStore } from '@/store'
 
 const learnStore = useLearnStore()
 
@@ -196,7 +197,7 @@ function handleClose() {
 }
 
 function goBack() {
-  uni.switchTab({ url: '/pages/home/index' })
+  navigateBackOrTo('/pages/home/index', true)
 }
 
 onMounted(() => {
@@ -499,4 +500,3 @@ onMounted(() => {
   margin-bottom: 60rpx;
 }
 </style>
-

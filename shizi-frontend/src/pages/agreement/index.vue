@@ -1,5 +1,11 @@
 <template>
   <div class="page-container">
+    <SecondaryPageNavbar
+      title="用户协议"
+      fallback-url="/pages/me/index"
+      :fallback-is-tab="true"
+    />
+
     <div class="content">
       <div class="title">
         趣字宝用户协议
@@ -96,12 +102,14 @@
 </template>
 
 <script lang="ts" setup>
+import SecondaryPageNavbar from '@/components/navigation/SecondaryPageNavbar.vue'
+
 definePage({
   style: {
     navigationBarTitleText: '用户协议',
+    navigationStyle: 'custom',
   },
 })
-
 </script>
 
 <style lang="scss" scoped>
@@ -111,7 +119,7 @@ definePage({
 }
 
 .content {
-  padding: 40rpx;
+  padding: 24rpx 40rpx 40rpx;
 }
 
 .title {
@@ -147,4 +155,3 @@ definePage({
   margin-bottom: 8rpx;
 }
 </style>
-
