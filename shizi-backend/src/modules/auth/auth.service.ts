@@ -15,33 +15,51 @@ export class AuthService {
   ) {}
 
   /**
-   * 微信登录：code → openid → 查找/创建用户 → 签发 JWT
+   * WeChat login: code -> openid -> find/create user -> issue JWT
    */
   async wxLogin(code: string) {
-    const appid = this.configService.get<string>('WX_APPID');
-    const secret = this.configService.get<string>('WX_APP_SECRET');
-
-    // 调用微信 jscode2session
-    const url = `https://api.weixin.qq.com/sns/jscode2session?appid=${appid}&secret=${secret}&js_code=${code}&grant_type=authorization_code`;
+    const appid = this.configService.get<string>('WX_APPID') || '';
+    const secret = this.configService.get<string>('WX_APP_SECRET') || '';
+    const wxLoginMock = this.configService.get<string>('WX_LOGIN_MOCK', 'false') === 'true';
+    const isProd = this.configService.get<string>('NODE_ENV') === 'production';
 
     let openid: string;
-    try {
-      const { data } = await axios.get(url);
-      if (data.errcode) {
-        this.logger.warn(`微信登录失败: ${data.errcode} ${data.errmsg}`);
-        throw new UnauthorizedException(`微信登录失败: ${data.errmsg}`);
+    const hasValidWechatConfig = this.hasValidWechatConfig(appid, secret);
+
+    if (!hasValidWechatConfig) {
+      if (!isProd && wxLoginMock) {
+        openid = this.buildMockOpenid(code);
+        this.logger.warn(`WX_LOGIN_MOCK enabled, using mock openid: ${openid}`);
       }
-      openid = data.openid;
-    } catch (error) {
-      if (error instanceof UnauthorizedException) throw error;
-      this.logger.error('调用微信 API 失败', error);
-      throw new UnauthorizedException('微信登录服务异常');
+      else {
+        throw new UnauthorizedException(
+          'WeChat config is invalid, please set WX_APPID/WX_APP_SECRET or enable WX_LOGIN_MOCK in local dev.',
+        );
+      }
+    }
+    else {
+      const url = `https://api.weixin.qq.com/sns/jscode2session?appid=${appid}&secret=${secret}&js_code=${code}&grant_type=authorization_code`;
+
+      try {
+        const { data } = await axios.get(url);
+        if (data.errcode) {
+          this.logger.warn(`WeChat login failed: ${data.errcode} ${data.errmsg}`);
+          throw new UnauthorizedException(`WeChat login failed: ${data.errmsg}`);
+        }
+        openid = data.openid;
+      }
+      catch (error) {
+        if (error instanceof UnauthorizedException)
+          throw error;
+        this.logger.error('Failed to call WeChat jscode2session API', error);
+        throw new UnauthorizedException('WeChat login service exception');
+      }
     }
 
-    // 查找或创建用户
+    // find/create user
     const user = await this.userService.findOrCreateByOpenid(openid);
 
-    // 签发 JWT
+    // issue JWT
     const payload = { sub: user._id, openid: user.openid };
     const token = this.jwtService.sign(payload);
     const expiresIn = this.configService.get<string>('JWT_EXPIRES_IN', '7d');
@@ -52,10 +70,23 @@ export class AuthService {
     };
   }
 
-  /** 将 '7d' / '24h' / '3600' 等格式转为秒数 */
+  private hasValidWechatConfig(appid: string, secret: string): boolean {
+    const appidInvalid = !appid || ['your-wx-appid', 'local-check-appid'].includes(appid);
+    const secretInvalid = !secret || ['your-wx-app-secret', 'local-check-secret'].includes(secret);
+    return !appidInvalid && !secretInvalid;
+  }
+
+  private buildMockOpenid(code: string): string {
+    const cleaned = (code || '').replace(/[^a-zA-Z0-9]/g, '').slice(-16);
+    const suffix = cleaned || Date.now().toString();
+    return `mock_openid_${suffix}`;
+  }
+
+  /** parse '7d' / '24h' / '3600' into seconds */
   private parseExpiresIn(val: string): number {
     const match = val.match(/^(\d+)(d|h|m|s)?$/);
-    if (!match) return 604800; // 默认 7 天
+    if (!match)
+      return 604800; // default 7 days
     const num = parseInt(match[1]);
     switch (match[2]) {
       case 'd':

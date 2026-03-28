@@ -1,11 +1,3 @@
-<route lang="json5">
-{
-  style: {
-    navigationBarTitleText: '隐私政策',
-  },
-}
-</route>
-
 <template>
   <div class="page-container">
     <div class="content">
@@ -143,6 +135,12 @@
 </template>
 
 <script lang="ts" setup>
+definePage({
+  style: {
+    navigationBarTitleText: '隐私政策',
+  },
+})
+
 </script>
 
 <style lang="scss" scoped>
@@ -188,3 +186,4 @@
   margin-bottom: 8rpx;
 }
 </style>
+

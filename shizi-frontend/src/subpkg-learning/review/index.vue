@@ -1,12 +1,3 @@
-<route lang="json5" type="page">
-{
-  style: {
-    navigationBarTitleText: '复习',
-    navigationStyle: 'custom',
-  },
-}
-</route>
-
 <template>
   <div class="review-container">
     <!-- 完成结算 -->
@@ -130,6 +121,13 @@
 </template>
 
 <script lang="ts" setup>
+definePage({
+  style: {
+    navigationBarTitleText: '复习',
+    navigationStyle: 'custom',
+  },
+})
+
 import type { Character } from '@/types/character'
 import { computed, onMounted, ref } from 'vue'
 import { useLearnStore } from '@/store'
@@ -501,3 +499,4 @@ onMounted(() => {
   margin-bottom: 60rpx;
 }
 </style>
+

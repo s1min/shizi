@@ -1,11 +1,3 @@
-<route lang="json5">
-{
-  style: {
-    navigationBarTitleText: '用户协议',
-  },
-}
-</route>
-
 <template>
   <div class="page-container">
     <div class="content">
@@ -104,6 +96,12 @@
 </template>
 
 <script lang="ts" setup>
+definePage({
+  style: {
+    navigationBarTitleText: '用户协议',
+  },
+})
+
 </script>
 
 <style lang="scss" scoped>
@@ -149,3 +147,4 @@
   margin-bottom: 8rpx;
 }
 </style>
+

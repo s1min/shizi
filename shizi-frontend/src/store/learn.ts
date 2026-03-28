@@ -266,11 +266,11 @@ export const useLearnStore = defineStore(
 
     /** 未重试的错题汉字（去重） */
     const wrongChars = computed(() => {
-      const ids = [...new Set(
+      const ids = Array.from(new Set(
         wrongRecords.value
           .filter(r => !r.retried)
           .map(r => r.charId),
-      )]
+      ))
       return ids
         .map(id => charMap.value.get(id))
         .filter(Boolean) as Character[]
@@ -324,7 +324,7 @@ export const useLearnStore = defineStore(
 
       // learnDays：取并集去重
       const daySet = new Set([...learnDays.value, ...(cloud.learnDays || [])])
-      learnDays.value = [...daySet].sort()
+      learnDays.value = Array.from(daySet).sort()
 
       // wrongRecords：取并集（按 charId+wrongAt 去重）
       const existingKeys = new Set(

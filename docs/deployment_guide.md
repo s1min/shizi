@@ -1,95 +1,141 @@
-# 趣字宝部署指南
+﻿# è¶£å­—å®éƒ¨ç½²æŒ‡å—
 
-## 服务器要求
+## æœåŠ¡å™¨è¦æ±‚
 
-- 轻量云服务器 2C2G（腾讯云/阿里云，约 50-100 元/月）
-- Ubuntu 22.04 或 Debian 12
-- 已备案域名（微信小程序要求 HTTPS + 已备案域名）
+- è½»é‡äº‘æœåŠ¡å™¨ 2C2Gï¼ˆè…¾è®¯äº‘/é˜¿é‡Œäº‘ï¼Œçº¦ 50-100 å…ƒ/æœˆï¼‰
+- Ubuntu 22.04 æˆ– Debian 12
+- å·²å¤‡æ¡ˆåŸŸåï¼ˆå¾®ä¿¡å°ç¨‹åºè¦æ±‚ HTTPS + å·²å¤‡æ¡ˆåŸŸåï¼‰
 
-## 一、服务器初始化
+## ä¸€ã€æœåŠ¡å™¨åˆå§‹åŒ–
 
 ```bash
-# 更新系统
+# æ›´æ–°ç³»ç»Ÿ
 sudo apt update && sudo apt upgrade -y
 
-# 安装 Docker
+# å®‰è£… Docker
 curl -fsSL https://get.docker.com | sh
 sudo usermod -aG docker $USER
 
-# 安装 Docker Compose（Docker 20.10+ 已内置）
+# å®‰è£… Docker Composeï¼ˆDocker 20.10+ å·²å†…ç½®ï¼‰
 docker compose version
 
-# 安装 Git
+# å®‰è£… Git
 sudo apt install -y git
 ```
 
-重新登录使 docker 组生效。
+é‡æ–°ç™»å½•ä½¿ docker ç»„ç”Ÿæ•ˆã€‚
 
-## 二、部署后端
+## äºŒã€éƒ¨ç½²åŽç«¯
 
 ```bash
-# 克隆项目
+# å…‹éš†é¡¹ç›®
 git clone <your-repo-url> /opt/shizi
 cd /opt/shizi
 
-# 创建生产环境配置
+# åˆ›å»ºç”Ÿäº§çŽ¯å¢ƒé…ç½®
 cp .env.production.example .env
 
-# 编辑 .env，填入实际值
-# JWT_SECRET: 用 openssl rand -hex 32 生成
-# WX_APPID / WX_APP_SECRET: 微信公众平台获取
+# ç¼–è¾‘ .envï¼Œå¡«å…¥å®žé™…å€¼
+# JWT_SECRET: ç”¨ openssl rand -hex 32 ç”Ÿæˆ
+# WX_APPID / WX_APP_SECRET: å¾®ä¿¡å…¬ä¼—å¹³å°èŽ·å–
 nano .env
 
-# 启动服务
+# è¯´æ˜Žï¼šdocker-compose å·²å°† JWT_SECRET / WX_APPID / WX_APP_SECRET è®¾ä¸ºå¿…å¡«ã€‚
+# è‹¥æœªé…ç½®ï¼Œdocker compose up ä¼šç›´æŽ¥æŠ¥é”™å¹¶åœæ­¢å¯åŠ¨ï¼ˆé¿å…ç©ºå¯†é’¥è¯¯ä¸Šçº¿ï¼‰ã€‚
+
+# æŽ¨èï¼šå…ˆæ‰§è¡Œç”Ÿäº§çŽ¯å¢ƒå¼ºæ ¡éªŒï¼ˆé²æ­¢ placeholder å€¼ä¸Šçº¿ï¼‰
+# Linux/macOS:
+./scripts/verify-prod-env.sh .env
+# Windows PowerShell:
+.\scripts\verify-prod-env.ps1 -EnvFile .env
+
+# å¯åŠ¨æœåŠ¡
 docker compose up -d
 
-# 查看日志
+# æŸ¥çœ‹æ—¥å¿—
 docker compose logs -f app
 
-# 验证健康检查
+# éªŒè¯å¥åº·æ£€æŸ¥
 curl http://localhost/api/health
-# 应返回 {"status":"ok","timestamp":"..."}
+# åº”è¿”å›ž {"status":"ok","timestamp":"..."}
 ```
 
-## 三、导入数据
+## ä¸‰ã€å¯¼å…¥æ•°æ®
 
 ```bash
-# 进入后端容器执行 seed
-docker compose exec app node scripts/seed.js
-# 或者如果 seed 脚本是 TypeScript：
-docker compose exec app npx ts-node scripts/seed.ts
+# è¿›å…¥åŽç«¯å®¹å™¨æ‰§è¡Œ seedï¼ˆä½¿ç”¨ç¼–è¯‘äº§ç‰©ï¼‰
+docker compose exec app node dist/scripts/seed.js
 
-# 验证数据
+# å¦‚éœ€æ¸…ç©ºé‡å»º
+docker compose exec app node dist/scripts/seed.js --drop
+
+# éªŒè¯æ•°æ®
 curl http://localhost/api/libraries
 ```
 
-## 四、配置域名 + SSL
+## 3.1 One-command deployment verification (recommended)
 
-### 4.1 DNS 解析
+Use the script below to run the full local deployment loop:
+compose config -> build -> up -> health -> seed -> libraries.
 
-在域名服务商处添加 A 记录，指向服务器 IP。
+Before this step, run production env validation:
 
-### 4.2 申请 SSL 证书
+Linux/macOS:
 
 ```bash
-# 编辑 nginx 配置，将 your-domain.com 替换为实际域名
+./scripts/verify-prod-env.sh .env
+```
+
+Windows PowerShell:
+
+```powershell
+.\scripts\verify-prod-env.ps1 -EnvFile .env
+```
+
+Linux/macOS:
+
+```bash
+chmod +x scripts/verify-deploy.sh
+./scripts/verify-deploy.sh
+```
+
+Windows PowerShell:
+
+```powershell
+.\scripts\verify-deploy.ps1
+```
+
+Optional (skip rebuild if image already exists):
+
+```powershell
+.\scripts\verify-deploy.ps1 -SkipBuild
+```
+
+## å››ã€é…ç½®åŸŸå + SSL
+
+### 4.1 DNS è§£æž
+
+åœ¨åŸŸåæœåŠ¡å•†å¤„æ·»åŠ  A è®°å½•ï¼ŒæŒ‡å‘æœåŠ¡å™¨ IPã€‚
+
+### 4.2 ç”³è¯· SSL è¯ä¹¦
+
+```bash
+# ç¼–è¾‘ nginx é…ç½®ï¼Œå°† your-domain.com æ›¿æ¢ä¸ºå®žé™…åŸŸå
 nano nginx/conf.d/default.conf
 
-# 运行 Let's Encrypt 初始化脚本
+# è¿è¡Œ Let's Encrypt åˆå§‹åŒ–è„šæœ¬
 chmod +x scripts/init-letsencrypt.sh
-# 编辑脚本中的域名和邮箱
-nano scripts/init-letsencrypt.sh
-./scripts/init-letsencrypt.sh
+./scripts/init-letsencrypt.sh your-domain.com admin@your-domain.com
 
-# 重启 nginx
+# é‡å¯ nginx
 docker compose restart nginx
 ```
 
-### 4.3 启用 SSL 配置
+### 4.3 å¯ç”¨ SSL é…ç½®
 
-编辑 `nginx/conf.d/default.conf`，取消 SSL server block 的注释，替换 `your-domain.com` 为实际域名。
+ç¼–è¾‘ `nginx/conf.d/default.conf`ï¼Œå–æ¶ˆ SSL server block çš„æ³¨é‡Šï¼Œæ›¿æ¢ `your-domain.com` ä¸ºå®žé™…åŸŸåã€‚
 
-添加 HTTP → HTTPS 重定向：
+æ·»åŠ  HTTP â†’ HTTPS é‡å®šå‘ï¼š
 ```nginx
 server {
     listen 80;
@@ -102,67 +148,80 @@ server {
 docker compose restart nginx
 ```
 
-## 五、微信后台配置
-
-1. 登录 [微信公众平台](https://mp.weixin.qq.com)
-2. 开发管理 → 开发设置 → 服务器域名
-3. 添加以下域名：
-   - request 合法域名：`https://your-domain.com`
-4. 确认域名已备案
-
-## 六、构建并上传小程序
+### 4.4 è¯ä¹¦ç»­æœŸï¼ˆå»ºè®®ï¼‰
 
 ```bash
-# 本地构建微信小程序
+# æ¯æœˆ 1 å·å‡Œæ™¨ 3 ç‚¹å°è¯•ç»­æœŸå¹¶é‡å¯ nginx
+crontab -e
+# æ·»åŠ ï¼š
+# 0 3 1 * * cd /opt/shizi && docker run --rm \
+#   -v /opt/shizi/certbot/conf:/etc/letsencrypt \
+#   -v /opt/shizi/certbot/www:/var/www/certbot \
+#   certbot/certbot renew --webroot -w /var/www/certbot --quiet && \
+#   docker compose restart nginx
+```
+
+## äº”ã€å¾®ä¿¡åŽå°é…ç½®
+
+1. ç™»å½• [å¾®ä¿¡å…¬ä¼—å¹³å°](https://mp.weixin.qq.com)
+2. å¼€å‘ç®¡ç† â†’ å¼€å‘è®¾ç½® â†’ æœåŠ¡å™¨åŸŸå
+3. æ·»åŠ ä»¥ä¸‹åŸŸåï¼š
+   - request åˆæ³•åŸŸåï¼š`https://your-domain.com`
+4. ç¡®è®¤åŸŸåå·²å¤‡æ¡ˆ
+
+## å…­ã€æž„å»ºå¹¶ä¸Šä¼ å°ç¨‹åº
+
+```bash
+# æœ¬åœ°æž„å»ºå¾®ä¿¡å°ç¨‹åº
 cd shizi-frontend
 pnpm build:mp-weixin
 
-# 输出目录：dist/build/mp-weixin
+# è¾“å‡ºç›®å½•ï¼šdist/build/mp-weixin
 ```
 
-用微信开发者工具打开 `dist/build/mp-weixin` 目录，点击「上传」。
+ç”¨å¾®ä¿¡å¼€å‘è€…å·¥å…·æ‰“å¼€ `dist/build/mp-weixin` ç›®å½•ï¼Œç‚¹å‡»ã€Œä¸Šä¼ ã€ã€‚
 
-## 七、数据备份
+## ä¸ƒã€æ•°æ®å¤‡ä»½
 
 ```bash
-# 手动备份
+# æ‰‹åŠ¨å¤‡ä»½
 chmod +x scripts/backup-mongo.sh
 ./scripts/backup-mongo.sh
 
-# 设置定时备份（每天凌晨 3 点）
+# è®¾ç½®å®šæ—¶å¤‡ä»½ï¼ˆæ¯å¤©å‡Œæ™¨ 3 ç‚¹ï¼‰
 crontab -e
-# 添加：
+# æ·»åŠ ï¼š
 # 0 3 * * * /opt/shizi/scripts/backup-mongo.sh >> /var/log/shizi-backup.log 2>&1
 ```
 
-## 八、常用运维命令
+## å…«ã€å¸¸ç”¨è¿ç»´å‘½ä»¤
 
 ```bash
-# 查看服务状态
+# æŸ¥çœ‹æœåŠ¡çŠ¶æ€
 docker compose ps
 
-# 查看后端日志
+# æŸ¥çœ‹åŽç«¯æ—¥å¿—
 docker compose logs -f app
 
-# 重启服务
+# é‡å¯æœåŠ¡
 docker compose restart
 
-# 更新部署
+# æ›´æ–°éƒ¨ç½²
 git pull
 docker compose up -d --build
 
-# 进入 MongoDB shell
+# è¿›å…¥ MongoDB shell
 docker compose exec mongo mongosh shizi
 ```
 
-## 九、提交审核清单
+## ä¹ã€æäº¤å®¡æ ¸æ¸…å•
 
-- [ ] 服务器部署完成，HTTPS API 可访问
-- [ ] `curl https://your-domain.com/api/health` 返回 ok
-- [ ] `curl https://your-domain.com/api/libraries` 返回字库数据
-- [ ] 微信后台已配置服务器域名
-- [ ] 隐私政策页面可访问（小程序内 /pages/privacy/index）
-- [ ] 用户协议页面可访问（小程序内 /pages/agreement/index）
-- [ ] 真机测试通过（iOS + Android 各至少 1 台）
-- [ ] 小程序类目选择「工具」（避免教育类目的额外资质）
-- [ ] 上传代码并提交审核（预留 3-7 天审核周期）
+- [ ] æœåŠ¡å™¨éƒ¨ç½²å®Œæˆï¼ŒHTTPS API å¯è®¿é—®
+- [ ] `curl https://your-domain.com/api/health` è¿”å›ž ok
+- [ ] `curl https://your-domain.com/api/libraries` è¿”å›žå­—åº“æ•°æ®
+- [ ] å¾®ä¿¡åŽå°å·²é…ç½®æœåŠ¡å™¨åŸŸå
+- [ ] éšç§æ”¿ç­–é¡µé¢å¯è®¿é—®ï¼ˆå°ç¨‹åºå†… /pages/privacy/indexï¼‰
+- [ ] ç”¨æˆ·åè®®é¡µé¢å¯è®¿é—®ï¼ˆå°ç¨‹åºå†… /pages/agreement/indexï¼‰
+- [ ] çœŸæœºæµ‹è¯•é€šè¿‡ï¼ˆiOS + Android å„è‡³å°‘ 1 å°ï¼‰
+- [ ] å°ç¨‹åºç±»ç›®é€‰æ‹©ã€Œå·¥å…·ã€ï¼ˆé¿å…æ•™è‚²ç±»ç›®çš„é¢å¤–èµ„è´¨ï¼‰
+- [ ] ä¸Šä¼ ä»£ç å¹¶æäº¤å®¡æ ¸ï¼ˆé¢„ç•™ 3-7 å¤©å®¡æ ¸å‘¨æœŸï¼‰

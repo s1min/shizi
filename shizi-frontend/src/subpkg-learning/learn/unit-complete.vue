@@ -1,12 +1,3 @@
-<route lang="json5">
-{
-  style: {
-    navigationBarTitleText: '学习完成',
-    navigationStyle: 'custom',
-  },
-}
-</route>
-
 <template>
   <div class="complete-container">
     <div class="stars-area">
@@ -120,6 +111,13 @@
 </template>
 
 <script lang="ts" setup>
+definePage({
+  style: {
+    navigationBarTitleText: '学习完成',
+    navigationStyle: 'custom',
+  },
+})
+
 import { onShareAppMessage, onShareTimeline } from '@dcloudio/uni-app'
 import { computed, getCurrentInstance, nextTick, onMounted, ref } from 'vue'
 import { useLearnStore } from '@/store'
@@ -189,7 +187,7 @@ function goNext() {
     const idx = allUnits.findIndex((u: any) => u.id === unitId.value)
     const nextUnit = allUnits[idx + 1]
     if (nextUnit) {
-      uni.redirectTo({ url: `/pages/learn/index?unitId=${nextUnit.id}` })
+      uni.redirectTo({ url: `/subpkg-learning/learn/index?unitId=${nextUnit.id}` })
       return
     }
   }
@@ -366,38 +364,42 @@ let posterCanvas: any = null
 function drawPosterWx() {
   const query = uni.createSelectorQuery().in(instance)
   query.select('#posterCanvas')
-    .fields({ node: true, size: true })
-    .exec((res: any) => {
-      if (!res?.[0]?.node)
+    .fields({ node: true, size: true }, (res: any) => {
+      if (!res?.node)
         return
-      posterCanvas = res[0].node
+      posterCanvas = res.node
       const dpr = uni.getSystemInfoSync().pixelRatio || 2
-      const cssW = res[0].width || 300
-      const cssH = res[0].height || 450
+      const cssW = res.width || 300
+      const cssH = res.height || 450
       posterCanvas.width = cssW * dpr
       posterCanvas.height = cssH * dpr
       const ctx = posterCanvas.getContext('2d')
       drawPosterContent(ctx, posterCanvas.width, posterCanvas.height, dpr)
     })
+    .exec()
 }
 
 function savePoster() {
   if (!posterCanvas)
     return
-  uni.canvasToTempFilePath({
-    canvas: posterCanvas,
-    success: (res) => {
-      uni.saveImageToPhotosAlbum({
-        filePath: res.tempFilePath,
-        success: () => {
-          uni.showToast({ title: '已保存到相册', icon: 'success' })
-        },
-        fail: () => {
-          uni.showToast({ title: '保存失败，请授权相册权限', icon: 'none' })
-        },
-      })
+  uni.canvasToTempFilePath(
+    {
+      canvasId: 'posterCanvas',
+      canvas: posterCanvas,
+      success: (res) => {
+        uni.saveImageToPhotosAlbum({
+          filePath: res.tempFilePath,
+          success: () => {
+            uni.showToast({ title: '已保存到相册', icon: 'success' })
+          },
+          fail: () => {
+            uni.showToast({ title: '保存失败，请授权相册权限', icon: 'none' })
+          },
+        })
+      },
     },
-  })
+    instance?.proxy,
+  )
 }
 // #endif
 
@@ -640,3 +642,4 @@ function savePosterH5() {
   color: #fff;
 }
 </style>
+

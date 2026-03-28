@@ -33,6 +33,8 @@
     "predev": "pnpm init-baseFiles",
     "predev:app": "pnpm init-baseFiles",
     "predev:mp": "pnpm init-baseFiles",
+    "prebuild:h5": "node ./scripts/clean-generated-pages.js",
+    "prebuild:mp": "node ./scripts/clean-generated-pages.js",
     "preinstall": "npx only-allow pnpm",
     "uvm": "npx @dcloudio/uvm@latest",
     "uvm-rm": "node ./scripts/postupgrade.js",

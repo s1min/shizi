@@ -1,12 +1,3 @@
-<route lang="json5">
-{
-  style: {
-    navigationBarTitleText: '选择字库',
-    navigationStyle: 'custom',
-  },
-}
-</route>
-
 <template>
   <div class="onboarding-container">
     <div class="header">
@@ -25,8 +16,9 @@
       <div
         v-for="lib in libraries"
         :key="lib.id"
-        class="library-card" :class="[{ active: selectedId === lib.id }]"
-        @click="selectedId = lib.id"
+        class="library-card"
+        :class="[{ active: selectedId === lib.id }, { disabled: !lib.available }]"
+        @click="lib.available && (selectedId = lib.id)"
       >
         <div class="lib-icon">
           {{ lib.icon }}
@@ -39,8 +31,11 @@
             {{ lib.desc }}
           </div>
         </div>
-        <div v-if="selectedId === lib.id" class="lib-check">
+        <div v-if="selectedId === lib.id && lib.available" class="lib-check">
           ✓
+        </div>
+        <div v-else-if="!lib.available" class="lib-coming">
+          即将上线
         </div>
       </div>
     </div>
@@ -54,6 +49,13 @@
 </template>
 
 <script lang="ts" setup>
+definePage({
+  style: {
+    navigationBarTitleText: '选择字库',
+    navigationStyle: 'custom',
+  },
+})
+
 import { ref } from 'vue'
 import { updateChild } from '@/api/user'
 import { useLearnStore } from '@/store'
@@ -62,8 +64,8 @@ const selectedId = ref('lib_1a_upper')
 const saving = ref(false)
 
 const libraries = [
-  { id: 'lib_1a_upper', name: '一年级上册', desc: '人教版语文，100个常用汉字', icon: '📘' },
-  { id: 'lib_1a_lower', name: '一年级下册', desc: '人教版语文，157个常用汉字', icon: '📗' },
+  { id: 'lib_1a_upper', name: '一年级上册', desc: '人教版语文，100个常用汉字', icon: '📘', available: true },
+  { id: 'lib_1a_lower', name: '一年级下册', desc: '人教版语文，157个常用汉字', icon: '📗', available: false },
 ]
 
 async function handleConfirm() {
@@ -139,6 +141,10 @@ async function handleConfirm() {
   box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.04);
   transition: all 0.2s;
 
+  &.disabled {
+    opacity: 0.6;
+  }
+
   &.active {
     border-color: #f5a623;
     background: #fffbea;
@@ -181,6 +187,12 @@ async function handleConfirm() {
   flex-shrink: 0;
 }
 
+.lib-coming {
+  font-size: 22rpx;
+  color: #bbb;
+  flex-shrink: 0;
+}
+
 .action-area {
   padding-top: 60rpx;
 }
@@ -201,3 +213,4 @@ async function handleConfirm() {
   }
 }
 </style>
+

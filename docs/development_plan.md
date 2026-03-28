@@ -1,5 +1,7 @@
 # 趣字宝 MVP 后续开发计划
 
+> ⚠️ 本文档已被主计划接管：请优先查看 [project_master_plan.md](project_master_plan.md)。
+
 > 制定日期：2026-03-10
 > 基准文档：product_prototype_v3.md（个人开发者落地版）
 > 当前阶段：前端 UI 验收完成，进入后端加固与上线冲刺

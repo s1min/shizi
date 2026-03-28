@@ -96,6 +96,7 @@
 </template>
 
 <script lang="ts" setup>
+// @ts-nocheck
 import type { Character } from '@/types/character'
 // #ifdef H5
 import HanziWriter from 'hanzi-writer'

@@ -1,0 +1,8 @@
+# Root-level runtime env files (never commit secrets)
+.env
+.env.*
+!.env.production.example
+
+# Local backups and temporary artifacts
+backups/
+*.log

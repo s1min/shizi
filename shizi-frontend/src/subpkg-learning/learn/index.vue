@@ -1,12 +1,3 @@
-<route lang="json5">
-{
-  style: {
-    navigationBarTitleText: '学习',
-    navigationStyle: 'custom',
-  },
-}
-</route>
-
 <template>
   <div class="learn-container">
     <!-- 进度条 -->
@@ -77,12 +68,19 @@
 </template>
 
 <script lang="ts" setup>
+definePage({
+  style: {
+    navigationBarTitleText: '学习',
+    navigationStyle: 'custom',
+  },
+})
+
 import type { Character } from '@/types/character'
 import { computed, onMounted, ref } from 'vue'
-import CharCard from '@/components/learn/CharCard.vue'
-import QuizCard from '@/components/learn/QuizCard.vue'
-import SpeakPractice from '@/components/learn/SpeakPractice.vue'
-import TracingPractice from '@/components/learn/TracingPractice.vue'
+import CharCard from '../components/learn/CharCard.vue'
+import QuizCard from '../components/learn/QuizCard.vue'
+import SpeakPractice from '../components/learn/SpeakPractice.vue'
+import TracingPractice from '../components/learn/TracingPractice.vue'
 import { useLearnStore } from '@/store'
 
 const learnStore = useLearnStore()
@@ -132,7 +130,7 @@ function nextChar() {
   else {
     // 单元所有字学完，进入单元测试
     learnStore.updateUnitProgress(unitId.value, unitChars.value.length)
-    uni.redirectTo({ url: `/pages/learn/unit-test?unitId=${unitId.value}` })
+    uni.redirectTo({ url: `/subpkg-learning/learn/unit-test?unitId=${unitId.value}` })
   }
 }
 
@@ -277,3 +275,4 @@ onMounted(() => {
   box-shadow: 0 8rpx 24rpx rgba(245, 166, 35, 0.4);
 }
 </style>
+

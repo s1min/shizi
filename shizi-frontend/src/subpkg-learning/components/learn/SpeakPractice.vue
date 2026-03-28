@@ -98,7 +98,7 @@ function generateOptions() {
       .filter(c => c.pinyin !== correctPinyin && c._id !== props.char._id)
       .map(c => c.pinyin)
     // 去重
-    const unique = [...new Set(candidates)]
+    const unique = Array.from(new Set(candidates))
     // 随机选 2 个
     for (let i = unique.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1))

@@ -1,5 +1,7 @@
 # 趣字宝 MVP 开发计划
 
+> ⚠️ 本文档已被主计划接管：请优先查看 [project_master_plan.md](project_master_plan.md)。
+
 > 制定日期：2026-03-04
 > 当前阶段：MVP 冲刺前期
 > 目标：完成可上线的微信小程序 MVP

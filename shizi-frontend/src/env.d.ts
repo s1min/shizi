@@ -15,6 +15,14 @@ interface ImportMetaEnv {
   readonly VITE_SERVER_PORT: string
   /** 后台接口地址 */
   readonly VITE_SERVER_BASEURL: string
+  /** 第二个后台接口地址（alova 动态域名场景） */
+  readonly VITE_SERVER_BASEURL_SECONDARY: string
+  /** 微信小程序 develop 环境接口地址（可选，未配置则回退 VITE_SERVER_BASEURL） */
+  readonly VITE_SERVER_BASEURL__WEIXIN_DEVELOP?: string
+  /** 微信小程序 trial 环境接口地址（可选，未配置则回退 VITE_SERVER_BASEURL） */
+  readonly VITE_SERVER_BASEURL__WEIXIN_TRIAL?: string
+  /** 微信小程序 release 环境接口地址（可选，未配置则回退 VITE_SERVER_BASEURL） */
+  readonly VITE_SERVER_BASEURL__WEIXIN_RELEASE?: string
   /** H5是否需要代理 */
   readonly VITE_APP_PROXY_ENABLE: 'true' | 'false'
   /** H5是否需要代理，需要的话有个前缀 */

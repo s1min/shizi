@@ -1,11 +1,3 @@
-<route lang="json5" type="home">
-{
-  style: {
-    navigationBarTitleText: '今日',
-  },
-}
-</route>
-
 <template>
   <div class="page-container">
     <!-- Top Bar -->
@@ -136,6 +128,13 @@
 </template>
 
 <script lang="ts" setup>
+definePage({
+  type: 'home',
+style: {
+    navigationBarTitleText: '今日',
+  },
+})
+
 import { computed, onMounted, ref } from 'vue'
 import { useLearnStore } from '@/store'
 
@@ -193,19 +192,19 @@ const upcomingUnits = computed(() => {
 function goToLearning() {
   if (currentUnit.value) {
     uni.navigateTo({
-      url: `/pages/learn/index?unitId=${currentUnit.value.id}`,
+      url: `/subpkg-learning/learn/index?unitId=${currentUnit.value.id}`,
     })
   }
 }
 
 function goToUnit(unitId: string) {
   uni.navigateTo({
-    url: `/pages/learn/index?unitId=${unitId}`,
+    url: `/subpkg-learning/learn/index?unitId=${unitId}`,
   })
 }
 
 function goToReview() {
-  uni.navigateTo({ url: '/pages/review/index' })
+  uni.navigateTo({ url: '/subpkg-learning/review/index' })
 }
 </script>
 
@@ -475,3 +474,4 @@ function goToReview() {
   }
 }
 </style>
+

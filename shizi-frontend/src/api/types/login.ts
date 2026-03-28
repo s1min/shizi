@@ -24,10 +24,16 @@ export type IAuthLoginRes = ISingleTokenRes | IDoubleTokenRes
  * 用户信息
  */
 export interface IUserInfoRes {
-  userId: number
+  userId: string
   username: string
   nickname: string
   avatar?: string
+  child?: {
+    name?: string
+    age_group?: string
+    current_library?: string
+    daily_new_chars?: number
+  } | null
   [key: string]: any // 允许其他扩展字段
 }
 
@@ -40,42 +46,11 @@ export interface AuthStorage {
 }
 
 /**
- * 获取验证码
- */
-export interface ICaptcha {
-  captchaEnabled: boolean
-  uuid: string
-  image: string
-}
-/**
- * 上传成功的信息
- */
-export interface IUploadSuccessInfo {
-  fileId: number
-  originalName: string
-  fileName: string
-  storagePath: string
-  fileHash: string
-  fileType: string
-  fileBusinessType: string
-  fileSize: number
-}
-/**
  * 更新用户信息
  */
 export interface IUpdateInfo {
-  id: number
-  name: string
-  sex: string
-}
-/**
- * 更新用户信息
- */
-export interface IUpdatePassword {
-  id: number
-  oldPassword: string
-  newPassword: string
-  confirmPassword: string
+  nickname?: string
+  avatar?: string
 }
 
 /**

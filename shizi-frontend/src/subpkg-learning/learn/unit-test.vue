@@ -1,12 +1,3 @@
-<route lang="json5">
-{
-  style: {
-    navigationBarTitleText: '单元测试',
-    navigationStyle: 'custom',
-  },
-}
-</route>
-
 <template>
   <div class="test-container">
     <!-- 顶部进度 -->
@@ -145,6 +136,13 @@
 </template>
 
 <script lang="ts" setup>
+definePage({
+  style: {
+    navigationBarTitleText: '单元测试',
+    navigationStyle: 'custom',
+  },
+})
+
 import type { Character } from '@/types/character'
 import { computed, onMounted, ref } from 'vue'
 import { useLearnStore } from '@/store'
@@ -423,7 +421,7 @@ function retryTest() {
 function goToComplete() {
   const seconds = Math.floor(elapsedMs.value / 1000)
   uni.redirectTo({
-    url: `/pages/learn/unit-complete?unitId=${unitId.value}&accuracy=${accuracy.value}&time=${seconds}&stars=${resultStars.value}`,
+    url: `/subpkg-learning/learn/unit-complete?unitId=${unitId.value}&accuracy=${accuracy.value}&time=${seconds}&stars=${resultStars.value}`,
   })
 }
 
@@ -825,3 +823,4 @@ onMounted(() => initTest())
   box-shadow: 0 8rpx 24rpx rgba(245, 166, 35, 0.4);
 }
 </style>
+

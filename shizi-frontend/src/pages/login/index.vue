@@ -1,12 +1,3 @@
-<route lang="json5">
-{
-  style: {
-    navigationBarTitleText: '登录',
-    navigationStyle: 'custom',
-  },
-}
-</route>
-
 <template>
   <div class="login-container">
     <div class="logo-area">
@@ -55,6 +46,13 @@
 </template>
 
 <script lang="ts" setup>
+definePage({
+  style: {
+    navigationBarTitleText: '登录',
+    navigationStyle: 'custom',
+  },
+})
+
 import { ref } from 'vue'
 import { useTokenStore } from '@/store'
 
@@ -221,3 +219,4 @@ function goBack() {
   color: #bbb;
 }
 </style>
+

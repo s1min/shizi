@@ -1,12 +1,3 @@
-<route lang="json5" type="page">
-{
-  style: {
-    navigationBarTitleText: '我的',
-    navigationStyle: 'custom',
-  },
-}
-</route>
-
 <template>
   <div class="page-container">
     <div class="profile-header">
@@ -217,6 +208,13 @@
 </template>
 
 <script lang="ts" setup>
+definePage({
+  style: {
+    navigationBarTitleText: '我的',
+    navigationStyle: 'custom',
+  },
+})
+
 import { computed } from 'vue'
 import { useLearnStore, useTokenStore, useUserStore } from '@/store'
 
@@ -263,7 +261,7 @@ function goLogin() {
 }
 
 function goToReview() {
-  uni.navigateTo({ url: '/pages/review/index' })
+  uni.navigateTo({ url: '/subpkg-learning/review/index' })
 }
 
 function goToMedals() {
@@ -551,3 +549,4 @@ function showReminderPicker() {
   margin-top: 40rpx;
 }
 </style>
+

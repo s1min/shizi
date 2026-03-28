@@ -11,7 +11,7 @@
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
-    "start:prod": "node dist/main",
+    "start:prod": "node dist/src/main.js",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",
     "test:watch": "jest --watch",
@@ -19,7 +19,9 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "seed": "ts-node scripts/seed.ts",
-    "seed:drop": "ts-node scripts/seed.ts --drop"
+    "seed:drop": "ts-node scripts/seed.ts --drop",
+    "seed:prod": "node dist/scripts/seed.js",
+    "seed:prod:drop": "node dist/scripts/seed.js --drop"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",

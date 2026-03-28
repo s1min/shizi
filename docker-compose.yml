@@ -1,16 +1,18 @@
 services:
   app:
-    build: ./shizi-backend
+    build:
+      context: .
+      dockerfile: shizi-backend/Dockerfile
     restart: unless-stopped
     ports:
       - "8000:8000"
     environment:
       - PORT=8000
       - MONGODB_URI=mongodb://mongo:27017/shizi
-      - JWT_SECRET=${JWT_SECRET}
+      - JWT_SECRET=${JWT_SECRET:?JWT_SECRET is required}
       - JWT_EXPIRES_IN=${JWT_EXPIRES_IN:-7d}
-      - WX_APPID=${WX_APPID}
-      - WX_APP_SECRET=${WX_APP_SECRET}
+      - WX_APPID=${WX_APPID:?WX_APPID is required}
+      - WX_APP_SECRET=${WX_APP_SECRET:?WX_APP_SECRET is required}
     depends_on:
       mongo:
         condition: service_started

@@ -1,13 +1,8 @@
-import type {
-  ILoginForm,
-} from '@/api/login'
 import type { IAuthLoginRes } from '@/api/types/login'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue' // 修复：导入 computed
 import {
-  login as _login,
   logout as _logout,
-  refreshToken as _refreshToken,
   wxLogin as _wxLogin,
   getWxCode,
 } from '@/api/login'
@@ -119,37 +114,6 @@ export const useTokenStore = defineStore(
     }
 
     /**
-     * 用户登录
-     * 有的时候后端会用一个接口返回token和用户信息，有的时候会分开2个接口，一个获取token，一个获取用户信息
-     * （各有利弊，看业务场景和系统复杂度），这里使用2个接口返回的来模拟
-     * @param loginForm 登录参数
-     * @returns 登录结果
-     */
-    const login = async (loginForm: ILoginForm) => {
-      try {
-        const res = await _login(loginForm)
-        console.log('普通登录-res: ', res)
-        const needOnboarding = await _postLogin(res)
-        uni.showToast({
-          title: '登录成功',
-          icon: 'success',
-        })
-        return { ...res, needOnboarding }
-      }
-      catch (error) {
-        console.error('登录失败:', error)
-        uni.showToast({
-          title: '登录失败，请重试',
-          icon: 'error',
-        })
-        throw error
-      }
-      finally {
-        updateNowTime()
-      }
-    }
-
-    /**
      * 微信登录
      * 有的时候后端会用一个接口返回token和用户信息，有的时候会分开2个接口，一个获取token，一个获取用户信息
      * （各有利弊，看业务场景和系统复杂度），这里使用2个接口返回的来模拟
@@ -223,12 +187,8 @@ export const useTokenStore = defineStore(
         if (!isDoubleTokenRes(tokenInfo.value) || !tokenInfo.value.refreshToken) {
           throw new Error('无效的refreshToken')
         }
-
-        const refreshToken = tokenInfo.value.refreshToken
-        const res = await _refreshToken(refreshToken)
-        console.log('刷新token-res: ', res)
-        setTokenInfo(res)
-        return res
+        // 当前后端仅支持单 token（MVP），未实现 refreshToken 接口
+        throw new Error('当前后端未启用双 token 刷新接口')
       }
       catch (error) {
         console.error('刷新token失败:', error)
@@ -304,7 +264,6 @@ export const useTokenStore = defineStore(
 
     return {
       // 核心API方法
-      login,
       wxLogin,
       logout,
 

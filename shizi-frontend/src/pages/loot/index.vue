@@ -1,12 +1,3 @@
-<route lang="json5" type="page">
-{
-  style: {
-    navigationBarTitleText: '图鉴',
-    navigationStyle: 'custom',
-  },
-}
-</route>
-
 <template>
   <div class="page-container">
     <div class="hero">
@@ -128,6 +119,13 @@
 </template>
 
 <script lang="ts" setup>
+definePage({
+  style: {
+    navigationBarTitleText: '图鉴',
+    navigationStyle: 'custom',
+  },
+})
+
 import type { Character } from '@/types/character'
 import { computed, ref } from 'vue'
 import { useLearnStore } from '@/store'
@@ -197,7 +195,7 @@ function showCharDetail(char: Character) {
 }
 
 function goToReview() {
-  uni.navigateTo({ url: '/pages/review/index' })
+  uni.navigateTo({ url: '/subpkg-learning/review/index' })
 }
 
 function replayOrigin(char: Character | null) {
@@ -205,7 +203,7 @@ function replayOrigin(char: Character | null) {
     return
   detailChar.value = null
   // 跳转到学习页，只看字源动画
-  uni.navigateTo({ url: `/pages/learn/index?unitId=replay&charId=${char._id}` })
+  uni.navigateTo({ url: `/subpkg-learning/learn/index?unitId=replay&charId=${char._id}` })
 }
 </script>
 
@@ -473,3 +471,4 @@ function replayOrigin(char: Character | null) {
   }
 }
 </style>
+

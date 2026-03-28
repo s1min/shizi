@@ -33,9 +33,40 @@ if (fs.existsSync(envPath)) {
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/shizi';
 const DROP = process.argv.includes('--drop');
 
-// 数据文件路径（相对于项目根目录）
-const CHARACTERS_PATH = path.resolve(__dirname, '../../shizi-frontend/src/data/characters.json');
-const LIBRARY_PATH = path.resolve(__dirname, '../../shizi-frontend/src/data/lib_1a_upper.json');
+function resolveDataFile(candidates: string[], label: string): string {
+  const hit = candidates.find(p => fs.existsSync(p));
+  if (!hit) {
+    throw new Error(`${label} 数据文件不存在，已尝试路径:\n${candidates.join('\n')}`);
+  }
+  return hit;
+}
+
+// 兼容两种执行路径：
+// 1) 开发态：ts-node scripts/seed.ts（__dirname = /shizi-backend/scripts）
+// 2) 生产态：node dist/scripts/seed.js（__dirname = /shizi-backend/dist/scripts）
+const CHARACTERS_PATH = resolveDataFile(
+  [
+    path.resolve(__dirname, '../../resources/data/characters.json'),
+    path.resolve(__dirname, '../../../resources/data/characters.json'),
+    path.resolve(__dirname, '../../shizi-frontend/src/data/characters.json'),
+    path.resolve(__dirname, '../../../shizi-frontend/src/data/characters.json'),
+    path.resolve(process.cwd(), '../resources/data/characters.json'),
+    path.resolve(process.cwd(), '../shizi-frontend/src/data/characters.json'),
+  ],
+  'characters',
+);
+
+const LIBRARY_PATH = resolveDataFile(
+  [
+    path.resolve(__dirname, '../../resources/data/lib_1a_upper.json'),
+    path.resolve(__dirname, '../../../resources/data/lib_1a_upper.json'),
+    path.resolve(__dirname, '../../shizi-frontend/src/data/lib_1a_upper.json'),
+    path.resolve(__dirname, '../../../shizi-frontend/src/data/lib_1a_upper.json'),
+    path.resolve(process.cwd(), '../resources/data/lib_1a_upper.json'),
+    path.resolve(process.cwd(), '../shizi-frontend/src/data/lib_1a_upper.json'),
+  ],
+  'library',
+);
 
 async function seed() {
   console.log(`连接数据库: ${MONGODB_URI}`);
