@@ -1,6 +1,11 @@
 <template>
   <div class="page-container">
     <div class="hero">
+      <button class="hero-back" @click="handleBack">
+        <text class="hero-back-icon">←</text>
+        <text class="hero-back-text">返回</text>
+      </button>
+
       <div class="hero-title">
         汉字图鉴
       </div>
@@ -119,16 +124,17 @@
 </template>
 
 <script lang="ts" setup>
+import type { Character } from '@/types/character'
+import { computed, ref } from 'vue'
+import { useLearnStore } from '@/store'
+import { navigateBackOrTo } from '@/utils/navigation'
+
 definePage({
   style: {
     navigationBarTitleText: '图鉴',
     navigationStyle: 'custom',
   },
 })
-
-import type { Character } from '@/types/character'
-import { computed, ref } from 'vue'
-import { useLearnStore } from '@/store'
 
 const learnStore = useLearnStore()
 
@@ -139,11 +145,6 @@ const totalCharCount = computed(() => {
   return learnStore.library.stages.flatMap((s: any) => s.units).reduce((sum: number, u: any) => sum + u.chars.length, 0)
 })
 
-/** 收集进度百分比 */
-const collectionPercent = computed(() => {
-  return totalCharCount.value > 0 ? (learnedChars.value.length / totalCharCount.value) * 100 : 0
-})
-
 /** 已学汉字列表（按学习时间排序，最新的在前） */
 const learnedChars = computed(() => {
   const records = learnStore.charRecords
@@ -151,6 +152,11 @@ const learnedChars = computed(() => {
     .sort((a, b) => (records[b]?.learnedAt || 0) - (records[a]?.learnedAt || 0))
     .map(id => learnStore.charMap.get(id))
     .filter(Boolean) as Character[]
+})
+
+/** 收集进度百分比 */
+const collectionPercent = computed(() => {
+  return totalCharCount.value > 0 ? (learnedChars.value.length / totalCharCount.value) * 100 : 0
 })
 
 /** 字库中所有汉字的三态列表 */
@@ -190,6 +196,10 @@ const charRecord = computed(() => {
   return learnStore.charRecords[detailChar.value._id] || null
 })
 
+function handleBack() {
+  navigateBackOrTo('/pages/me/index', true)
+}
+
 function showCharDetail(char: Character) {
   detailChar.value = char
 }
@@ -216,8 +226,30 @@ function replayOrigin(char: Character | null) {
 
 .hero {
   background: linear-gradient(135deg, #f5a623, #e8941a);
-  padding: 100rpx 40rpx 60rpx;
+  padding: calc(env(safe-area-inset-top) + 24rpx) 40rpx 60rpx;
   color: #fff;
+}
+
+.hero-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8rpx;
+  padding: 12rpx 20rpx;
+  margin-bottom: 28rpx;
+  border: none;
+  border-radius: 999rpx;
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+}
+
+.hero-back-icon {
+  font-size: 24rpx;
+  line-height: 1;
+}
+
+.hero-back-text {
+  font-size: 24rpx;
+  line-height: 1;
 }
 
 .hero-title {
@@ -471,4 +503,3 @@ function replayOrigin(char: Character | null) {
   }
 }
 </style>
-
