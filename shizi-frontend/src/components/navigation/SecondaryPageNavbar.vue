@@ -1,9 +1,9 @@
 <template>
   <view class="secondary-page-navbar">
+    <view class="safe-area-spacer" />
     <wd-navbar
       :title="title"
       left-arrow
-      safe-area-inset-top
       @click-left="handleBack"
     />
   </view>
@@ -30,6 +30,11 @@ function handleBack() {
   position: sticky;
   top: 0;
   z-index: 10;
+  background: #fff;
+}
+
+.safe-area-spacer {
+  height: env(safe-area-inset-top);
   background: #fff;
 }
 </style>
