@@ -1,5 +1,9 @@
 <template>
   <div class="onboarding-container">
+    <div class="top-skip-entry" @click="handleSkip">
+      稍后再选
+    </div>
+
     <div class="header">
       <div class="step-badge">
         1/1
@@ -49,16 +53,16 @@
 </template>
 
 <script lang="ts" setup>
+import { ref } from 'vue'
+import { updateChild } from '@/api/user'
+import { useLearnStore } from '@/store'
+
 definePage({
   style: {
     navigationBarTitleText: '选择字库',
     navigationStyle: 'custom',
   },
 })
-
-import { ref } from 'vue'
-import { updateChild } from '@/api/user'
-import { useLearnStore } from '@/store'
 
 const selectedId = ref('lib_1a_upper')
 const saving = ref(false)
@@ -68,6 +72,20 @@ const libraries = [
   { id: 'lib_1a_lower', name: '一年级下册', desc: '人教版语文，157个常用汉字', icon: '📗', available: false },
 ]
 
+function applySelectedLibrary(libraryId: string) {
+  const learnStore = useLearnStore()
+  learnStore.currentLibraryId = libraryId
+}
+
+function goHome() {
+  uni.switchTab({ url: '/pages/home/index' })
+}
+
+function handleSkip() {
+  applySelectedLibrary(selectedId.value)
+  goHome()
+}
+
 async function handleConfirm() {
   if (!selectedId.value || saving.value)
     return
@@ -76,13 +94,11 @@ async function handleConfirm() {
     await updateChild({ current_library: selectedId.value })
   }
   catch (e) {
-    // API 失败不阻塞，本地先保存
     console.warn('保存字库选择失败', e)
   }
-  const learnStore = useLearnStore()
-  learnStore.currentLibraryId = selectedId.value
+  applySelectedLibrary(selectedId.value)
   saving.value = false
-  uni.switchTab({ url: '/pages/home/index' })
+  goHome()
 }
 </script>
 
@@ -90,9 +106,17 @@ async function handleConfirm() {
 .onboarding-container {
   min-height: 100vh;
   background: linear-gradient(180deg, #fff9e6 0%, #ffffff 50%, #fff3e0 100%);
-  padding: 160rpx 60rpx 80rpx;
+  padding: calc(env(safe-area-inset-top) + 24rpx) 60rpx 80rpx;
   display: flex;
   flex-direction: column;
+}
+
+.top-skip-entry {
+  align-self: flex-end;
+  font-size: 24rpx;
+  color: #b7aa96;
+  padding: 8rpx 0;
+  margin-bottom: 48rpx;
 }
 
 .header {
@@ -213,4 +237,3 @@ async function handleConfirm() {
   }
 }
 </style>
-
