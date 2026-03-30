@@ -44,16 +44,18 @@
 
     <!-- 闪卡复习 -->
     <template v-else>
-      <div class="progress-bar">
-        <div class="progress-bg">
-          <div class="progress-fill" :style="{ width: `${progressPercent}%` }" />
+      <div class="progress-header">
+        <div class="progress-bar">
+          <div class="progress-bg">
+            <div class="progress-fill" :style="{ width: `${progressPercent}%` }" />
+          </div>
+          <div class="progress-text">
+            {{ charIndex + 1 }}/{{ reviewChars.length }}
+          </div>
         </div>
-        <div class="progress-text">
-          {{ charIndex + 1 }}/{{ reviewChars.length }}
-        </div>
-        <div class="close-btn" @click="handleClose">
-          ✕
-        </div>
+        <button class="exit-entry" @click="handleClose">
+          退出复习
+        </button>
       </div>
 
       <div v-if="currentChar" class="flashcard-area">
@@ -213,12 +215,18 @@ onMounted(() => {
   flex-direction: column;
 }
 
+.progress-header {
+  padding: calc(env(safe-area-inset-top) + 24rpx) 32rpx 20rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+  background: rgba(255, 255, 255, 0.9);
+}
+
 .progress-bar {
-  padding: 60rpx 32rpx 20rpx;
   display: flex;
   align-items: center;
   gap: 20rpx;
-  background: rgba(255, 255, 255, 0.9);
 }
 
 .progress-bg {
@@ -239,18 +247,18 @@ onMounted(() => {
 .progress-text {
   font-size: 24rpx;
   color: #666;
-  min-width: 60rpx;
-  text-align: center;
+  min-width: 72rpx;
+  text-align: right;
 }
 
-.close-btn {
-  width: 88rpx;
-  height: 88rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 32rpx;
-  color: #999;
+.exit-entry {
+  align-self: flex-start;
+  padding: 0;
+  border: none;
+  background: transparent;
+  font-size: 24rpx;
+  color: #9bb2c6;
+  line-height: 1.4;
 }
 
 /* 闪卡区域 */
