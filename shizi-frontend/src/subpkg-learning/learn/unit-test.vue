@@ -2,15 +2,17 @@
   <div class="test-container">
     <!-- 顶部进度 -->
     <div class="test-header">
-      <div class="close-btn" @click="handleClose">
-        ✕
+      <div class="test-progress-row">
+        <div class="progress-bg">
+          <div class="progress-fill" :style="{ width: `${progressPercent}%` }" />
+        </div>
+        <div class="progress-text">
+          {{ currentIndex + 1 }}/{{ questions.length }}
+        </div>
       </div>
-      <div class="progress-bg">
-        <div class="progress-fill" :style="{ width: `${progressPercent}%` }" />
-      </div>
-      <div class="progress-text">
-        {{ currentIndex + 1 }}/{{ questions.length }}
-      </div>
+      <button class="exit-entry" @click="handleClose">
+        退出测试
+      </button>
     </div>
 
     <!-- 题目区域 -->
@@ -477,21 +479,17 @@ onMounted(() => initTest())
 }
 
 .test-header {
+  padding: calc(env(safe-area-inset-top) + 24rpx) 32rpx 20rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.test-progress-row {
   display: flex;
   align-items: center;
   gap: 20rpx;
-  margin-bottom: 40rpx;
-  padding-top: 40rpx;
-}
-
-.close-btn {
-  width: 88rpx;
-  height: 88rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 32rpx;
-  color: #999;
 }
 
 .progress-bg {
@@ -512,8 +510,18 @@ onMounted(() => initTest())
 .progress-text {
   font-size: 24rpx;
   color: #666;
-  min-width: 80rpx;
-  text-align: center;
+  min-width: 72rpx;
+  text-align: right;
+}
+
+.exit-entry {
+  align-self: flex-start;
+  padding: 0;
+  border: none;
+  background: transparent;
+  font-size: 24rpx;
+  color: #b7aa96;
+  line-height: 1.4;
 }
 
 .quiz-type-tag {
