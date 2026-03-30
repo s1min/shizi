@@ -1,16 +1,18 @@
 <template>
   <div class="learn-container">
     <!-- 进度条 -->
-    <div class="progress-bar">
-      <div class="progress-bg">
-        <div class="progress-fill" :style="{ width: `${progressPercent}%` }" />
+    <div class="progress-header">
+      <div class="progress-bar">
+        <div class="progress-bg">
+          <div class="progress-fill" :style="{ width: `${progressPercent}%` }" />
+        </div>
+        <div class="progress-text">
+          {{ currentStep }}/{{ totalSteps }}
+        </div>
       </div>
-      <div class="progress-text">
-        {{ currentStep }}/{{ totalSteps }}
-      </div>
-      <div class="close-btn" @click="handleClose">
-        ✕
-      </div>
+      <button class="exit-entry" @click="handleClose">
+        退出学习
+      </button>
     </div>
 
     <!-- 学习内容区域 -->
@@ -68,20 +70,20 @@
 </template>
 
 <script lang="ts" setup>
+import type { Character } from '@/types/character'
+import { computed, onMounted, ref } from 'vue'
+import { useLearnStore } from '@/store'
+import CharCard from '../components/learn/CharCard.vue'
+import QuizCard from '../components/learn/QuizCard.vue'
+import SpeakPractice from '../components/learn/SpeakPractice.vue'
+import TracingPractice from '../components/learn/TracingPractice.vue'
+
 definePage({
   style: {
     navigationBarTitleText: '学习',
     navigationStyle: 'custom',
   },
 })
-
-import type { Character } from '@/types/character'
-import { computed, onMounted, ref } from 'vue'
-import CharCard from '../components/learn/CharCard.vue'
-import QuizCard from '../components/learn/QuizCard.vue'
-import SpeakPractice from '../components/learn/SpeakPractice.vue'
-import TracingPractice from '../components/learn/TracingPractice.vue'
-import { useLearnStore } from '@/store'
 
 const learnStore = useLearnStore()
 
@@ -107,9 +109,17 @@ const progressPercent = computed(() =>
 )
 
 // 步骤切换
-function goToSpeak() { step.value = 'speak' }
-function goToTrace() { step.value = 'trace' }
-function goToQuiz() { step.value = 'quiz' }
+function goToSpeak() {
+  step.value = 'speak'
+}
+
+function goToTrace() {
+  step.value = 'trace'
+}
+
+function goToQuiz() {
+  step.value = 'quiz'
+}
 function handleQuizComplete(correct: boolean, quizType?: string) {
   // 记录学习结果
   learnStore.markCharLearned(currentChar.value._id, correct)
@@ -181,12 +191,18 @@ onMounted(() => {
   flex-direction: column;
 }
 
+.progress-header {
+  padding: calc(env(safe-area-inset-top) + 24rpx) 32rpx 20rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+  background: rgba(255, 255, 255, 0.9);
+}
+
 .progress-bar {
-  padding: 60rpx 32rpx 20rpx;
   display: flex;
   align-items: center;
   gap: 20rpx;
-  background: rgba(255, 255, 255, 0.9);
 }
 
 .progress-bg {
@@ -208,17 +224,17 @@ onMounted(() => {
   font-size: 24rpx;
   color: #666;
   min-width: 60rpx;
-  text-align: center;
+  text-align: right;
 }
 
-.close-btn {
-  width: 88rpx;
-  height: 88rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 32rpx;
-  color: #999;
+.exit-entry {
+  align-self: flex-start;
+  padding: 0;
+  border: none;
+  background: transparent;
+  font-size: 24rpx;
+  color: #b7aa96;
+  line-height: 1.4;
 }
 
 .learn-content {
@@ -275,4 +291,3 @@ onMounted(() => {
   box-shadow: 0 8rpx 24rpx rgba(245, 166, 35, 0.4);
 }
 </style>
-
