@@ -1,5 +1,9 @@
 <template>
   <div class="login-container">
+    <button class="top-back-entry" @click="goBack">
+      <text class="top-back-icon">←</text>
+    </button>
+
     <div class="logo-area">
       <div class="logo-icon">
         趣
@@ -46,15 +50,15 @@
 </template>
 
 <script lang="ts" setup>
+import { ref } from 'vue'
+import { useTokenStore } from '@/store'
+
 definePage({
   style: {
     navigationBarTitleText: '登录',
     navigationStyle: 'custom',
   },
 })
-
-import { ref } from 'vue'
-import { useTokenStore } from '@/store'
 
 const loading = ref(false)
 
@@ -109,7 +113,26 @@ function goBack() {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 200rpx 60rpx 80rpx;
+  padding: calc(env(safe-area-inset-top) + 24rpx) 60rpx 80rpx;
+}
+
+.top-back-entry {
+  align-self: flex-start;
+  width: 72rpx;
+  height: 72rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 80rpx;
+  border: none;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.06);
+  color: #8a8174;
+}
+
+.top-back-icon {
+  font-size: 32rpx;
+  line-height: 1;
 }
 
 .logo-area {
@@ -219,4 +242,3 @@ function goBack() {
   color: #bbb;
 }
 </style>
-
