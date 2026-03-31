@@ -146,7 +146,6 @@ watch(() => props.char._id, () => {
   display: flex;
   flex-direction: column;
   width: 100%;
-  padding: 12rpx 8rpx calc(env(safe-area-inset-bottom) + 12rpx);
 }
 
 .origin-display {
@@ -273,7 +272,7 @@ watch(() => props.char._id, () => {
 
 .word-item {
   padding: 18rpx 34rpx;
-  border-radius: 999rpx;
+  border-radius: 56rpx;
   border: 2rpx solid transparent;
   font-size: 34rpx;
   font-weight: 600;
