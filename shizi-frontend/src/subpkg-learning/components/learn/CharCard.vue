@@ -18,7 +18,7 @@
         </div>
         <div class="char-pinyin">
           <button class="speaker-button" @click.stop="speakChar">
-            🔊
+            <wd-icon name="sound" size="22px"></wd-icon>
           </button>
           <span class="pinyin-text">{{ char.pinyin }}</span>
         </div>
@@ -77,6 +77,7 @@ const displayWords = computed(() =>
   (props.char.example_words ?? []).filter(Boolean).slice(0, 4),
 )
 const wordThemes = [
+  { bg: 'linear-gradient(180deg, #fff8f2 0%, #ffe9dc 100%)', border: 'rgba(244, 183, 149, 0.72)', color: '#9a6138' },
   { bg: 'linear-gradient(180deg, #fff7ef 0%, #ffefd8 100%)', border: 'rgba(242, 197, 119, 0.72)', color: '#8c5b2d' },
   { bg: 'linear-gradient(180deg, #f5fbff 0%, #e6f4ff 100%)', border: 'rgba(150, 199, 242, 0.72)', color: '#426b93' },
   { bg: 'linear-gradient(180deg, #f7fff2 0%, #e9f8dc 100%)', border: 'rgba(171, 214, 120, 0.72)', color: '#567a2c' },
@@ -84,7 +85,6 @@ const wordThemes = [
   { bg: 'linear-gradient(180deg, #fffaf0 0%, #fff1c9 100%)', border: 'rgba(241, 205, 123, 0.72)', color: '#8b6727' },
   { bg: 'linear-gradient(180deg, #f4fbfb 0%, #dff5f1 100%)', border: 'rgba(133, 214, 201, 0.72)', color: '#3f7f75' },
   { bg: 'linear-gradient(180deg, #f8f6ff 0%, #ece8ff 100%)', border: 'rgba(182, 170, 241, 0.72)', color: '#6556a6' },
-  { bg: 'linear-gradient(180deg, #fff8f2 0%, #ffe9dc 100%)', border: 'rgba(244, 183, 149, 0.72)', color: '#9a6138' },
 ]
 
 function getWordStyle(index: number) {
@@ -189,7 +189,7 @@ watch(() => props.char._id, () => {
   opacity: 0;
   transform: translateY(36rpx);
   transition: all 0.5s ease-out;
-  margin-top: 42rpx;
+  margin-top: 38rpx;
 
   &.animate-in {
     opacity: 1;
@@ -198,32 +198,37 @@ watch(() => props.char._id, () => {
 }
 
 .char-main {
-  font-size: 210rpx;
+  padding: 16rpx;
+  font-size: 260rpx;
   font-weight: bold;
   font-family: 'KaiTi', 'STKaiti', serif;
   color: #2f2a24;
   line-height: 1;
-  text-shadow: 0 6rpx 12rpx rgba(47, 42, 36, 0.08);
+  text-shadow: 0 8rpx 16rpx rgba(47, 42, 36, 0.08);
 }
 
 .char-pinyin {
-  margin-top: 18rpx;
+  margin-top: 16rpx;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 14rpx;
+  gap: 16rpx;
 }
 
 .speaker-button {
-  width: 58rpx;
-  height: 58rpx;
-  border: 2rpx solid rgba(188, 162, 124, 0.42);
+  width: 72rpx;
+  height: 72rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  border: 2rpx solid rgba(247, 213, 153, 0.5);
   border-radius: 999rpx;
-  background: rgba(255, 255, 255, 0.92);
-  color: #8a6a41;
-  font-size: 30rpx;
-  line-height: 54rpx;
-  text-align: center;
+  background: linear-gradient(180deg, #fffaf1 0%, #ffefcf 100%);
+  color: #d08a16;
+  box-shadow:
+    0 8rpx 16rpx rgba(232, 177, 68, 0.14),
+    inset 0 2rpx 0 rgba(255, 255, 255, 0.72);
   transition: all 0.18s ease;
 
   &::after {
@@ -232,7 +237,8 @@ watch(() => props.char._id, () => {
 
   &:active {
     transform: scale(0.95);
-    background: rgba(245, 166, 35, 0.14);
+    background: linear-gradient(180deg, #fff1d9 0%, #ffe8bf 100%);
+    box-shadow: 0 4rpx 10rpx rgba(232, 177, 68, 0.12);
   }
 }
 
@@ -271,13 +277,13 @@ watch(() => props.char._id, () => {
 }
 
 .word-item {
-  padding: 18rpx 34rpx;
-  border-radius: 56rpx;
+  padding: 14rpx 28rpx;
+  border-radius: 46rpx;
   border: 2rpx solid transparent;
-  font-size: 34rpx;
+  font-size: 30rpx;
   font-weight: 600;
   box-shadow:
-    0 8rpx 16rpx rgba(214, 153, 41, 0.08),
+    0 6rpx 12rpx rgba(214, 153, 41, 0.08),
     inset 0 2rpx 0 rgba(255, 255, 255, 0.6);
   transition:
     transform 0.18s ease,
@@ -289,7 +295,7 @@ watch(() => props.char._id, () => {
 
   &:active {
     transform: scale(0.96);
-    box-shadow: 0 4rpx 10rpx rgba(214, 153, 41, 0.08);
+    box-shadow: 0 3rpx 8rpx rgba(214, 153, 41, 0.08);
   }
 }
 
