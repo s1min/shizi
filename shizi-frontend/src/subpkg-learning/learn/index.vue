@@ -1,18 +1,18 @@
 <template>
   <div class="learn-container">
     <!-- 进度条 -->
-    <div class="progress-header">
-      <div class="progress-bar">
+    <div class="progress-header" :style="headerStyle">
+      <div class="progress-row">
         <div class="progress-bg">
           <div class="progress-fill" :style="{ width: `${progressPercent}%` }" />
         </div>
         <div class="progress-text">
           {{ currentStep }}/{{ totalSteps }}
         </div>
+        <button class="exit-entry" @click="handleClose">
+          退出学习
+        </button>
       </div>
-      <button class="exit-entry" @click="handleClose">
-        退出学习
-      </button>
     </div>
 
     <!-- 学习内容区域 -->
@@ -73,6 +73,7 @@
 import type { Character } from '@/types/character'
 import { computed, onMounted, ref } from 'vue'
 import { useLearnStore } from '@/store'
+import { getCustomNavBarMetrics } from '@/utils/navbar'
 import CharCard from '../components/learn/CharCard.vue'
 import QuizCard from '../components/learn/QuizCard.vue'
 import SpeakPractice from '../components/learn/SpeakPractice.vue'
@@ -86,6 +87,10 @@ definePage({
 })
 
 const learnStore = useLearnStore()
+const navMetrics = getCustomNavBarMetrics()
+const headerStyle = computed(() => ({
+  paddingTop: `${navMetrics.navBarPaddingTop + navMetrics.navBarContentHeight + 16}px`,
+}))
 
 // 学习步骤
 type LearnStep = 'origin' | 'speak' | 'trace' | 'quiz' | 'complete'
@@ -192,14 +197,17 @@ onMounted(() => {
 }
 
 .progress-header {
-  padding: calc(env(safe-area-inset-top) + 24rpx) 32rpx 20rpx;
+  padding: 24rpx 32rpx 24rpx;
   display: flex;
   flex-direction: column;
-  gap: 16rpx;
-  background: rgba(255, 255, 255, 0.9);
+  gap: 18rpx;
+  background: rgba(255, 255, 255, 0.96);
+  border-bottom-left-radius: 28rpx;
+  border-bottom-right-radius: 28rpx;
+  box-shadow: 0 10rpx 28rpx rgba(245, 166, 35, 0.08);
 }
 
-.progress-bar {
+.progress-row {
   display: flex;
   align-items: center;
   gap: 20rpx;
@@ -207,41 +215,47 @@ onMounted(() => {
 
 .progress-bg {
   flex: 1;
+  min-width: 0;
   height: 16rpx;
-  background: #e0e0e0;
-  border-radius: 8rpx;
+  background: rgba(245, 166, 35, 0.18);
+  border-radius: 999rpx;
   overflow: hidden;
 }
 
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #f5a623, #e8941a);
-  border-radius: 8rpx;
+  background: linear-gradient(90deg, #f7c65d, #f5a623);
+  border-radius: 999rpx;
   transition: width 0.3s ease;
 }
 
 .progress-text {
-  font-size: 24rpx;
-  color: #666;
-  min-width: 60rpx;
+  min-width: 76rpx;
   text-align: right;
+  font-size: 24rpx;
+  font-weight: 600;
+  color: #8a7a68;
 }
 
 .exit-entry {
-  align-self: flex-start;
-  padding: 0;
-  border: none;
-  background: transparent;
+  flex-shrink: 0;
+  min-width: 132rpx;
+  height: 60rpx;
+  padding: 0 20rpx;
+  border: 2rpx solid rgba(183, 170, 150, 0.35);
+  border-radius: 999rpx;
+  background: rgba(255, 255, 255, 0.88);
   font-size: 24rpx;
-  color: #b7aa96;
-  line-height: 1.4;
+  color: #9f927f;
+  line-height: 56rpx;
+  text-align: center;
 }
 
 .learn-content {
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: 32rpx;
+  padding: 24rpx 32rpx 32rpx;
 }
 
 .complete-screen {
@@ -251,43 +265,50 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   text-align: center;
+  background: rgba(255, 255, 255, 0.92);
+  border: 2rpx solid rgba(245, 166, 35, 0.08);
+  padding: 64rpx 40rpx;
+  border-radius: 28rpx;
+  box-shadow: 0 14rpx 40rpx rgba(245, 166, 35, 0.14);
 }
 
 .complete-icon {
   font-size: 120rpx;
-  margin-bottom: 40rpx;
+  margin-bottom: 32rpx;
 }
 
 .complete-title {
-  font-size: 48rpx;
+  font-size: 52rpx;
   font-weight: bold;
-  color: #333;
-  margin-bottom: 20rpx;
+  color: #4a3728;
+  margin-bottom: 24rpx;
 }
 
 .complete-char {
-  font-size: 160rpx;
+  font-size: 168rpx;
   font-weight: bold;
-  color: $uni-color-primary;
+  color: #f5a623;
   font-family: 'KaiTi', 'STKaiti', serif;
-  margin: 40rpx 0;
+  line-height: 1.1;
+  margin: 24rpx 0 32rpx;
 }
 
 .complete-desc {
-  font-size: 28rpx;
-  color: #666;
-  margin-bottom: 60rpx;
+  font-size: 30rpx;
+  color: #7a6a58;
+  margin-bottom: 72rpx;
 }
 
 .btn-next {
-  width: 400rpx;
-  height: 88rpx;
+  width: 100%;
+  max-width: 420rpx;
+  height: 96rpx;
   background: linear-gradient(135deg, #f5a623, #e8941a);
   border: none;
-  border-radius: 44rpx;
-  font-size: 32rpx;
+  border-radius: 48rpx;
+  font-size: 34rpx;
   font-weight: bold;
   color: #fff;
-  box-shadow: 0 8rpx 24rpx rgba(245, 166, 35, 0.4);
+  box-shadow: 0 12rpx 28rpx rgba(245, 166, 35, 0.28);
 }
 </style>

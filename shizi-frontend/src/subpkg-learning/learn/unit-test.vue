@@ -1,7 +1,7 @@
 <template>
   <div class="test-container">
     <!-- 顶部进度 -->
-    <div class="test-header">
+    <div class="test-header" :style="headerStyle">
       <div class="test-progress-row">
         <div class="progress-bg">
           <div class="progress-fill" :style="{ width: `${progressPercent}%` }" />
@@ -9,10 +9,10 @@
         <div class="progress-text">
           {{ currentIndex + 1 }}/{{ questions.length }}
         </div>
+        <button class="exit-entry" @click="handleClose">
+          退出测试
+        </button>
       </div>
-      <button class="exit-entry" @click="handleClose">
-        退出测试
-      </button>
     </div>
 
     <!-- 题目区域 -->
@@ -141,6 +141,7 @@
 import type { Character } from '@/types/character'
 import { computed, onMounted, ref } from 'vue'
 import { useLearnStore } from '@/store'
+import { getCustomNavBarMetrics } from '@/utils/navbar'
 import { navigateBackOrTo } from '@/utils/navigation'
 import { speakText } from '@/utils/tts'
 
@@ -167,6 +168,10 @@ interface Question {
 const PASS_THRESHOLD = 60 // 及格线 60%
 
 const learnStore = useLearnStore()
+const navMetrics = getCustomNavBarMetrics()
+const headerStyle = computed(() => ({
+  paddingTop: `${navMetrics.navBarPaddingTop + navMetrics.navBarContentHeight + 16}px`,
+}))
 
 const unitId = ref('')
 const unitChars = ref<Character[]>([])
@@ -479,11 +484,14 @@ onMounted(() => initTest())
 }
 
 .test-header {
-  padding: calc(env(safe-area-inset-top) + 24rpx) 32rpx 20rpx;
+  padding: 24rpx 32rpx 24rpx;
   display: flex;
   flex-direction: column;
-  gap: 16rpx;
-  background: rgba(255, 255, 255, 0.92);
+  gap: 18rpx;
+  background: rgba(255, 255, 255, 0.96);
+  border-bottom-left-radius: 28rpx;
+  border-bottom-right-radius: 28rpx;
+  box-shadow: 0 10rpx 28rpx rgba(245, 166, 35, 0.08);
 }
 
 .test-progress-row {
@@ -494,43 +502,49 @@ onMounted(() => initTest())
 
 .progress-bg {
   flex: 1;
+  min-width: 0;
   height: 16rpx;
-  background: #e0e0e0;
-  border-radius: 8rpx;
+  background: rgba(245, 166, 35, 0.18);
+  border-radius: 999rpx;
   overflow: hidden;
 }
 
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #f5a623, #e8941a);
-  border-radius: 8rpx;
+  background: linear-gradient(90deg, #f7c65d, #f5a623);
+  border-radius: 999rpx;
   transition: width 0.3s;
 }
 
 .progress-text {
-  font-size: 24rpx;
-  color: #666;
-  min-width: 72rpx;
+  min-width: 76rpx;
   text-align: right;
+  font-size: 24rpx;
+  font-weight: 600;
+  color: #8a7a68;
 }
 
 .exit-entry {
-  align-self: flex-start;
-  padding: 0;
-  border: none;
-  background: transparent;
+  flex-shrink: 0;
+  min-width: 132rpx;
+  height: 60rpx;
+  padding: 0 20rpx;
+  border: 2rpx solid rgba(183, 170, 150, 0.35);
+  border-radius: 999rpx;
+  background: rgba(255, 255, 255, 0.88);
   font-size: 24rpx;
-  color: #b7aa96;
-  line-height: 1.4;
+  color: #9f927f;
+  line-height: 56rpx;
+  text-align: center;
 }
 
 .quiz-type-tag {
   align-self: center;
   font-size: 24rpx;
-  color: #999;
-  background: #f0f0f0;
-  padding: 8rpx 24rpx;
-  border-radius: 20rpx;
+  color: #9a815f;
+  background: #fff1cc;
+  padding: 12rpx 32rpx;
+  border-radius: 999rpx;
   margin-bottom: 40rpx;
 }
 
@@ -538,39 +552,42 @@ onMounted(() => initTest())
   flex: 1;
   display: flex;
   flex-direction: column;
+  padding-top: 24rpx;
 }
 
 .question-content {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 60rpx;
+  margin-bottom: 56rpx;
+  padding: 0 24rpx;
 }
 
 .question-char {
-  font-size: 160rpx;
+  font-size: 176rpx;
   font-weight: bold;
   font-family: 'KaiTi', 'STKaiti', serif;
-  color: #333;
+  color: #4a3728;
   line-height: 1;
-  margin-bottom: 20rpx;
+  margin-bottom: 24rpx;
 }
 
 .question-emoji {
-  font-size: 140rpx;
-  margin-bottom: 20rpx;
+  font-size: 156rpx;
+  margin-bottom: 24rpx;
 }
 
 .question-pinyin {
-  font-size: 64rpx;
-  color: #333;
-  margin-bottom: 20rpx;
+  font-size: 76rpx;
+  font-weight: 700;
+  color: #4a3728;
+  margin-bottom: 24rpx;
 }
 
 .question-sentence {
   font-size: 40rpx;
-  color: #333;
-  margin-bottom: 20rpx;
+  color: #4a3728;
+  margin-bottom: 24rpx;
 
   .blank {
     color: #f5a623;
@@ -590,7 +607,7 @@ onMounted(() => initTest())
   border-radius: 60rpx;
   font-size: 32rpx;
   color: #fff;
-  margin-bottom: 20rpx;
+  margin-bottom: 24rpx;
 }
 
 .audio-icon {
@@ -598,8 +615,9 @@ onMounted(() => initTest())
 }
 
 .question-hint {
-  font-size: 28rpx;
-  color: #666;
+  font-size: 30rpx;
+  color: #7a6a58;
+  text-align: center;
 }
 
 .options-grid {
@@ -610,29 +628,30 @@ onMounted(() => initTest())
 }
 
 .option-btn {
+  min-height: 188rpx;
   background: #fff;
-  border: 4rpx solid #e0e0e0;
-  border-radius: 24rpx;
-  padding: 36rpx;
+  border: 4rpx solid #f2e2c3;
+  border-radius: 28rpx;
+  padding: 38rpx;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.3s;
-  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.06);
+  box-shadow: 0 10rpx 28rpx rgba(245, 166, 35, 0.1);
 
   &.selected {
     border-color: #f5a623;
-    background: #fffde7;
+    background: #fff8e8;
   }
   &.correct {
     border-color: #82c785;
-    background: #e8f5e9;
-    transform: scale(1.05);
+    background: #eef8ef;
+    transform: scale(1.03);
   }
   &.wrong {
-    border-color: #ff6b6b;
-    background: #ffebee;
-    opacity: 0.7;
+    border-color: #f3a6a6;
+    background: #fff4f4;
+    opacity: 0.82;
   }
 }
 
@@ -647,7 +666,6 @@ onMounted(() => initTest())
   font-size: 72rpx;
 }
 
-/* 底部反馈横条 */
 .feedback-bar {
   position: fixed;
   bottom: 0;
@@ -656,19 +674,19 @@ onMounted(() => initTest())
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 32rpx 40rpx;
-  padding-bottom: calc(32rpx + env(safe-area-inset-bottom));
+  padding: 28rpx 40rpx;
+  padding-bottom: calc(28rpx + env(safe-area-inset-bottom));
   z-index: 100;
   animation: slide-up 0.3s ease-out;
 
   &.correct {
-    background: #e8f5e9;
+    background: #eef8ef;
     border-top: 4rpx solid #82c785;
   }
 
   &.wrong {
-    background: #ffebee;
-    border-top: 4rpx solid #ff6b6b;
+    background: #fff5f0;
+    border-top: 4rpx solid #f3b26b;
   }
 }
 
@@ -684,12 +702,12 @@ onMounted(() => initTest())
 .feedback-text {
   font-size: 30rpx;
   font-weight: bold;
-  color: #333;
+  color: #4a3728;
 }
 
 .btn-feedback-next {
-  padding: 16rpx 48rpx;
-  border-radius: 40rpx;
+  padding: 18rpx 52rpx;
+  border-radius: 999rpx;
   border: none;
   font-size: 30rpx;
   font-weight: bold;
@@ -711,7 +729,8 @@ onMounted(() => initTest())
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-top: 40rpx;
+  padding-top: 48rpx;
+  padding-bottom: 32rpx;
 }
 
 .result-stars {
@@ -731,7 +750,7 @@ onMounted(() => initTest())
 .result-title {
   font-size: 48rpx;
   font-weight: bold;
-  color: #333;
+  color: #4a3728;
   margin-bottom: 16rpx;
 }
 
@@ -753,10 +772,9 @@ onMounted(() => initTest())
   margin-bottom: 40rpx;
 }
 
-/* 错题回顾 */
 .wrong-review {
   width: 100%;
-  background: #fff5f5;
+  background: #fff7f2;
   border-radius: 20rpx;
   padding: 32rpx;
   margin-bottom: 40rpx;
@@ -764,7 +782,7 @@ onMounted(() => initTest())
 
 .wrong-title {
   font-size: 28rpx;
-  color: #ff6b6b;
+  color: #d88a35;
   font-weight: bold;
   margin-bottom: 20rpx;
 }
@@ -786,7 +804,7 @@ onMounted(() => initTest())
   width: 80rpx;
   height: 80rpx;
   background: #fff;
-  border: 2rpx solid #ff6b6b;
+  border: 2rpx solid #f3b26b;
   border-radius: 12rpx;
   display: flex;
   align-items: center;

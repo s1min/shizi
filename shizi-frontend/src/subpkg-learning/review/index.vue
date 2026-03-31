@@ -44,18 +44,18 @@
 
     <!-- 闪卡复习 -->
     <template v-else>
-      <div class="progress-header">
-        <div class="progress-bar">
+      <div class="progress-header" :style="headerStyle">
+        <div class="progress-row">
           <div class="progress-bg">
             <div class="progress-fill" :style="{ width: `${progressPercent}%` }" />
           </div>
           <div class="progress-text">
             {{ charIndex + 1 }}/{{ reviewChars.length }}
           </div>
+          <button class="exit-entry" @click="handleClose">
+            退出复习
+          </button>
         </div>
-        <button class="exit-entry" @click="handleClose">
-          退出复习
-        </button>
       </div>
 
       <div v-if="currentChar" class="flashcard-area">
@@ -126,6 +126,7 @@
 import type { Character } from '@/types/character'
 import { computed, onMounted, ref } from 'vue'
 import { useLearnStore } from '@/store'
+import { getCustomNavBarMetrics } from '@/utils/navbar'
 import { navigateBackOrTo } from '@/utils/navigation'
 
 definePage({
@@ -136,6 +137,10 @@ definePage({
 })
 
 const learnStore = useLearnStore()
+const navMetrics = getCustomNavBarMetrics()
+const headerStyle = computed(() => ({
+  paddingTop: `${navMetrics.navBarPaddingTop + navMetrics.navBarContentHeight + 16}px`,
+}))
 
 const reviewChars = ref<Character[]>([])
 const charIndex = ref(0)
@@ -216,14 +221,17 @@ onMounted(() => {
 }
 
 .progress-header {
-  padding: calc(env(safe-area-inset-top) + 24rpx) 32rpx 20rpx;
+  padding: 24rpx 32rpx 24rpx;
   display: flex;
   flex-direction: column;
-  gap: 16rpx;
-  background: rgba(255, 255, 255, 0.9);
+  gap: 18rpx;
+  background: rgba(255, 255, 255, 0.96);
+  border-bottom-left-radius: 28rpx;
+  border-bottom-right-radius: 28rpx;
+  box-shadow: 0 10rpx 28rpx rgba(93, 173, 226, 0.1);
 }
 
-.progress-bar {
+.progress-row {
   display: flex;
   align-items: center;
   gap: 20rpx;
@@ -231,66 +239,73 @@ onMounted(() => {
 
 .progress-bg {
   flex: 1;
+  min-width: 0;
   height: 16rpx;
-  background: #e0e0e0;
-  border-radius: 8rpx;
+  background: rgba(93, 173, 226, 0.18);
+  border-radius: 999rpx;
   overflow: hidden;
 }
 
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #5dade2, #4a9bd9);
-  border-radius: 8rpx;
+  background: linear-gradient(90deg, #7ec3ea, #5dade2);
+  border-radius: 999rpx;
   transition: width 0.3s ease;
 }
 
 .progress-text {
-  font-size: 24rpx;
-  color: #666;
-  min-width: 72rpx;
+  min-width: 76rpx;
   text-align: right;
+  font-size: 24rpx;
+  font-weight: 600;
+  color: #7c91a6;
 }
 
 .exit-entry {
-  align-self: flex-start;
-  padding: 0;
-  border: none;
-  background: transparent;
+  flex-shrink: 0;
+  min-width: 132rpx;
+  height: 60rpx;
+  padding: 0 20rpx;
+  border: 2rpx solid rgba(155, 178, 198, 0.35);
+  border-radius: 999rpx;
+  background: rgba(255, 255, 255, 0.88);
   font-size: 24rpx;
-  color: #9bb2c6;
-  line-height: 1.4;
+  color: #7f98ad;
+  line-height: 56rpx;
+  text-align: center;
 }
 
-/* 闪卡区域 */
 .flashcard-area {
   flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 40rpx;
+  padding: 32rpx 40rpx 40rpx;
 }
 
 .flashcard {
-  width: 580rpx;
-  min-height: 640rpx;
+  width: 100%;
+  max-width: 580rpx;
+  min-height: 680rpx;
   perspective: 1000px;
   cursor: pointer;
-  margin-bottom: 60rpx;
+  margin-bottom: 64rpx;
 }
 
 .card-front,
 .card-back {
   width: 100%;
-  min-height: 640rpx;
-  background: #fff;
-  border-radius: 32rpx;
-  box-shadow: 0 8rpx 32rpx rgba(93, 173, 226, 0.15);
+  min-height: 680rpx;
+  background: rgba(255, 255, 255, 0.96);
+  border: 2rpx solid rgba(93, 173, 226, 0.08);
+  border-radius: 36rpx;
+  box-shadow: 0 12rpx 36rpx rgba(93, 173, 226, 0.14);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 60rpx 40rpx;
+  padding: 72rpx 40rpx;
   backface-visibility: hidden;
   transition: transform 0.5s ease;
 }
@@ -316,21 +331,21 @@ onMounted(() => {
 }
 
 .card-char {
-  font-size: 240rpx;
+  font-size: 248rpx;
   font-weight: bold;
   font-family: 'KaiTi', 'STKaiti', serif;
   color: #4a3728;
-  line-height: 1.2;
+  line-height: 1.15;
 }
 
 .card-hint {
-  font-size: 26rpx;
-  color: #999;
+  font-size: 28rpx;
+  color: #8da3b5;
   margin-top: 40rpx;
 }
 
 .card-char-back {
-  font-size: 160rpx;
+  font-size: 168rpx;
   font-weight: bold;
   font-family: 'KaiTi', 'STKaiti', serif;
   color: #4a3728;
@@ -338,9 +353,9 @@ onMounted(() => {
 }
 
 .card-pinyin {
-  font-size: 48rpx;
+  font-size: 52rpx;
   color: #5dade2;
-  margin: 16rpx 0 40rpx;
+  margin: 20rpx 0 44rpx;
   font-weight: bold;
 }
 
@@ -371,7 +386,6 @@ onMounted(() => {
   color: #4a3728;
 }
 
-/* 操作按钮 */
 .action-buttons {
   display: flex;
   gap: 32rpx;
@@ -382,22 +396,22 @@ onMounted(() => {
 
 .btn-action {
   flex: 1;
-  height: 96rpx;
+  height: 100rpx;
   border: none;
-  border-radius: 48rpx;
-  font-size: 32rpx;
+  border-radius: 28rpx;
+  font-size: 34rpx;
   font-weight: bold;
   color: #fff;
 }
 
 .btn-dont-know {
-  background: linear-gradient(135deg, #f5a623, #e8941a);
-  box-shadow: 0 8rpx 24rpx rgba(245, 166, 35, 0.4);
+  background: linear-gradient(135deg, #8fb6d9, #769fc5);
+  box-shadow: 0 10rpx 24rpx rgba(118, 159, 197, 0.28);
 }
 
 .btn-know {
   background: linear-gradient(135deg, #82c785, #6ab06d);
-  box-shadow: 0 8rpx 24rpx rgba(130, 199, 133, 0.4);
+  box-shadow: 0 10rpx 24rpx rgba(130, 199, 133, 0.28);
 }
 
 @keyframes fade-in {
@@ -411,14 +425,15 @@ onMounted(() => {
   }
 }
 
-/* 完成结算 */
-.finish-screen {
+.finish-screen,
+.empty-screen {
   flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 60rpx;
+  text-align: center;
 }
 
 .finish-icon {
@@ -434,12 +449,17 @@ onMounted(() => {
 }
 
 .finish-stats {
-  display: flex;
-  gap: 60rpx;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24rpx;
+  width: 100%;
   margin-bottom: 40rpx;
 }
 
 .stat-item {
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 24rpx;
+  padding: 24rpx 16rpx;
   text-align: center;
 }
 
@@ -452,7 +472,7 @@ onMounted(() => {
     color: #82c785;
   }
   &.dont-know {
-    color: #f5a623;
+    color: #769fc5;
   }
 }
 
@@ -469,25 +489,16 @@ onMounted(() => {
 }
 
 .btn-back {
-  width: 400rpx;
-  height: 88rpx;
+  width: 100%;
+  max-width: 420rpx;
+  height: 92rpx;
   background: linear-gradient(135deg, #5dade2, #4a9bd9);
   border: none;
-  border-radius: 44rpx;
+  border-radius: 46rpx;
   font-size: 32rpx;
   font-weight: bold;
   color: #fff;
-  box-shadow: 0 8rpx 24rpx rgba(93, 173, 226, 0.4);
-}
-
-/* 空状态 */
-.empty-screen {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 60rpx;
+  box-shadow: 0 10rpx 24rpx rgba(93, 173, 226, 0.28);
 }
 
 .empty-icon {

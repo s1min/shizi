@@ -2,26 +2,28 @@
   <div class="complete-container">
     <button class="top-home-entry" @click="goHome">
       <text class="top-home-icon">←</text>
-      <text class="top-home-text">首页</text>
+      <text class="top-home-text">回首页</text>
     </button>
 
-    <div class="stars-area">
-      <div
-        v-for="i in 3"
-        :key="i"
-        class="star"
-        :class="{ active: i <= stars }"
-        :style="{ animationDelay: `${(i - 1) * 0.2}s` }"
-      >
-        {{ i <= stars ? '⭐' : '☆' }}
+    <div class="hero-section">
+      <div class="stars-area">
+        <div
+          v-for="i in 3"
+          :key="i"
+          class="star"
+          :class="{ active: i <= stars }"
+          :style="{ animationDelay: `${(i - 1) * 0.2}s` }"
+        >
+          {{ i <= stars ? '⭐' : '☆' }}
+        </div>
       </div>
-    </div>
 
-    <div class="title">
-      单元完成！
-    </div>
-    <div class="subtitle">
-      {{ unitName }}
+      <div class="title">
+        单元完成！
+      </div>
+      <div class="subtitle">
+        {{ unitName }}
+      </div>
     </div>
 
     <div class="stats-card">
@@ -438,40 +440,51 @@ function savePosterH5() {
 <style lang="scss" scoped>
 .complete-container {
   min-height: 100vh;
-  background: linear-gradient(180deg, #fff9e6 0%, #ffffff 100%);
+  background: linear-gradient(180deg, #fffaf0 0%, #ffffff 100%);
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: calc(env(safe-area-inset-top) + 24rpx) 40rpx 60rpx;
+  padding: calc(env(safe-area-inset-top) + 24rpx) 32rpx 40rpx;
+  box-sizing: border-box;
 }
 
 .top-home-entry {
   align-self: flex-start;
-  display: inline-flex;
-  align-items: center;
-  gap: 8rpx;
-  padding: 12rpx 20rpx;
+  min-height: 56rpx;
+  padding: 0;
   margin-bottom: 32rpx;
   border: none;
-  border-radius: 999rpx;
-  background: rgba(255, 255, 255, 0.72);
-  color: #8c6b1f;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
 }
 
 .top-home-icon {
   font-size: 24rpx;
   line-height: 1;
+  color: #b7aa96;
 }
 
 .top-home-text {
-  font-size: 24rpx;
+  font-size: 28rpx;
   line-height: 1;
+  color: #b7aa96;
+}
+
+.hero-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-top: 40rpx;
+  margin-bottom: 44rpx;
 }
 
 .stars-area {
   display: flex;
   gap: 20rpx;
-  margin-bottom: 40rpx;
+  margin-bottom: 24rpx;
 }
 
 .star {
@@ -499,25 +512,25 @@ function savePosterH5() {
 .title {
   font-size: 56rpx;
   font-weight: bold;
-  color: #333;
-  margin-bottom: 12rpx;
+  color: #4a3728;
+  margin-bottom: 16rpx;
 }
 
 .subtitle {
-  font-size: 28rpx;
-  color: #999;
-  margin-bottom: 60rpx;
+  font-size: 32rpx;
+  color: #7a6a58;
 }
 
 .stats-card {
   width: 100%;
-  background: #fff;
-  border-radius: 24rpx;
-  padding: 40rpx;
+  background: rgba(255, 255, 255, 0.96);
+  border: 2rpx solid rgba(245, 166, 35, 0.08);
+  border-radius: 28rpx;
+  padding: 44rpx;
   display: flex;
   justify-content: space-around;
   align-items: center;
-  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.06);
+  box-shadow: 0 8rpx 24rpx rgba(245, 166, 35, 0.08);
   margin-bottom: 40rpx;
 }
 
@@ -552,8 +565,8 @@ function savePosterH5() {
 }
 
 .char-tag {
-  width: 80rpx;
-  height: 80rpx;
+  width: 88rpx;
+  height: 88rpx;
   background: #fff9e6;
   border: 2rpx solid #f5a623;
   border-radius: 12rpx;
@@ -583,13 +596,12 @@ function savePosterH5() {
 .btn-share {
   flex: 1;
   min-width: 40%;
-  height: 96rpx;
+  height: 84rpx;
   background: #fff;
-  border: 4rpx solid #f5a623;
-  border-radius: 48rpx;
-  font-size: 32rpx;
-  font-weight: bold;
-  color: #f5a623;
+  border: 2rpx solid #f0d9b5;
+  border-radius: 28rpx;
+  font-size: 28rpx;
+  color: #9a815f;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -598,13 +610,12 @@ function savePosterH5() {
 .btn-share-wx {
   flex: 1;
   min-width: 40%;
-  height: 96rpx;
+  height: 84rpx;
   background: #fff;
-  border: 4rpx solid #07c160;
-  border-radius: 48rpx;
-  font-size: 32rpx;
-  font-weight: bold;
-  color: #07c160;
+  border: 2rpx solid #d5edda;
+  border-radius: 28rpx;
+  font-size: 28rpx;
+  color: #4d9d64;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -612,17 +623,17 @@ function savePosterH5() {
 
 .btn-primary {
   flex: 1;
-  height: 96rpx;
+  min-width: 100%;
+  height: 100rpx;
   background: linear-gradient(135deg, #f5a623, #e8941a);
   border: none;
   border-radius: 48rpx;
-  font-size: 34rpx;
+  font-size: 32rpx;
   font-weight: bold;
   color: #fff;
-  box-shadow: 0 8rpx 24rpx rgba(245, 166, 35, 0.4);
+  box-shadow: 0 12rpx 28rpx rgba(245, 166, 35, 0.28);
 }
 
-/* 海报弹窗 */
 .poster-mask {
   position: fixed;
   top: 0;
