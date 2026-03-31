@@ -3,23 +3,20 @@
     <!-- 进度条 -->
     <div class="progress-header" :style="headerStyle">
       <div class="progress-topline">
-        <div class="stage-chip">
+        <button class="exit-entry" @click="handleClose">
+          <wd-icon name="arrow-left" size="22px" />
+        </button>
+        <div class="step-title">
           {{ stepLabel }}
         </div>
-        <button class="exit-entry" @click="handleClose">
-          退出学习
-        </button>
       </div>
       <div class="progress-row">
         <div class="progress-bg">
           <div class="progress-fill" :style="{ width: `${progressPercent}%` }" />
         </div>
         <div class="progress-text">
-          {{ currentStep }}/{{ totalSteps }}
+          {{ currentCharIndex }}/{{ totalChars }}
         </div>
-      </div>
-      <div class="progress-caption">
-        {{ charProgressLabel }}
       </div>
     </div>
 
@@ -97,7 +94,7 @@ definePage({
 const learnStore = useLearnStore()
 const navMetrics = getCustomNavBarMetrics()
 const headerStyle = computed(() => ({
-  paddingTop: `${navMetrics.navBarPaddingTop + navMetrics.navBarContentHeight + 16}px`,
+  paddingTop: `${navMetrics.navBarPaddingTop}px`,
 }))
 
 // 学习步骤
@@ -111,17 +108,15 @@ const unitChars = ref<Character[]>([])
 const currentChar = computed(() => unitChars.value[charIndex.value] || {} as Character)
 
 // 进度计算
-const stepsPerChar = 4
-const currentStep = computed(() => {
-  const stepIndex = ['origin', 'speak', 'trace', 'quiz', 'complete'].indexOf(step.value)
-  return charIndex.value * stepsPerChar + Math.min(stepIndex + 1, stepsPerChar)
-})
-const totalSteps = computed(() => unitChars.value.length * stepsPerChar)
+const totalChars = computed(() => unitChars.value.length)
+const currentCharIndex = computed(() =>
+  totalChars.value > 0 ? charIndex.value + 1 : 0,
+)
 const progressPercent = computed(() =>
-  totalSteps.value > 0 ? (currentStep.value / totalSteps.value) * 100 : 0,
+  totalChars.value > 0 ? (currentCharIndex.value / totalChars.value) * 100 : 0,
 )
 const stepLabelMap: Record<LearnStep, string> = {
-  origin: '字源认知',
+  origin: '字形认知',
   speak: '跟读练习',
   trace: '描红练习',
   quiz: '趣味小测',
@@ -129,9 +124,9 @@ const stepLabelMap: Record<LearnStep, string> = {
 }
 const stepLabel = computed(() => stepLabelMap[step.value])
 const charProgressLabel = computed(() => {
-  if (unitChars.value.length === 0)
+  if (totalChars.value === 0)
     return '正在准备学习内容'
-  return `当前生字 ${charIndex.value + 1}/${unitChars.value.length}`
+  return `当前生字 ${currentCharIndex.value}/${totalChars.value}`
 })
 
 // 步骤切换
@@ -221,31 +216,32 @@ onMounted(() => {
 }
 
 .progress-header {
-  padding: 26rpx 32rpx 24rpx;
+  padding: 18rpx 32rpx 24rpx;
   display: flex;
   flex-direction: column;
-  gap: 16rpx;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(255, 249, 239, 0.94));
-  border-bottom-left-radius: 36rpx;
-  border-bottom-right-radius: 36rpx;
-  box-shadow: 0 12rpx 32rpx rgba(214, 149, 37, 0.1);
+  gap: 14rpx;
+  background: linear-gradient(180deg, rgba(255, 252, 246, 0.98), rgba(255, 247, 234, 0.96));
+  border-bottom-left-radius: 40rpx;
+  border-bottom-right-radius: 40rpx;
+  box-shadow:
+    0 14rpx 28rpx rgba(226, 172, 70, 0.1),
+    inset 0 -2rpx 0 rgba(255, 255, 255, 0.5);
 }
 
 .progress-topline {
-  display: flex;
+  display: grid;
+  grid-template-columns: 96rpx 1fr;
   align-items: center;
-  justify-content: space-between;
-  gap: 16rpx;
+  gap: 12rpx;
 }
 
-.stage-chip {
-  padding: 10rpx 24rpx;
-  border-radius: 999rpx;
-  background: rgba(245, 166, 35, 0.14);
-  color: #b36f00;
-  font-size: 22rpx;
-  font-weight: 600;
-  letter-spacing: 1rpx;
+.step-title {
+  text-align: center;
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #6a5034;
+  letter-spacing: 2rpx;
+  padding-right: 96rpx;
 }
 
 .progress-row {
@@ -257,41 +253,48 @@ onMounted(() => {
 .progress-bg {
   flex: 1;
   min-width: 0;
-  height: 14rpx;
-  background: rgba(245, 166, 35, 0.18);
+  height: 18rpx;
+  background: linear-gradient(180deg, rgba(255, 243, 220, 0.94), rgba(255, 238, 205, 0.96));
   border-radius: 999rpx;
   overflow: hidden;
-  box-shadow: inset 0 1rpx 4rpx rgba(120, 84, 27, 0.08);
+  box-shadow:
+    inset 0 1rpx 3rpx rgba(214, 170, 88, 0.07),
+    inset 0 -1rpx 0 rgba(255, 255, 255, 0.45);
 }
 
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #f8ca62, #f5a623 56%, #e4941a);
+  background: linear-gradient(90deg, #ffd977 0%, #f9bf45 56%, #f1a62a 100%);
   border-radius: 999rpx;
+  box-shadow:
+    inset 0 1rpx 0 rgba(255, 248, 220, 0.45),
+    0 2rpx 6rpx rgba(240, 168, 46, 0.14);
   transition: width 0.3s ease;
 }
 
 .progress-text {
-  min-width: 82rpx;
+  flex-shrink: 0;
+  min-width: 78rpx;
   text-align: right;
-  font-size: 26rpx;
+  font-size: 30rpx;
   font-weight: 700;
-  color: #7d6850;
+  color: #8b7357;
 }
 
 .exit-entry {
-  flex-shrink: 0;
-  min-width: 144rpx;
-  height: 58rpx;
-  padding: 0 22rpx;
-  border: 2rpx solid rgba(193, 168, 128, 0.38);
+  width: 84rpx;
+  height: 84rpx;
+  justify-self: start;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2rpx solid rgba(247, 213, 153, 0.46);
   border-radius: 999rpx;
-  background: rgba(255, 255, 255, 0.9);
-  font-size: 24rpx;
-  font-weight: 500;
-  color: #9f8463;
-  line-height: 54rpx;
-  text-align: center;
+  background: linear-gradient(180deg, #fffaf1 0%, #ffefcf 100%);
+  color: #d08a16;
+  box-shadow:
+    0 8rpx 16rpx rgba(232, 177, 68, 0.14),
+    inset 0 2rpx 0 rgba(255, 255, 255, 0.72);
   transition: all 0.2s ease;
 
   &::after {
@@ -299,14 +302,15 @@ onMounted(() => {
   }
 
   &:active {
-    transform: scale(0.98);
-    background: rgba(245, 166, 35, 0.08);
+    transform: scale(0.97);
+    background: linear-gradient(180deg, #fff1d9 0%, #ffe8bf 100%);
+    box-shadow: 0 4rpx 10rpx rgba(232, 177, 68, 0.12);
   }
 }
 
 .progress-caption {
   font-size: 24rpx;
-  color: #9e8a70;
+  color: #a79278;
   line-height: 1.2;
   padding-left: 2rpx;
 }

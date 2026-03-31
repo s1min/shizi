@@ -25,31 +25,21 @@
       </div>
     </div>
 
-    <!-- 字源说明 -->
-    <div class="origin-desc" :class="{ 'fade-in': showDesc }">
-      <div class="desc-title">
-        <span class="char-type-tag">{{ charTypeLabel }}</span>
-        <span class="desc-title-text">{{ getDescTitle() }}</span>
-      </div>
-      <div class="desc-divider" />
-      <div class="desc-content">
-        {{ getDescContent() }}
-      </div>
-    </div>
-
     <!-- 组词展示 -->
     <div class="words-section" :class="{ 'fade-in': showWords }">
       <div class="words-title">
         常用组词
       </div>
       <div v-if="displayWords.length" class="words-list">
-        <div
-          v-for="word in displayWords"
+        <button
+          v-for="(word, index) in displayWords"
           :key="word"
           class="word-item"
+          :style="getWordStyle(index)"
+          @click="playWord(word)"
         >
           {{ word }}
-        </div>
+        </button>
       </div>
       <div v-else class="word-item-empty">
         暂无组词，先记住这个字形。
@@ -57,9 +47,11 @@
     </div>
 
     <!-- 下一步按钮 -->
-    <button class="btn-continue" :class="{ show: showButton }" @click="handleNext">
-      我记住了，继续
-    </button>
+    <div class="btn-continue-wrap" :class="{ show: showButton }">
+      <button class="btn-continue" @click="handleNext">
+        我记住了，继续
+      </button>
+    </div>
   </div>
 </template>
 
@@ -79,40 +71,34 @@ const emit = defineEmits<{
 // 动画状态
 const showAnimation = ref(false)
 const showChar = ref(false)
-const showDesc = ref(false)
 const showWords = ref(false)
 const showButton = ref(false)
 const displayWords = computed(() =>
   (props.char.example_words ?? []).filter(Boolean).slice(0, 4),
 )
-const charTypeLabel = computed(() => props.char.char_type || '识字')
+const wordThemes = [
+  { bg: 'linear-gradient(180deg, #fff7ef 0%, #ffefd8 100%)', border: 'rgba(242, 197, 119, 0.72)', color: '#8c5b2d' },
+  { bg: 'linear-gradient(180deg, #f5fbff 0%, #e6f4ff 100%)', border: 'rgba(150, 199, 242, 0.72)', color: '#426b93' },
+  { bg: 'linear-gradient(180deg, #f7fff2 0%, #e9f8dc 100%)', border: 'rgba(171, 214, 120, 0.72)', color: '#567a2c' },
+  { bg: 'linear-gradient(180deg, #fff5fb 0%, #ffe5f3 100%)', border: 'rgba(239, 171, 207, 0.72)', color: '#9b4d7a' },
+  { bg: 'linear-gradient(180deg, #fffaf0 0%, #fff1c9 100%)', border: 'rgba(241, 205, 123, 0.72)', color: '#8b6727' },
+  { bg: 'linear-gradient(180deg, #f4fbfb 0%, #dff5f1 100%)', border: 'rgba(133, 214, 201, 0.72)', color: '#3f7f75' },
+  { bg: 'linear-gradient(180deg, #f8f6ff 0%, #ece8ff 100%)', border: 'rgba(182, 170, 241, 0.72)', color: '#6556a6' },
+  { bg: 'linear-gradient(180deg, #fff8f2 0%, #ffe9dc 100%)', border: 'rgba(244, 183, 149, 0.72)', color: '#9a6138' },
+]
 
-function getDescTitle() {
-  const type = props.char.teaching?.animation_type
-  if (type === 'origin')
-    return '字源演变'
-  if (type === 'decompose')
-    return '字形拆解'
-  return '字义理解'
-}
-
-function getDescContent() {
-  const t = props.char.teaching
-  if (!t)
-    return '通过图像、读音和组词一起记住这个字。'
-  if (t.animation_type === 'origin')
-    return t.origin_desc || '这个字来源于生活中的常见形象。'
-  if (t.animation_type === 'decompose') {
-    const parts = t.decompose_parts?.join(' + ') || ''
-    return parts ? `${parts}\n${t.decompose_desc || ''}` : t.decompose_desc || ''
+function getWordStyle(index: number) {
+  const theme = wordThemes[index % wordThemes.length]
+  return {
+    background: theme.bg,
+    borderColor: theme.border,
+    color: theme.color,
   }
-  return t.scene_desc || '把这个字放进熟悉的场景里，更容易记住。'
 }
 
 function playAnimation() {
   showAnimation.value = false
   showChar.value = false
-  showDesc.value = false
   showWords.value = false
   showButton.value = false
 
@@ -124,14 +110,11 @@ function playAnimation() {
     showChar.value = true
   }, 620)
   setTimeout(() => {
-    showDesc.value = true
-  }, 1200)
-  setTimeout(() => {
     showWords.value = true
-  }, 1700)
+  }, 1180)
   setTimeout(() => {
     showButton.value = true
-  }, 2200)
+  }, 1680)
 }
 
 function handleNext() {
@@ -141,6 +124,10 @@ function handleNext() {
 // 播放汉字读音
 function speakChar() {
   speakText(props.char._id, props.char.pinyin)
+}
+
+function playWord(word: string) {
+  speakText(word, word)
 }
 
 onMounted(() => {
@@ -166,7 +153,7 @@ watch(() => props.char._id, () => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 34rpx;
+  margin-bottom: 46rpx;
 }
 
 .origin-visual {
@@ -257,63 +244,9 @@ watch(() => props.char._id, () => {
   letter-spacing: 1rpx;
 }
 
-.origin-desc {
-  background: linear-gradient(180deg, #ffffff 0%, #fffef8 100%);
-  border: 2rpx solid rgba(238, 209, 160, 0.42);
-  border-radius: 28rpx;
-  padding: 30rpx 30rpx 28rpx;
-  width: 100%;
-  box-shadow: 0 10rpx 28rpx rgba(187, 132, 44, 0.08);
-  margin-bottom: 32rpx;
-  opacity: 0;
-  transform: translateY(18rpx);
-  transition: all 0.4s ease-out;
-
-  &.fade-in {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.desc-title {
-  display: flex;
-  align-items: center;
-  gap: 14rpx;
-  font-size: 32rpx;
-  margin-bottom: 14rpx;
-}
-
-.desc-title-text {
-  font-weight: 700;
-  color: #43352b;
-}
-
-.char-type-tag {
-  background: linear-gradient(135deg, #f5a623, #e69318);
-  color: #fff;
-  font-size: 22rpx;
-  font-weight: 600;
-  padding: 6rpx 18rpx;
-  border-radius: 999rpx;
-}
-
-.desc-divider {
-  width: 100%;
-  height: 2rpx;
-  background: linear-gradient(90deg, rgba(238, 209, 160, 0.56), rgba(238, 209, 160, 0));
-  margin-bottom: 14rpx;
-}
-
-.desc-content {
-  font-size: 30rpx;
-  color: #6f6050;
-  line-height: 1.7;
-  white-space: pre-wrap;
-}
-
 .words-section {
   width: 100%;
-  margin-bottom: 30rpx;
+  margin-bottom: 34rpx;
   opacity: 0;
   transform: translateY(16rpx);
   transition: all 0.4s ease-out;
@@ -325,41 +258,70 @@ watch(() => props.char._id, () => {
 }
 
 .words-title {
-  font-size: 28rpx;
-  color: #9f8a6f;
-  margin-bottom: 18rpx;
-  padding-left: 4rpx;
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #8c6a3d;
+  margin-bottom: 20rpx;
+  padding-left: 6rpx;
 }
 
 .words-list {
   display: flex;
-  gap: 16rpx;
+  gap: 18rpx;
   flex-wrap: wrap;
 }
 
 .word-item {
-  background: rgba(255, 255, 255, 0.94);
-  border: 2rpx solid rgba(236, 221, 194, 0.85);
-  padding: 14rpx 30rpx;
+  padding: 18rpx 34rpx;
   border-radius: 999rpx;
+  border: 2rpx solid transparent;
   font-size: 34rpx;
-  color: #3f352d;
-  box-shadow: 0 5rpx 14rpx rgba(148, 117, 73, 0.07);
+  font-weight: 600;
+  box-shadow:
+    0 8rpx 16rpx rgba(214, 153, 41, 0.08),
+    inset 0 2rpx 0 rgba(255, 255, 255, 0.6);
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
+
+  &::after {
+    border: none;
+  }
+
+  &:active {
+    transform: scale(0.96);
+    box-shadow: 0 4rpx 10rpx rgba(214, 153, 41, 0.08);
+  }
 }
 
 .word-item-empty {
-  background: rgba(255, 255, 255, 0.85);
-  border: 2rpx dashed rgba(202, 185, 156, 0.6);
-  border-radius: 24rpx;
-  font-size: 26rpx;
-  color: #9d8a71;
-  line-height: 1.5;
-  padding: 20rpx 24rpx;
+  background: linear-gradient(180deg, rgba(255, 250, 240, 0.96), rgba(255, 242, 214, 0.96));
+  border: 2rpx dashed rgba(222, 182, 108, 0.7);
+  border-radius: 28rpx;
+  font-size: 28rpx;
+  color: #8f724f;
+  line-height: 1.6;
+  padding: 24rpx 28rpx;
+}
+
+.btn-continue-wrap {
+  margin-top: auto;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  opacity: 0;
+  transform: translateY(16rpx);
+  transition: all 0.4s ease-out;
+
+  &.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .btn-continue {
-  margin-top: auto;
   width: 100%;
+  max-width: 100%;
   height: 106rpx;
   background: linear-gradient(135deg, #f5a623 0%, #eb9a1a 52%, #e28412 100%);
   border: none;
@@ -369,17 +331,9 @@ watch(() => props.char._id, () => {
   letter-spacing: 2rpx;
   color: #fff;
   box-shadow: 0 14rpx 30rpx rgba(230, 145, 24, 0.36);
-  opacity: 0;
-  transform: translateY(16rpx);
-  transition: all 0.4s ease-out;
 
   &::after {
     border: none;
-  }
-
-  &.show {
-    opacity: 1;
-    transform: translateY(0);
   }
 
   &:active {
