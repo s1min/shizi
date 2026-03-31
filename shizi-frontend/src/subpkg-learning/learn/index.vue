@@ -2,6 +2,14 @@
   <div class="learn-container">
     <!-- 进度条 -->
     <div class="progress-header" :style="headerStyle">
+      <div class="progress-topline">
+        <div class="stage-chip">
+          {{ stepLabel }}
+        </div>
+        <button class="exit-entry" @click="handleClose">
+          退出学习
+        </button>
+      </div>
       <div class="progress-row">
         <div class="progress-bg">
           <div class="progress-fill" :style="{ width: `${progressPercent}%` }" />
@@ -9,9 +17,9 @@
         <div class="progress-text">
           {{ currentStep }}/{{ totalSteps }}
         </div>
-        <button class="exit-entry" @click="handleClose">
-          退出学习
-        </button>
+      </div>
+      <div class="progress-caption">
+        {{ charProgressLabel }}
       </div>
     </div>
 
@@ -112,6 +120,19 @@ const totalSteps = computed(() => unitChars.value.length * stepsPerChar)
 const progressPercent = computed(() =>
   totalSteps.value > 0 ? (currentStep.value / totalSteps.value) * 100 : 0,
 )
+const stepLabelMap: Record<LearnStep, string> = {
+  origin: '字源认知',
+  speak: '跟读练习',
+  trace: '描红练习',
+  quiz: '趣味小测',
+  complete: '本字完成',
+}
+const stepLabel = computed(() => stepLabelMap[step.value])
+const charProgressLabel = computed(() => {
+  if (unitChars.value.length === 0)
+    return '正在准备学习内容'
+  return `当前生字 ${charIndex.value + 1}/${unitChars.value.length}`
+})
 
 // 步骤切换
 function goToSpeak() {
@@ -191,71 +212,110 @@ onMounted(() => {
 <style lang="scss" scoped>
 .learn-container {
   min-height: 100vh;
-  background: linear-gradient(180deg, #fff9e6 0%, #ffffff 100%);
+  background:
+    radial-gradient(circle at 12% 16%, rgba(251, 210, 128, 0.24) 0%, rgba(251, 210, 128, 0) 34%),
+    radial-gradient(circle at 84% 30%, rgba(255, 230, 184, 0.32) 0%, rgba(255, 230, 184, 0) 38%),
+    linear-gradient(180deg, #fffaf0 0%, #ffffff 62%, #fffdf8 100%);
   display: flex;
   flex-direction: column;
 }
 
 .progress-header {
-  padding: 24rpx 32rpx 24rpx;
+  padding: 26rpx 32rpx 24rpx;
   display: flex;
   flex-direction: column;
-  gap: 18rpx;
-  background: rgba(255, 255, 255, 0.96);
-  border-bottom-left-radius: 28rpx;
-  border-bottom-right-radius: 28rpx;
-  box-shadow: 0 10rpx 28rpx rgba(245, 166, 35, 0.08);
+  gap: 16rpx;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(255, 249, 239, 0.94));
+  border-bottom-left-radius: 36rpx;
+  border-bottom-right-radius: 36rpx;
+  box-shadow: 0 12rpx 32rpx rgba(214, 149, 37, 0.1);
+}
+
+.progress-topline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16rpx;
+}
+
+.stage-chip {
+  padding: 10rpx 24rpx;
+  border-radius: 999rpx;
+  background: rgba(245, 166, 35, 0.14);
+  color: #b36f00;
+  font-size: 22rpx;
+  font-weight: 600;
+  letter-spacing: 1rpx;
 }
 
 .progress-row {
   display: flex;
   align-items: center;
-  gap: 20rpx;
+  gap: 16rpx;
 }
 
 .progress-bg {
   flex: 1;
   min-width: 0;
-  height: 16rpx;
+  height: 14rpx;
   background: rgba(245, 166, 35, 0.18);
   border-radius: 999rpx;
   overflow: hidden;
+  box-shadow: inset 0 1rpx 4rpx rgba(120, 84, 27, 0.08);
 }
 
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #f7c65d, #f5a623);
+  background: linear-gradient(90deg, #f8ca62, #f5a623 56%, #e4941a);
   border-radius: 999rpx;
   transition: width 0.3s ease;
 }
 
 .progress-text {
-  min-width: 76rpx;
+  min-width: 82rpx;
   text-align: right;
-  font-size: 24rpx;
-  font-weight: 600;
-  color: #8a7a68;
+  font-size: 26rpx;
+  font-weight: 700;
+  color: #7d6850;
 }
 
 .exit-entry {
   flex-shrink: 0;
-  min-width: 132rpx;
-  height: 60rpx;
-  padding: 0 20rpx;
-  border: 2rpx solid rgba(183, 170, 150, 0.35);
+  min-width: 144rpx;
+  height: 58rpx;
+  padding: 0 22rpx;
+  border: 2rpx solid rgba(193, 168, 128, 0.38);
   border-radius: 999rpx;
-  background: rgba(255, 255, 255, 0.88);
+  background: rgba(255, 255, 255, 0.9);
   font-size: 24rpx;
-  color: #9f927f;
-  line-height: 56rpx;
+  font-weight: 500;
+  color: #9f8463;
+  line-height: 54rpx;
   text-align: center;
+  transition: all 0.2s ease;
+
+  &::after {
+    border: none;
+  }
+
+  &:active {
+    transform: scale(0.98);
+    background: rgba(245, 166, 35, 0.08);
+  }
+}
+
+.progress-caption {
+  font-size: 24rpx;
+  color: #9e8a70;
+  line-height: 1.2;
+  padding-left: 2rpx;
 }
 
 .learn-content {
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: 24rpx 32rpx 32rpx;
+  padding: 24rpx 28rpx 30rpx;
 }
 
 .complete-screen {
