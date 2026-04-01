@@ -58,20 +58,14 @@
 
       <!-- 单字学习完成 -->
       <div v-else-if="currentStep === 'complete'" class="complete-screen">
-        <div class="complete-badge">
-          本字完成
-        </div>
         <div class="complete-icon">
           🎉
-        </div>
-        <div class="complete-title">
-          太棒了！
         </div>
         <div class="complete-char">
           {{ currentChar._id }}
         </div>
         <div class="complete-desc">
-          你已经学会了「{{ currentChar._id }}」
+          太棒了！你已经学会了「{{ currentChar._id }}」
         </div>
         <button class="btn-next" @click="nextChar">
           继续学习
@@ -611,9 +605,9 @@ onMounted(() => {
 }
 
 .complete-char {
-  font-size: 168rpx;
+  font-size: 200rpx;
   font-weight: 700;
-  color: #f5a623;
+  color: #2f2a24;
   font-family: 'KaiTi', 'STKaiti', serif;
   line-height: 1.1;
   margin: 16rpx 0 24rpx;

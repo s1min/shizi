@@ -81,11 +81,11 @@
     </div>
 
     <!-- 底部切换按钮 -->
-    <div v-if="showResult" class="step-actions">
+    <div class="step-actions">
       <button class="btn-secondary" @click="handlePrev">
         上一步
       </button>
-      <button class="btn-next" @click="handleNext">
+      <button class="btn-next" :class="{ disabled: !showResult }" :disabled="!showResult" @click="handleNext">
         完成小测
       </button>
     </div>
@@ -261,7 +261,7 @@ watch(() => props.char._id, () => {
 
 .quiz-type {
   align-self: center;
-  font-size: 24rpx;
+  font-size: 32rpx;
   font-weight: 700;
   color: #9a8368;
   background: linear-gradient(180deg, #fffaf1 0%, #fff1db 100%);
@@ -271,15 +271,15 @@ watch(() => props.char._id, () => {
 }
 
 .quiz-body {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-  padding: 24rpx;
-  border-radius: 24rpx;
-  background: linear-gradient(180deg, rgba(255, 252, 246, 0.96) 0%, rgba(255, 248, 239, 0.94) 100%);
-  box-shadow:
-    0 8rpx 16rpx rgba(229, 180, 83, 0.04),
-    inset 0 0 0 4rpx rgba(244, 226, 193, 0.5);
+  // display: flex;
+  // flex-direction: column;
+  // gap: 0;
+  // padding: 24rpx;
+  // border-radius: 24rpx;
+  // background: linear-gradient(180deg, rgba(255, 252, 246, 0.96) 0%, rgba(255, 248, 239, 0.94) 100%);
+  // box-shadow:
+  //   0 8rpx 16rpx rgba(229, 180, 83, 0.04),
+  //   inset 0 0 0 4rpx rgba(244, 226, 193, 0.5);
 }
 
 .question-area {
@@ -341,8 +341,7 @@ watch(() => props.char._id, () => {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 24rpx;
-  width: 100%;
-  margin-bottom: 32rpx;
+  margin-bottom: 24rpx;
 }
 
 .option-item {
@@ -383,7 +382,7 @@ watch(() => props.char._id, () => {
 }
 
 .option-char {
-  font-size: 80rpx;
+  font-size: 100rpx;
   font-family: 'KaiTi', 'STKaiti', serif;
   font-weight: bold;
   color: #333;
@@ -436,6 +435,13 @@ watch(() => props.char._id, () => {
   color: #fff;
   background: linear-gradient(135deg, #f5a623 0%, #eb9a1a 52%, #e28412 100%);
   box-shadow: 0 14rpx 30rpx rgba(230, 145, 24, 0.36);
+}
+
+.btn-next.disabled {
+  opacity: 0.45;
+  color: rgba(255, 255, 255, 0.9);
+  background: linear-gradient(135deg, #f4d69f 0%, #efcb89 52%, #e7bf72 100%);
+  box-shadow: none;
 }
 
 .btn-next::after {

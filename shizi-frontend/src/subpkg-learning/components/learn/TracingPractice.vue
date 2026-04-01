@@ -908,6 +908,8 @@ const handleNext = () => emit('next')
 
 .btn-continue.disabled {
   opacity: 0.45;
+  color: rgba(255, 255, 255, 0.9);
+  background: linear-gradient(135deg, #f4d69f 0%, #efcb89 52%, #e7bf72 100%);
   box-shadow: none;
 }
 
