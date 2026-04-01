@@ -146,13 +146,14 @@ watch(() => props.char._id, () => {
   display: flex;
   flex-direction: column;
   width: 100%;
+  color: #4a3728;
 }
 
 .origin-display {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 46rpx;
+  margin-bottom: 40rpx;
 }
 
 .origin-visual {
@@ -187,9 +188,9 @@ watch(() => props.char._id, () => {
 .char-display {
   text-align: center;
   opacity: 0;
-  transform: translateY(36rpx);
+  transform: translateY(32rpx);
   transition: all 0.5s ease-out;
-  margin-top: 38rpx;
+  margin-top: 32rpx;
 
   &.animate-in {
     opacity: 1;
@@ -250,8 +251,11 @@ watch(() => props.char._id, () => {
 }
 
 .words-section {
-  width: 100%;
-  margin-bottom: 34rpx;
+  margin-bottom: 32rpx;
+  padding: 24rpx;
+  border-radius: 24rpx;
+  background: linear-gradient(180deg, rgba(255, 252, 246, 0.9) 0%, rgba(255, 248, 238, 0.9) 100%);
+  box-shadow: inset 0 0 0 4rpx rgba(244, 226, 193, 0.44);
   opacity: 0;
   transform: translateY(16rpx);
   transition: all 0.4s ease-out;
@@ -266,21 +270,21 @@ watch(() => props.char._id, () => {
   font-size: 30rpx;
   font-weight: 700;
   color: #8c6a3d;
-  margin-bottom: 20rpx;
-  padding-left: 6rpx;
+  margin-bottom: 16rpx;
+  padding-left: 8rpx;
 }
 
 .words-list {
   display: flex;
-  gap: 18rpx;
+  gap: 16rpx;
   flex-wrap: wrap;
 }
 
 .word-item {
-  padding: 14rpx 28rpx;
-  border-radius: 46rpx;
+  padding: 16rpx 24rpx;
+  border-radius: 40rpx;
   border: 2rpx solid transparent;
-  font-size: 30rpx;
+  font-size: 28rpx;
   font-weight: 600;
   box-shadow:
     0 6rpx 12rpx rgba(214, 153, 41, 0.08),
@@ -295,18 +299,18 @@ watch(() => props.char._id, () => {
 
   &:active {
     transform: scale(0.96);
-    box-shadow: 0 3rpx 8rpx rgba(214, 153, 41, 0.08);
+    box-shadow: 0 4rpx 8rpx rgba(214, 153, 41, 0.08);
   }
 }
 
 .word-item-empty {
   background: linear-gradient(180deg, rgba(255, 250, 240, 0.96), rgba(255, 242, 214, 0.96));
   border: 2rpx dashed rgba(222, 182, 108, 0.7);
-  border-radius: 28rpx;
+  border-radius: 24rpx;
   font-size: 28rpx;
   color: #8f724f;
   line-height: 1.6;
-  padding: 24rpx 28rpx;
+  padding: 24rpx;
 }
 
 .btn-continue-wrap {
@@ -327,11 +331,11 @@ watch(() => props.char._id, () => {
 .btn-continue {
   width: 100%;
   max-width: 100%;
-  height: 106rpx;
+  height: 104rpx;
   background: linear-gradient(135deg, #f5a623 0%, #eb9a1a 52%, #e28412 100%);
   border: none;
   border-radius: 56rpx;
-  font-size: 42rpx;
+  font-size: 38rpx;
   font-weight: 700;
   letter-spacing: 2rpx;
   color: #fff;

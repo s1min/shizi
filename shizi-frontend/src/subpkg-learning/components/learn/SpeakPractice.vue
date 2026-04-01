@@ -1,51 +1,56 @@
 <template>
   <div class="speak-practice">
-    <!-- 汉字展示 -->
-    <div class="char-section">
-      <div class="char-main">
-        {{ char._id }}
-      </div>
-      <div v-if="answered" class="char-pinyin">
-        {{ char.pinyin }}
+    <div class="sound-stage">
+      <div class="char-panel" :class="{ answered }">
+        <div class="char-glow" />
+        <div class="char-main">
+          {{ char._id }}
+        </div>
+        <button class="sound-entry" :class="{ playing: isPlaying }" @click="playDemo">
+          <wd-icon name="sound" size="26px" />
+        </button>
       </div>
     </div>
 
-    <!-- 示范播放 -->
-    <div class="demo-section">
-      <div class="demo-hint">
-        {{ demoPlayed ? '选择正确的读音' : '点击听发音' }}
+    <div class="answer-panel">
+      <div class="answer-title">
+        选一选
       </div>
-      <button class="btn-play" :class="{ playing: isPlaying }" @click="playDemo">
-        <text class="play-icon">{{ isPlaying ? '🔊' : '🔈' }}</text>
-      </button>
+      <div class="answer-grid">
+        <div
+          v-for="(opt, idx) in options"
+          :key="idx"
+          class="option-card"
+          :class="{
+            selected: selectedIndex === idx && !answered,
+            correct: answered && opt.isCorrect,
+            wrong: answered && selectedIndex === idx && !opt.isCorrect,
+            disabled: answered,
+          }"
+          @click="selectOption(idx)"
+        >
+          <button class="option-sound" @click.stop="playOption(opt.pinyin)">
+            <wd-icon name="sound" size="22px" />
+          </button>
+          <div class="option-main">
+            {{ opt.pinyin }}
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- 读音选项 -->
-    <div v-if="demoPlayed" class="options-section">
-      <button
-        v-for="(opt, idx) in options"
-        :key="idx"
-        class="option-btn"
-        :class="{
-          selected: selectedIndex === idx && !answered,
-          correct: answered && opt.isCorrect,
-          wrong: answered && selectedIndex === idx && !opt.isCorrect,
-        }"
-        :disabled="answered"
-        @click="selectOption(idx)"
-      >
-        <text class="option-pinyin">{{ opt.pinyin }}</text>
-        <text class="option-play" @click.stop="playOption(idx)">🔈</text>
-      </button>
-    </div>
-
-    <!-- 结果反馈 -->
-    <div v-if="answered" class="feedback-bar" :class="isCorrect ? 'correct' : 'wrong'">
+    <div
+      v-if="answered"
+      class="feedback-bar"
+      :class="isCorrect ? 'correct' : 'wrong'"
+    >
       <text class="feedback-icon">{{ isCorrect ? '✓' : '✕' }}</text>
-      <text class="feedback-text">{{ isCorrect ? '选对了！' : `正确读音：${char.pinyin}` }}</text>
+      <div class="feedback-content">
+        <text class="feedback-title">{{ isCorrect ? '答对啦' : '再听一次' }}</text>
+        <text class="feedback-text">{{ isCorrect ? char.pinyin : `正确读音：${char.pinyin}` }}</text>
+      </div>
     </div>
 
-    <!-- 底部切换按钮 -->
     <div class="step-actions" :class="{ ready: canProceed }">
       <button class="btn-secondary" @click="handlePrev">
         上一步
@@ -58,11 +63,6 @@
       >
         下一步
       </button>
-    </div>
-
-    <!-- 跳过按钮 -->
-    <div v-if="!canProceed && !answered" class="skip-link" @click="handleSkip">
-      先去下一步
     </div>
   </div>
 </template>
@@ -104,9 +104,7 @@ function generateOptions() {
     const candidates = props.allChars
       .filter(c => c.pinyin !== correctPinyin && c._id !== props.char._id)
       .map(c => c.pinyin)
-    // 去重
     const unique = Array.from(new Set(candidates))
-    // 随机选 2 个
     for (let i = unique.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1))
       ;[unique[i], unique[j]] = [unique[j], unique[i]]
@@ -114,7 +112,6 @@ function generateOptions() {
     distractors.push(...unique.slice(0, 2))
   }
 
-  // 如果干扰项不够，生成简单变体
   while (distractors.length < 2) {
     const tones = ['ā', 'á', 'ǎ', 'à', 'ē', 'é', 'ě', 'è', 'ī', 'í', 'ǐ', 'ì', 'ō', 'ó', 'ǒ', 'ò', 'ū', 'ú', 'ǔ', 'ù']
     const fallback = tones[Math.floor(Math.random() * tones.length)]
@@ -129,7 +126,6 @@ function generateOptions() {
     { pinyin: distractors[1], isCorrect: false },
   ]
 
-  // 随机排序
   for (let i = all.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1))
     ;[all[i], all[j]] = [all[j], all[i]]
@@ -157,10 +153,14 @@ function playDemo() {
   })
 }
 
-function playOption(idx: number) {
-  const opt = options.value[idx]
-  // 播放该选项的拼音读音
-  speakText('', opt.pinyin, {
+function autoPlayDemo() {
+  if (isPlaying.value)
+    return
+  playDemo()
+}
+
+function playOption(pinyin: string) {
+  speakText('', pinyin, {
     onEnd: () => {},
     onError: () => {},
   })
@@ -174,19 +174,15 @@ function selectOption(idx: number) {
 
   const opt = options.value[idx]
   isCorrect.value = opt.isCorrect
+  canProceed.value = true
 
-  if (opt.isCorrect) {
-    canProceed.value = true
-  }
-  else {
-    // 答错：播放正确读音，1.5 秒后允许继续
+  if (!opt.isCorrect) {
     setTimeout(() => {
       speakText(props.char._id, props.char.pinyin, {
         onEnd: () => {},
         onError: () => {},
       })
-      canProceed.value = true
-    }, 1000)
+    }, 700)
   }
 }
 
@@ -198,10 +194,6 @@ function handleNext() {
   emit('next')
 }
 
-function handleSkip() {
-  emit('next')
-}
-
 function resetState() {
   isPlaying.value = false
   demoPlayed.value = false
@@ -210,193 +202,309 @@ function resetState() {
   isCorrect.value = false
   canProceed.value = false
   generateOptions()
+  setTimeout(() => {
+    autoPlayDemo()
+  }, 160)
 }
 
-// 切换汉字时重置状态
 watch(() => props.char._id, () => {
   resetState()
 })
 
 onMounted(() => {
   generateOptions()
+  setTimeout(() => {
+    autoPlayDemo()
+  }, 160)
 })
 </script>
 
 <style lang="scss" scoped>
 .speak-practice {
+  --cream: #fffaf1;
+  --cream-deep: #fff1db;
+  --gold: #f5a623;
+  --gold-deep: #e28d12;
+  --ink: #4a3728;
+  --brown-soft: #8f7558;
+  --blue: #5dade2;
+  --green: #82c785;
+  --red: #ff8a80;
+
   flex: 1;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  padding: 40rpx;
+  color: var(--ink);
 }
 
-.char-section {
+.sound-stage {
+  margin-bottom: 16rpx;
+}
+
+.char-panel {
+  position: relative;
+  padding: 32rpx 0 32rpx;
+  border-radius: 32rpx;
   text-align: center;
-  margin-bottom: 40rpx;
+}
+
+.char-glow {
+  position: absolute;
+  top: -40rpx;
+  left: 50%;
+  width: 224rpx;
+  height: 224rpx;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 222, 148, 0.34) 0%, rgba(255, 222, 148, 0) 72%);
+  transform: translateX(-50%);
+  pointer-events: none;
 }
 
 .char-main {
-  font-size: 200rpx;
-  font-weight: bold;
-  font-family: 'KaiTi', 'STKaiti', serif;
-  color: #4a3728;
+  position: relative;
+  font-size: 204rpx;
   line-height: 1;
+  font-weight: 700;
+  font-family: 'KaiTi', 'STKaiti', serif;
+  color: #4c3624;
+  text-shadow: 0 8rpx 24rpx rgba(226, 161, 38, 0.14);
 }
 
-.char-pinyin {
-  font-size: 48rpx;
-  color: #5dade2;
-  margin-top: 16rpx;
-  font-weight: bold;
-}
-
-.demo-section {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: 48rpx;
-}
-
-.demo-hint {
-  font-size: 28rpx;
-  color: #666;
-  margin-bottom: 24rpx;
-}
-
-.btn-play {
-  width: 120rpx;
-  height: 120rpx;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #5dade2, #4a9bd9);
-  border: none;
+.sound-entry {
+  position: relative;
+  margin: 8rpx auto 0;
+  width: 88rpx;
+  height: 88rpx;
+  border: 4rpx solid rgba(247, 213, 153, 0.46);
+  border-radius: 999rpx;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 8rpx 24rpx rgba(93, 173, 226, 0.4);
-  transition: transform 0.2s;
+  background: linear-gradient(180deg, #fffaf1 0%, #ffefcf 100%);
+  color: #d08a16;
+  box-shadow:
+    0 8rpx 16rpx rgba(232, 177, 68, 0.14),
+    inset 0 4rpx 0 rgba(255, 255, 255, 0.72);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &::after {
+    border: none;
+  }
+
+  &:active {
+    transform: scale(0.96);
+  }
 
   &.playing {
-    transform: scale(1.1);
-    animation: pulse 0.5s infinite alternate;
+    box-shadow:
+      0 8rpx 16rpx rgba(232, 177, 68, 0.18),
+      0 0 0 8rpx rgba(255, 224, 163, 0.16),
+      inset 0 4rpx 0 rgba(255, 255, 255, 0.72);
   }
 }
 
-.play-icon {
-  font-size: 48rpx;
+.answer-panel {
+  margin-top: 0;
+  padding: 24rpx 24rpx 24rpx;
+  border-radius: 24rpx;
+  background: linear-gradient(180deg, rgba(255, 252, 246, 0.94) 0%, rgba(255, 248, 239, 0.94) 100%);
+  box-shadow:
+    0 8rpx 16rpx rgba(229, 180, 83, 0.04),
+    inset 0 0 0 4rpx rgba(244, 226, 193, 0.5);
 }
 
-@keyframes pulse {
-  from {
-    transform: scale(1.1);
-  }
-  to {
-    transform: scale(1.2);
-  }
+.answer-title {
+  margin-bottom: 16rpx;
+  padding-left: 8rpx;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #9a8368;
+  letter-spacing: 1rpx;
 }
 
-/* 读音选项 */
-.options-section {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
+.answer-grid {
+  display: grid;
+  grid-template-columns: 1fr;
   gap: 24rpx;
-  margin-bottom: 40rpx;
-  animation: fade-in 0.3s ease;
 }
 
-.option-btn {
-  width: 100%;
-  height: 96rpx;
-  background: #fff;
-  border: 4rpx solid #e0e0e0;
-  border-radius: 48rpx;
+.option-card {
+  height: 120rpx;
+  padding: 0 24rpx;
+  border: none;
+  border-radius: 24rpx;
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 20rpx;
-  font-size: 36rpx;
-  transition: all 0.2s;
+  justify-content: space-between;
+  gap: 24rpx;
+  text-align: left;
+  background: linear-gradient(180deg, #fffefd 0%, #fff8ef 100%);
+  box-shadow:
+    0 4rpx 12rpx rgba(223, 185, 108, 0.05),
+    inset 0 0 0 4rpx rgba(240, 222, 190, 0.72);
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+
+  &:active {
+    transform: scale(0.985);
+  }
+
+  &.disabled {
+    opacity: 1;
+  }
 
   &.selected {
-    border-color: #f5a623;
-    background: #fff8f0;
+    background: linear-gradient(180deg, #fff4d8 0%, #ffeabf 100%);
+    box-shadow:
+      0 8rpx 16rpx rgba(237, 179, 70, 0.1),
+      inset 0 0 0 4rpx rgba(245, 166, 35, 0.28);
   }
 
   &.correct {
-    border-color: #82c785;
-    background: #e8f5e9;
+    background: linear-gradient(180deg, #f5ffef 0%, #e7f8d7 100%);
+    box-shadow:
+      0 8rpx 16rpx rgba(130, 199, 133, 0.1),
+      inset 0 0 0 4rpx rgba(130, 199, 133, 0.32);
   }
 
   &.wrong {
-    border-color: #ff6b6b;
-    background: #ffebee;
+    background: linear-gradient(180deg, #fff3f1 0%, #ffe2df 100%);
+    box-shadow:
+      0 8rpx 16rpx rgba(255, 138, 128, 0.1),
+      inset 0 0 0 4rpx rgba(255, 138, 128, 0.26);
   }
 }
 
-.option-pinyin {
-  font-size: 36rpx;
-  font-weight: bold;
+.option-sound {
+  width: 80rpx;
+  height: 80rpx;
+  border: 4rpx solid rgba(247, 213, 153, 0.38);
+  border-radius: 999rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, #fffaf1 0%, #ffefcf 100%);
+  color: #d08a16;
+  flex-shrink: 0;
+  box-shadow:
+    0 4rpx 8rpx rgba(232, 177, 68, 0.08),
+    inset 0 4rpx 0 rgba(255, 255, 255, 0.72);
+
+  &::after {
+    border: none;
+  }
+
+  &:active {
+    transform: scale(0.96);
+  }
+}
+
+.option-main {
+  flex: 1;
+  min-width: 0;
+  font-size: 40rpx;
+  font-weight: 700;
   color: #4a3728;
+  letter-spacing: 1rpx;
+  text-align: center;
 }
 
-.option-play {
-  font-size: 32rpx;
-}
-
-@keyframes fade-in {
-  from {
-    opacity: 0;
-    transform: translateY(20rpx);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* 反馈条 */
 .feedback-bar {
-  width: 100%;
-  padding: 20rpx 32rpx;
-  border-radius: 16rpx;
+  margin-top: 16rpx;
+  padding: 16rpx 24rpx;
+  border-radius: 24rpx;
   display: flex;
   align-items: center;
   gap: 16rpx;
-  margin-bottom: 24rpx;
 
   &.correct {
-    background: #e8f5e9;
-    border: 2rpx solid #82c785;
+    background: linear-gradient(180deg, #f2faec 0%, #e8f5e1 100%);
+    box-shadow: inset 0 0 0 4rpx rgba(130, 199, 133, 0.28);
   }
 
   &.wrong {
-    background: #ffebee;
-    border: 2rpx solid #ff6b6b;
+    background: linear-gradient(180deg, #fff4f1 0%, #ffe8e3 100%);
+    box-shadow: inset 0 0 0 4rpx rgba(255, 138, 128, 0.24);
   }
 }
 
 .feedback-icon {
-  font-size: 36rpx;
-  font-weight: bold;
+  width: 48rpx;
+  height: 48rpx;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
 }
 
 .feedback-bar.correct .feedback-icon {
-  color: #82c785;
+  background: var(--green);
 }
+
 .feedback-bar.wrong .feedback-icon {
-  color: #ff6b6b;
+  background: var(--red);
+}
+
+.feedback-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+
+.feedback-title {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #4a3728;
 }
 
 .feedback-text {
-  font-size: 28rpx;
-  color: #4a3728;
-  font-weight: bold;
+  font-size: 24rpx;
+  color: #8a735c;
+}
+
+.step-actions {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24rpx;
+  margin-top: auto;
+  padding-top: 32rpx;
+}
+
+.step-actions.ready {
+  .btn-secondary {
+    opacity: 1;
+  }
+}
+
+.btn-secondary {
+  width: 100%;
+  height: 104rpx;
+  background: linear-gradient(180deg, #fffaf1 0%, #fff1db 100%);
+  border: 2rpx solid rgba(232, 177, 68, 0.2);
+  border-radius: 56rpx;
+  font-size: 38rpx;
+  font-weight: 700;
+  letter-spacing: 2rpx;
+  color: #c5871a;
+  box-shadow: 0 12rpx 26rpx rgba(226, 188, 112, 0.18);
+
+  &::after {
+    border: none;
+  }
+
+  &:active {
+    transform: translateY(2rpx);
+    box-shadow: 0 8rpx 18rpx rgba(226, 188, 112, 0.14);
+  }
 }
 
 .btn-continue {
   width: 100%;
-  height: 106rpx;
+  height: 104rpx;
   background: linear-gradient(135deg, #f5a623 0%, #eb9a1a 52%, #e28412 100%);
   border: none;
   border-radius: 56rpx;
@@ -419,48 +527,5 @@ onMounted(() => {
     transform: translateY(2rpx);
     box-shadow: 0 8rpx 18rpx rgba(230, 145, 24, 0.26);
   }
-}
-
-.step-actions {
-  width: 100%;
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 20rpx;
-  margin-top: auto;
-}
-
-.step-actions.ready {
-  .btn-secondary {
-    opacity: 1;
-  }
-}
-
-.btn-secondary {
-  width: 100%;
-  height: 106rpx;
-  background: linear-gradient(180deg, #fffaf1 0%, #fff1db 100%);
-  border: 2rpx solid rgba(232, 177, 68, 0.2);
-  border-radius: 56rpx;
-  font-size: 38rpx;
-  font-weight: 700;
-  letter-spacing: 2rpx;
-  color: #c5871a;
-  box-shadow: 0 12rpx 26rpx rgba(226, 188, 112, 0.18);
-
-  &::after {
-    border: none;
-  }
-
-  &:active {
-    transform: translateY(2rpx);
-    box-shadow: 0 8rpx 18rpx rgba(226, 188, 112, 0.14);
-  }
-}
-
-.skip-link {
-  margin-top: 24rpx;
-  font-size: 28rpx;
-  color: #999;
-  padding: 20rpx;
 }
 </style>

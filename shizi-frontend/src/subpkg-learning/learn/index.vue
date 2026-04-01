@@ -6,26 +6,26 @@
         <button class="exit-entry" @click="handleClose">
           <wd-icon name="arrow-left" size="22px" />
         </button>
-        <div class="step-title">
-          {{ stepLabel }}
+        <div class="step-title-wrap">
+          <div class="step-title">
+            {{ stepLabel }}
+          </div>
         </div>
       </div>
       <div class="progress-row">
-        <div class="progress-bg">
-          <div class="progress-fill" :style="{ width: `${progressPercent}%` }" />
-        </div>
-        <div class="progress-text">
-          {{ currentCharIndex }}/{{ totalChars }}
+        <div class="progress-track-wrap">
+          <div class="progress-bg">
+            <div class="progress-fill" :style="{ width: `${progressPercent}%` }" />
+          </div>
+          <div class="progress-text">
+            {{ currentCharIndex }}/{{ totalChars }}
+          </div>
         </div>
       </div>
       <div class="step-flow">
         <template v-for="(item, index) in stepItems" :key="item.key">
-          <button
-            class="step-chip"
-            :class="[`is-${item.state}`, { clickable: item.clickable }]"
-            :disabled="!item.clickable"
-            @click="handleStepClick(item.key)"
-          >
+          <button class="step-chip" :class="[`is-${item.state}`, { clickable: item.clickable }]"
+            :disabled="!item.clickable" @click="handleStepClick(item.key)">
             <div class="step-chip-dot">
               <wd-icon v-if="item.state === 'done'" name="check" size="18px" />
               <span v-else>{{ index + 1 }}</span>
@@ -34,11 +34,7 @@
               {{ item.label }}
             </div>
           </button>
-          <div
-            v-if="index < stepItems.length - 1"
-            class="step-segment"
-            :class="{ done: isConnectorDone(index) }"
-          />
+          <div v-if="index < stepItems.length - 1" class="step-segment" :class="{ done: isConnectorDone(index) }" />
         </template>
       </div>
     </div>
@@ -46,40 +42,25 @@
     <!-- 学习内容区域 -->
     <div class="learn-content">
       <!-- 步骤1: 字源动画 -->
-      <CharCard
-        v-if="currentStep === 'origin'"
-        :char="currentChar"
-        @next="goToNextStep"
-      />
+      <CharCard v-if="currentStep === 'origin'" :char="currentChar" @next="goToNextStep" />
 
       <!-- 步骤2: 跟读互动 -->
-      <SpeakPractice
-        v-else-if="currentStep === 'speak'"
-        :char="currentChar"
-        :all-chars="unitChars"
-        @prev="goToPreviousStep"
-        @next="goToNextStep"
-      />
+      <SpeakPractice v-else-if="currentStep === 'speak'" :char="currentChar" :all-chars="unitChars"
+        @prev="goToPreviousStep" @next="goToNextStep" />
 
       <!-- 步骤3: 描红练习 -->
-      <TracingPractice
-        v-else-if="currentStep === 'trace'"
-        :char="currentChar"
-        @prev="goToPreviousStep"
-        @next="goToNextStep"
-      />
+      <TracingPractice v-else-if="currentStep === 'trace'" :char="currentChar" @prev="goToPreviousStep"
+        @next="goToNextStep" />
 
       <!-- 步骤4: 小测验 -->
-      <QuizCard
-        v-else-if="currentStep === 'quiz'"
-        :char="currentChar"
-        :all-chars="unitChars"
-        @prev="goToPreviousStep"
-        @next="handleQuizComplete"
-      />
+      <QuizCard v-else-if="currentStep === 'quiz'" :char="currentChar" :all-chars="unitChars" @prev="goToPreviousStep"
+        @next="handleQuizComplete" />
 
       <!-- 单字学习完成 -->
       <div v-else-if="currentStep === 'complete'" class="complete-screen">
+        <div class="complete-badge">
+          本字完成
+        </div>
         <div class="complete-icon">
           🎉
         </div>
@@ -303,31 +284,46 @@ onMounted(() => {
 .learn-container {
   min-height: 100vh;
   background:
-    radial-gradient(circle at 12% 16%, rgba(251, 210, 128, 0.24) 0%, rgba(251, 210, 128, 0) 34%),
-    radial-gradient(circle at 84% 30%, rgba(255, 230, 184, 0.32) 0%, rgba(255, 230, 184, 0) 38%),
-    linear-gradient(180deg, #fffaf0 0%, #ffffff 62%, #fffdf8 100%);
+    radial-gradient(circle at 12% 16%, rgba(251, 210, 128, 0.2) 0%, rgba(251, 210, 128, 0) 32%),
+    radial-gradient(circle at 84% 28%, rgba(255, 230, 184, 0.28) 0%, rgba(255, 230, 184, 0) 36%),
+    linear-gradient(180deg, #fffaf2 0%, #fffdf8 56%, #ffffff 100%);
   display: flex;
   flex-direction: column;
 }
 
 .progress-header {
-  padding: 18rpx 32rpx 30rpx;
+  padding: 24rpx 32rpx 32rpx;
   display: flex;
   flex-direction: column;
-  gap: 16rpx;
-  background: linear-gradient(180deg, rgba(255, 252, 246, 0.98), rgba(255, 247, 234, 0.96));
+  gap: 24rpx;
+  background: linear-gradient(180deg, rgba(255, 251, 244, 0.98), rgba(255, 247, 235, 0.94));
   border-bottom-left-radius: 40rpx;
   border-bottom-right-radius: 40rpx;
   box-shadow:
-    0 14rpx 28rpx rgba(226, 172, 70, 0.1),
-    inset 0 -2rpx 0 rgba(255, 255, 255, 0.5);
+    0 12rpx 24rpx rgba(226, 172, 70, 0.08),
+    inset 0 -2rpx 0 rgba(255, 255, 255, 0.56);
 }
 
 .progress-topline {
   display: grid;
-  grid-template-columns: 96rpx 1fr;
+  grid-template-columns: 88rpx 1fr;
   align-items: center;
-  gap: 12rpx;
+  gap: 16rpx;
+}
+
+.step-title-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8rpx;
+  padding-right: 88rpx;
+}
+
+.step-caption {
+  font-size: 20rpx;
+  font-weight: 600;
+  color: #b49a7a;
+  line-height: 1;
 }
 
 .step-title {
@@ -336,25 +332,37 @@ onMounted(() => {
   font-weight: 700;
   color: #6a5034;
   letter-spacing: 2rpx;
-  padding-right: 96rpx;
 }
 
 .progress-row {
   display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.progress-meta {
+  font-size: 22rpx;
+  font-weight: 600;
+  color: #ad9372;
+  line-height: 1.2;
+}
+
+.progress-track-wrap {
+  display: flex;
   align-items: center;
-  gap: 18rpx;
+  gap: 16rpx;
 }
 
 .progress-bg {
   flex: 1;
   min-width: 0;
-  height: 18rpx;
-  background: linear-gradient(180deg, rgba(255, 243, 220, 0.94), rgba(255, 238, 205, 0.96));
+  height: 16rpx;
+  background: linear-gradient(180deg, rgba(255, 243, 220, 0.9), rgba(255, 238, 205, 0.94));
   border-radius: 999rpx;
   overflow: hidden;
   box-shadow:
-    inset 0 1rpx 3rpx rgba(214, 170, 88, 0.07),
-    inset 0 -1rpx 0 rgba(255, 255, 255, 0.45);
+    inset 0 2rpx 4rpx rgba(214, 170, 88, 0.07),
+    inset 0 -2rpx 0 rgba(255, 255, 255, 0.44);
 }
 
 .progress-fill {
@@ -362,16 +370,16 @@ onMounted(() => {
   background: linear-gradient(90deg, #ffd977 0%, #f9bf45 56%, #f1a62a 100%);
   border-radius: 999rpx;
   box-shadow:
-    inset 0 1rpx 0 rgba(255, 248, 220, 0.45),
-    0 2rpx 6rpx rgba(240, 168, 46, 0.14);
+    inset 0 2rpx 0 rgba(255, 248, 220, 0.45),
+    0 4rpx 8rpx rgba(240, 168, 46, 0.12);
   transition: width 0.3s ease;
 }
 
 .progress-text {
   flex-shrink: 0;
-  min-width: 78rpx;
+  min-width: 72rpx;
   text-align: right;
-  font-size: 30rpx;
+  font-size: 28rpx;
   font-weight: 700;
   color: #8b7357;
 }
@@ -380,15 +388,11 @@ onMounted(() => {
   position: relative;
   display: grid;
   grid-template-columns:
-    max-content minmax(24rpx, 1fr)
-    max-content minmax(24rpx, 1fr)
-    max-content minmax(24rpx, 1fr)
-    max-content;
+    max-content minmax(24rpx, 1fr) max-content minmax(24rpx, 1fr) max-content minmax(24rpx, 1fr) max-content;
   justify-content: space-between;
   align-items: start;
   column-gap: 0;
   row-gap: 0;
-  padding: 14rpx 0 6rpx;
 }
 
 .step-segment {
@@ -527,18 +531,18 @@ onMounted(() => {
 }
 
 .exit-entry {
-  width: 84rpx;
-  height: 84rpx;
+  width: 80rpx;
+  height: 80rpx;
   justify-self: start;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2rpx solid rgba(247, 213, 153, 0.46);
+  border: 2rpx solid rgba(247, 213, 153, 0.38);
   border-radius: 999rpx;
   background: linear-gradient(180deg, #fffaf1 0%, #ffefcf 100%);
   color: #d08a16;
   box-shadow:
-    0 8rpx 16rpx rgba(232, 177, 68, 0.14),
+    0 8rpx 16rpx rgba(232, 177, 68, 0.12),
     inset 0 2rpx 0 rgba(255, 255, 255, 0.72);
   transition: all 0.2s ease;
 
@@ -549,22 +553,27 @@ onMounted(() => {
   &:active {
     transform: scale(0.97);
     background: linear-gradient(180deg, #fff1d9 0%, #ffe8bf 100%);
-    box-shadow: 0 4rpx 10rpx rgba(232, 177, 68, 0.12);
+    box-shadow: 0 4rpx 10rpx rgba(232, 177, 68, 0.1);
   }
-}
-
-.progress-caption {
-  font-size: 24rpx;
-  color: #a79278;
-  line-height: 1.2;
-  padding-left: 2rpx;
 }
 
 .learn-content {
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: 24rpx 28rpx 30rpx;
+  padding: 24rpx 24rpx 32rpx;
+}
+
+.learn-stage {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 32rpx 24rpx;
+  border-radius: 32rpx;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.92) 0%, rgba(255, 251, 244, 0.9) 100%);
+  box-shadow:
+    0 12rpx 28rpx rgba(226, 182, 92, 0.08),
+    inset 0 0 0 2rpx rgba(255, 244, 220, 0.6);
 }
 
 .complete-screen {
@@ -574,50 +583,71 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   text-align: center;
-  background: rgba(255, 255, 255, 0.92);
-  border: 2rpx solid rgba(245, 166, 35, 0.08);
-  padding: 64rpx 40rpx;
-  border-radius: 28rpx;
-  box-shadow: 0 14rpx 40rpx rgba(245, 166, 35, 0.14);
+  padding: 48rpx 24rpx;
+  border-radius: 32rpx;
+  background: linear-gradient(180deg, rgba(255, 252, 246, 0.96) 0%, rgba(255, 246, 232, 0.96) 100%);
+  box-shadow:
+    0 12rpx 28rpx rgba(245, 166, 35, 0.1),
+    inset 0 0 0 4rpx rgba(245, 214, 154, 0.4);
+}
+
+.complete-badge {
+  margin-bottom: 16rpx;
+  padding: 8rpx 24rpx;
+  border-radius: 20rpx;
+  font-size: 24rpx;
+  font-weight: 700;
+  color: #9a8368;
+  background: linear-gradient(180deg, #fffaf1 0%, #fff1db 100%);
 }
 
 .complete-icon {
   font-size: 120rpx;
-  margin-bottom: 32rpx;
+  margin-bottom: 24rpx;
 }
 
 .complete-title {
-  font-size: 52rpx;
-  font-weight: bold;
+  font-size: 48rpx;
+  font-weight: 700;
   color: #4a3728;
-  margin-bottom: 24rpx;
+  margin-bottom: 16rpx;
 }
 
 .complete-char {
   font-size: 168rpx;
-  font-weight: bold;
+  font-weight: 700;
   color: #f5a623;
   font-family: 'KaiTi', 'STKaiti', serif;
   line-height: 1.1;
-  margin: 24rpx 0 32rpx;
+  margin: 16rpx 0 24rpx;
 }
 
 .complete-desc {
-  font-size: 30rpx;
+  font-size: 28rpx;
   color: #7a6a58;
-  margin-bottom: 72rpx;
+  margin-bottom: 48rpx;
 }
 
 .btn-next {
   width: 100%;
   max-width: 420rpx;
-  height: 96rpx;
-  background: linear-gradient(135deg, #f5a623, #e8941a);
+  height: 104rpx;
+  background: linear-gradient(135deg, #f5a623 0%, #eb9a1a 52%, #e28412 100%);
   border: none;
-  border-radius: 48rpx;
-  font-size: 34rpx;
-  font-weight: bold;
+  border-radius: 56rpx;
+  font-size: 38rpx;
+  font-weight: 700;
+  letter-spacing: 2rpx;
   color: #fff;
-  box-shadow: 0 12rpx 28rpx rgba(245, 166, 35, 0.28);
+  box-shadow: 0 14rpx 30rpx rgba(230, 145, 24, 0.36);
+}
+
+.btn-next::after {
+  border: none;
+}
+
+.btn-next:active {
+  transform: translateY(2rpx);
+  box-shadow: 0 8rpx 18rpx rgba(230, 145, 24, 0.26);
 }
 </style>

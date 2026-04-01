@@ -5,76 +5,78 @@
       {{ quizTypeLabel }}
     </div>
 
-    <!-- 题目区域 -->
-    <div class="question-area">
-      <!-- 题型A: 看字选图 -->
-      <template v-if="quizType === 'char-to-image'">
-        <div class="question-char">
-          {{ char._id }}
-        </div>
-        <div class="question-hint">
-          选择正确的图片
-        </div>
-      </template>
-
-      <!-- 题型B: 看图选字 -->
-      <template v-else-if="quizType === 'image-to-char'">
-        <div class="question-image">
-          {{ char.teaching?.emoji_fallback || '❓' }}
-        </div>
-        <div class="question-hint">
-          选择正确的汉字
-        </div>
-      </template>
-
-      <!-- 题型C: 听音选字 -->
-      <template v-else-if="quizType === 'audio-to-char'">
-        <button class="btn-audio" @click="playAudio">
-          <text class="audio-icon">{{ isPlaying ? '🔊' : '🔈' }}</text>
-          <text>{{ isPlaying ? '播放中...' : '再听一遍' }}</text>
-        </button>
-        <div class="question-hint">
-          听发音，选汉字
-        </div>
-      </template>
-
-      <!-- 题型D: 拼音选字 -->
-      <template v-else-if="quizType === 'pinyin-to-char'">
-        <div class="question-pinyin">
-          {{ char.pinyin }}
-        </div>
-        <div class="question-hint">
-          选择正确的汉字
-        </div>
-      </template>
-    </div>
-
-    <!-- 选项区域 -->
-    <div class="options-area">
-      <div
-        v-for="(option, index) in options"
-        :key="index"
-        class="option-item"
-        :class="{
-          selected: selectedIndex === index,
-          correct: showResult && option.isCorrect,
-          wrong: showResult && selectedIndex === index && !option.isCorrect,
-        }"
-        @click="selectOption(index)"
-      >
-        <!-- 图片选项 -->
+    <div class="quiz-body">
+      <!-- 题目区域 -->
+      <div class="question-area">
+        <!-- 题型A: 看字选图 -->
         <template v-if="quizType === 'char-to-image'">
-          <div class="option-image">
-            {{ option.emoji }}
+          <div class="question-char">
+            {{ char._id }}
+          </div>
+          <div class="question-hint">
+            选择正确的图片
           </div>
         </template>
 
-        <!-- 汉字选项 -->
-        <template v-else>
-          <div class="option-char">
-            {{ option.char }}
+        <!-- 题型B: 看图选字 -->
+        <template v-else-if="quizType === 'image-to-char'">
+          <div class="question-image">
+            {{ char.teaching?.emoji_fallback || '❓' }}
+          </div>
+          <div class="question-hint">
+            选择正确的汉字
           </div>
         </template>
+
+        <!-- 题型C: 听音选字 -->
+        <template v-else-if="quizType === 'audio-to-char'">
+          <button class="btn-audio" @click="playAudio">
+            <text class="audio-icon">{{ isPlaying ? '🔊' : '🔈' }}</text>
+            <text>{{ isPlaying ? '播放中...' : '再听一遍' }}</text>
+          </button>
+          <div class="question-hint">
+            听发音，选汉字
+          </div>
+        </template>
+
+        <!-- 题型D: 拼音选字 -->
+        <template v-else-if="quizType === 'pinyin-to-char'">
+          <div class="question-pinyin">
+            {{ char.pinyin }}
+          </div>
+          <div class="question-hint">
+            选择正确的汉字
+          </div>
+        </template>
+      </div>
+
+      <!-- 选项区域 -->
+      <div class="options-area">
+        <div
+          v-for="(option, index) in options"
+          :key="index"
+          class="option-item"
+          :class="{
+            selected: selectedIndex === index,
+            correct: showResult && option.isCorrect,
+            wrong: showResult && selectedIndex === index && !option.isCorrect,
+          }"
+          @click="selectOption(index)"
+        >
+          <!-- 图片选项 -->
+          <template v-if="quizType === 'char-to-image'">
+            <div class="option-image">
+              {{ option.emoji }}
+            </div>
+          </template>
+
+          <!-- 汉字选项 -->
+          <template v-else>
+            <div class="option-char">
+              {{ option.char }}
+            </div>
+          </template>
+        </div>
       </div>
     </div>
 
@@ -252,25 +254,39 @@ watch(() => props.char._id, () => {
   flex: 1;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  padding: 40rpx;
-  padding-bottom: 200rpx;
+  width: 100%;
+  padding: 0;
+  color: #4a3728;
 }
 
 .quiz-type {
+  align-self: center;
   font-size: 24rpx;
-  color: #999;
-  background: #f0f0f0;
+  font-weight: 700;
+  color: #9a8368;
+  background: linear-gradient(180deg, #fffaf1 0%, #fff1db 100%);
   padding: 8rpx 24rpx;
   border-radius: 20rpx;
-  margin-bottom: 40rpx;
+  margin-bottom: 24rpx;
+}
+
+.quiz-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 24rpx;
+  border-radius: 24rpx;
+  background: linear-gradient(180deg, rgba(255, 252, 246, 0.96) 0%, rgba(255, 248, 239, 0.94) 100%);
+  box-shadow:
+    0 8rpx 16rpx rgba(229, 180, 83, 0.04),
+    inset 0 0 0 4rpx rgba(244, 226, 193, 0.5);
 }
 
 .question-area {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 60rpx;
+  margin-bottom: 32rpx;
 }
 
 .question-char {
@@ -302,13 +318,19 @@ watch(() => props.char._id, () => {
   display: flex;
   align-items: center;
   gap: 16rpx;
-  padding: 32rpx 48rpx;
-  background: linear-gradient(135deg, #5dade2, #4a9bd9);
+  min-width: 240rpx;
+  min-height: 88rpx;
+  padding: 24rpx 32rpx;
+  background: linear-gradient(180deg, #fffaf1 0%, #ffefcf 100%);
   border: none;
-  border-radius: 60rpx;
+  border-radius: 48rpx;
   font-size: 32rpx;
-  color: #fff;
-  margin-bottom: 20rpx;
+  font-weight: 700;
+  color: #d08a16;
+  margin-bottom: 16rpx;
+  box-shadow:
+    0 8rpx 16rpx rgba(232, 177, 68, 0.14),
+    inset 0 4rpx 0 rgba(255, 255, 255, 0.72);
 }
 
 .audio-icon {
@@ -317,38 +339,46 @@ watch(() => props.char._id, () => {
 
 .options-area {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 24rpx;
   width: 100%;
-  margin-bottom: 40rpx;
+  margin-bottom: 32rpx;
 }
 
 .option-item {
-  background: #fff;
-  border: 4rpx solid #e0e0e0;
+  min-height: 144rpx;
+  padding: 24rpx;
   border-radius: 24rpx;
-  padding: 32rpx;
   display: flex;
   align-items: center;
   justify-content: center;
+  background: linear-gradient(180deg, #fffefd 0%, #fff8ef 100%);
   transition: all 0.3s;
-  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.06);
+  box-shadow:
+    0 4rpx 12rpx rgba(223, 185, 108, 0.05),
+    inset 0 0 0 4rpx rgba(240, 222, 190, 0.72);
 
   &.selected {
-    border-color: #f5a623;
-    background: #fffde7;
+    background: linear-gradient(180deg, #fff4d8 0%, #ffeabf 100%);
+    box-shadow:
+      0 8rpx 16rpx rgba(237, 179, 70, 0.1),
+      inset 0 0 0 4rpx rgba(245, 166, 35, 0.28);
   }
 
   &.correct {
-    border-color: #82c785;
-    background: #e8f5e9;
-    transform: scale(1.05);
+    background: linear-gradient(180deg, #f5ffef 0%, #e7f8d7 100%);
+    box-shadow:
+      0 8rpx 16rpx rgba(130, 199, 133, 0.1),
+      inset 0 0 0 4rpx rgba(130, 199, 133, 0.32);
+    transform: scale(1.03);
   }
 
   &.wrong {
-    border-color: #ff6b6b;
-    background: #ffebee;
-    opacity: 0.7;
+    background: linear-gradient(180deg, #fff3f1 0%, #ffe2df 100%);
+    box-shadow:
+      0 8rpx 16rpx rgba(255, 138, 128, 0.1),
+      inset 0 0 0 4rpx rgba(255, 138, 128, 0.26);
+    opacity: 0.84;
   }
 }
 
@@ -368,13 +398,14 @@ watch(() => props.char._id, () => {
   width: 100%;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 20rpx;
-  margin-top: 20rpx;
+  gap: 24rpx;
+  margin-top: auto;
+  padding-top: 32rpx;
 }
 
 .btn-secondary {
   width: 100%;
-  height: 106rpx;
+  height: 104rpx;
   background: linear-gradient(180deg, #fffaf1 0%, #fff1db 100%);
   border: 2rpx solid rgba(232, 177, 68, 0.2);
   border-radius: 56rpx;
@@ -396,7 +427,7 @@ watch(() => props.char._id, () => {
 
 .btn-next {
   width: 100%;
-  height: 106rpx;
+  height: 104rpx;
   border-radius: 56rpx;
   border: none;
   font-size: 38rpx;

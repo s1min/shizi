@@ -48,12 +48,17 @@
     </div>
 
     <!-- 状态提示 -->
-    <div class="status-bar">
+    <div class="status-bar" :class="{ idle: !quizMode && !isAnimating }">
       <!-- #ifdef MP-WEIXIN -->
       <text v-if="quizMode" class="status-quiz">
         请按笔顺描写（第 {{ currentStrokeIndex + 1 }} / {{ char.strokes }} 笔）
       </text>
       <text v-else-if="isAnimating" class="status-anim">笔顺示范中...</text>
+      <text v-else class="status-idle">点击「示范」查看笔顺，或点击「测试」开始描红</text>
+      <!-- #endif -->
+      <!-- #ifdef H5 -->
+      <text v-if="isAnimating" class="status-anim">笔顺示范中...</text>
+      <text v-else-if="quizMode" class="status-quiz">请跟随轨迹练习当前汉字</text>
       <text v-else class="status-idle">点击「示范」查看笔顺，或点击「测试」开始描红</text>
       <!-- #endif -->
     </div>
@@ -104,11 +109,10 @@
 <script lang="ts" setup>
 // @ts-nocheck
 import type { Character } from '@/types/character'
+import { getCurrentInstance, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
+import { loadFullCharData } from '@/utils/stroke-loader'
 // #ifdef H5
 import HanziWriter from 'hanzi-writer'
-import { getCurrentInstance, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
-
-import { loadFullCharData } from '@/utils/stroke-loader'
 // #endif
 
 const props = defineProps<{
@@ -612,14 +616,17 @@ const handleNext = () => emit('next')
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 40rpx;
+  width: 100%;
+  color: #4a3728;
 }
 
 .char-header {
+  width: 100%;
   display: flex;
   align-items: center;
-  gap: 32rpx;
-  margin-bottom: 40rpx;
+  justify-content: center;
+  gap: 24rpx;
+  margin-bottom: 32rpx;
 }
 
 .char-preview {
@@ -654,6 +661,12 @@ const handleNext = () => emit('next')
   display: flex;
   justify-content: center;
   margin-bottom: 24rpx;
+  padding: 24rpx;
+  border-radius: 24rpx;
+  background: linear-gradient(180deg, rgba(255, 252, 246, 0.96) 0%, rgba(255, 248, 239, 0.94) 100%);
+  box-shadow:
+    0 8rpx 16rpx rgba(229, 180, 83, 0.04),
+    inset 0 0 0 4rpx rgba(244, 226, 193, 0.5);
 }
 
 .grid-container {
@@ -732,18 +745,23 @@ const handleNext = () => emit('next')
 }
 
 .action-bar {
-  display: flex;
-  gap: 24rpx;
-  margin-bottom: 32rpx;
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16rpx;
+  margin-bottom: 24rpx;
 }
 
 .btn-action {
+  min-height: 88rpx;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 12rpx;
-  padding: 20rpx 32rpx;
-  border-radius: 40rpx;
+  padding: 16rpx 20rpx;
+  border-radius: 24rpx;
   font-size: 28rpx;
+  font-weight: 700;
   border: none;
 
   &.btn-clear {
@@ -790,8 +808,9 @@ const handleNext = () => emit('next')
   width: 100%;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 20rpx;
+  gap: 24rpx;
   margin-top: auto;
+  padding-top: 32rpx;
 }
 
 .step-actions.ready {
