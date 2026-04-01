@@ -3,7 +3,7 @@
     <!-- 字源展示区 -->
     <div class="origin-display">
       <!-- Emoji/图片展示 -->
-      <div class="origin-visual" :class="{ 'animate-in': showAnimation }">
+      <div class="origin-visual">
         <div class="emoji-orb">
           <div class="emoji-icon">
             {{ char.teaching?.emoji_fallback || '📝' }}
@@ -12,13 +12,13 @@
       </div>
 
       <!-- 汉字展示 -->
-      <div class="char-display" :class="{ 'animate-in': showChar }">
+      <div class="char-display">
         <div class="char-main">
           {{ char._id }}
         </div>
         <div class="char-pinyin">
           <button class="speaker-button" @click.stop="speakChar">
-            <wd-icon name="sound" size="22px"></wd-icon>
+            <wd-icon name="sound" size="22px" />
           </button>
           <span class="pinyin-text">{{ char.pinyin }}</span>
         </div>
@@ -26,7 +26,7 @@
     </div>
 
     <!-- 组词展示 -->
-    <div class="words-section" :class="{ 'fade-in': showWords }">
+    <div class="words-section">
       <div class="words-title">
         常用组词
       </div>
@@ -47,9 +47,9 @@
     </div>
 
     <!-- 下一步按钮 -->
-    <div class="btn-continue-wrap" :class="{ show: showButton }">
+    <div class="btn-continue-wrap">
       <button class="btn-continue" @click="handleNext">
-        看好了，下一步
+        下一步
       </button>
     </div>
   </div>
@@ -57,7 +57,7 @@
 
 <script lang="ts" setup>
 import type { Character } from '@/types/character'
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed } from 'vue'
 import { speakText } from '@/utils/tts'
 
 const props = defineProps<{
@@ -68,11 +68,6 @@ const emit = defineEmits<{
   next: []
 }>()
 
-// 动画状态
-const showAnimation = ref(false)
-const showChar = ref(false)
-const showWords = ref(false)
-const showButton = ref(false)
 const displayWords = computed(() =>
   (props.char.example_words ?? []).filter(Boolean).slice(0, 4),
 )
@@ -96,27 +91,6 @@ function getWordStyle(index: number) {
   }
 }
 
-function playAnimation() {
-  showAnimation.value = false
-  showChar.value = false
-  showWords.value = false
-  showButton.value = false
-
-  // 依次播放动画
-  setTimeout(() => {
-    showAnimation.value = true
-  }, 100)
-  setTimeout(() => {
-    showChar.value = true
-  }, 620)
-  setTimeout(() => {
-    showWords.value = true
-  }, 1180)
-  setTimeout(() => {
-    showButton.value = true
-  }, 1680)
-}
-
 function handleNext() {
   emit('next')
 }
@@ -129,15 +103,6 @@ function speakChar() {
 function playWord(word: string) {
   speakText(word, word)
 }
-
-onMounted(() => {
-  playAnimation()
-})
-
-// 当字符变化时重新播放动画
-watch(() => props.char._id, () => {
-  playAnimation()
-})
 </script>
 
 <style lang="scss" scoped>
@@ -154,17 +119,6 @@ watch(() => props.char._id, () => {
   flex-direction: column;
   align-items: center;
   margin-bottom: 40rpx;
-}
-
-.origin-visual {
-  opacity: 0;
-  transform: scale(0.55);
-  transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-
-  &.animate-in {
-    opacity: 1;
-    transform: scale(1);
-  }
 }
 
 .emoji-orb {
@@ -187,15 +141,7 @@ watch(() => props.char._id, () => {
 
 .char-display {
   text-align: center;
-  opacity: 0;
-  transform: translateY(32rpx);
-  transition: all 0.5s ease-out;
   margin-top: 32rpx;
-
-  &.animate-in {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 .char-main {
@@ -256,18 +202,10 @@ watch(() => props.char._id, () => {
   border-radius: 24rpx;
   background: linear-gradient(180deg, rgba(255, 252, 246, 0.9) 0%, rgba(255, 248, 238, 0.9) 100%);
   box-shadow: inset 0 0 0 4rpx rgba(244, 226, 193, 0.44);
-  opacity: 0;
-  transform: translateY(16rpx);
-  transition: all 0.4s ease-out;
-
-  &.fade-in {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 .words-title {
-  font-size: 30rpx;
+  font-size: 28rpx;
   font-weight: 700;
   color: #8c6a3d;
   margin-bottom: 16rpx;
@@ -276,13 +214,16 @@ watch(() => props.char._id, () => {
 
 .words-list {
   display: flex;
+  justify-content: space-between;
+  align-items: center;
   gap: 16rpx;
   flex-wrap: wrap;
 }
 
 .word-item {
-  padding: 16rpx 24rpx;
-  border-radius: 40rpx;
+  padding: 16rpx 32rpx;
+  margin: 0;
+  border-radius: 48rpx;
   border: 2rpx solid transparent;
   font-size: 28rpx;
   font-weight: 600;
@@ -318,14 +259,6 @@ watch(() => props.char._id, () => {
   width: 100%;
   display: flex;
   justify-content: center;
-  opacity: 0;
-  transform: translateY(16rpx);
-  transition: all 0.4s ease-out;
-
-  &.show {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 .btn-continue {

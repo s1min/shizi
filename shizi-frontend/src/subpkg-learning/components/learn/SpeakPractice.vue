@@ -29,7 +29,11 @@
           }"
           @click="selectOption(idx)"
         >
-          <button class="option-sound" @click.stop="playOption(opt.pinyin)">
+          <button
+            class="option-sound"
+            :class="{ playing: playingOptionPinyin === opt.pinyin }"
+            @click.stop="playOption(opt.pinyin)"
+          >
             <wd-icon name="sound" size="22px" />
           </button>
           <div class="option-main">
@@ -44,7 +48,11 @@
       class="feedback-bar"
       :class="isCorrect ? 'correct' : 'wrong'"
     >
-      <text class="feedback-icon">{{ isCorrect ? '✓' : '✕' }}</text>
+      <wd-icon
+        class="feedback-icon"
+        :name="isCorrect ? 'check' : 'close'"
+        size="20px"
+      />
       <div class="feedback-content">
         <text class="feedback-title">{{ isCorrect ? '答对啦' : '再听一次' }}</text>
         <text class="feedback-text">{{ isCorrect ? char.pinyin : `正确读音：${char.pinyin}` }}</text>
@@ -70,7 +78,7 @@
 <script lang="ts" setup>
 import type { Character } from '@/types/character'
 import { onMounted, ref, watch } from 'vue'
-import { speakText } from '@/utils/tts'
+import { speakText, stopSpeak } from '@/utils/tts'
 
 const props = defineProps<{
   char: Character
@@ -83,7 +91,9 @@ const emit = defineEmits<{
 }>()
 
 const isPlaying = ref(false)
+const playingOptionPinyin = ref('')
 const demoPlayed = ref(false)
+const playbackToken = ref(0)
 const selectedIndex = ref(-1)
 const answered = ref(false)
 const isCorrect = ref(false)
@@ -137,15 +147,28 @@ function generateOptions() {
 function playDemo() {
   if (isPlaying.value)
     return
+
+  playbackToken.value += 1
+  const token = playbackToken.value
+
+  if (playingOptionPinyin.value) {
+    stopSpeak()
+    playingOptionPinyin.value = ''
+  }
+
   isPlaying.value = true
 
   speakText(props.char._id, props.char.pinyin, {
     onEnd: () => {
+      if (token !== playbackToken.value)
+        return
       isPlaying.value = false
       demoPlayed.value = true
     },
     onError: () => {
       setTimeout(() => {
+        if (token !== playbackToken.value)
+          return
         isPlaying.value = false
         demoPlayed.value = true
       }, 800)
@@ -160,9 +183,30 @@ function autoPlayDemo() {
 }
 
 function playOption(pinyin: string) {
-  speakText('', pinyin, {
-    onEnd: () => {},
-    onError: () => {},
+  playbackToken.value += 1
+  const token = playbackToken.value
+
+  if (isPlaying.value) {
+    stopSpeak()
+    isPlaying.value = false
+  }
+
+  if (playingOptionPinyin.value) {
+    stopSpeak()
+  }
+
+  playingOptionPinyin.value = pinyin
+  speakText(pinyin, pinyin, {
+    onEnd: () => {
+      if (token !== playbackToken.value)
+        return
+      playingOptionPinyin.value = ''
+    },
+    onError: () => {
+      if (token !== playbackToken.value)
+        return
+      playingOptionPinyin.value = ''
+    },
   })
 }
 
@@ -177,11 +221,13 @@ function selectOption(idx: number) {
   canProceed.value = true
 
   if (!opt.isCorrect) {
+    const token = playbackToken.value
     setTimeout(() => {
-      speakText(props.char._id, props.char.pinyin, {
-        onEnd: () => {},
-        onError: () => {},
-      })
+      if (token !== playbackToken.value)
+        return
+      if (selectedIndex.value !== idx || !answered.value)
+        return
+      playDemo()
     }, 700)
   }
 }
@@ -195,7 +241,10 @@ function handleNext() {
 }
 
 function resetState() {
+  playbackToken.value += 1
+  stopSpeak()
   isPlaying.value = false
+  playingOptionPinyin.value = ''
   demoPlayed.value = false
   selectedIndex.value = -1
   answered.value = false
@@ -388,6 +437,9 @@ onMounted(() => {
   box-shadow:
     0 4rpx 8rpx rgba(232, 177, 68, 0.08),
     inset 0 4rpx 0 rgba(255, 255, 255, 0.72);
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
 
   &::after {
     border: none;
@@ -395,6 +447,13 @@ onMounted(() => {
 
   &:active {
     transform: scale(0.96);
+  }
+
+  &.playing {
+    box-shadow:
+      0 4rpx 8rpx rgba(232, 177, 68, 0.12),
+      0 0 0 8rpx rgba(255, 224, 163, 0.14),
+      inset 0 4rpx 0 rgba(255, 255, 255, 0.72);
   }
 }
 
@@ -434,8 +493,6 @@ onMounted(() => {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 28rpx;
-  font-weight: 700;
   color: #fff;
   flex-shrink: 0;
 }
@@ -451,17 +508,19 @@ onMounted(() => {
 .feedback-content {
   display: flex;
   flex-direction: column;
-  gap: 8rpx;
+  gap: 4rpx;
 }
 
 .feedback-title {
-  font-size: 28rpx;
+  font-size: 26rpx;
   font-weight: 700;
+  line-height: 1.3;
   color: #4a3728;
 }
 
 .feedback-text {
-  font-size: 24rpx;
+  font-size: 22rpx;
+  line-height: 1.4;
   color: #8a735c;
 }
 
