@@ -568,18 +568,18 @@ onMounted(() => {
 }
 
 .complete-screen {
-  flex: 1;
+  // flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 48rpx 24rpx;
-  border-radius: 32rpx;
-  background: linear-gradient(180deg, rgba(255, 252, 246, 0.96) 0%, rgba(255, 246, 232, 0.96) 100%);
-  box-shadow:
-    0 12rpx 28rpx rgba(245, 166, 35, 0.1),
-    inset 0 0 0 4rpx rgba(245, 214, 154, 0.4);
+  // padding: 48rpx 24rpx;
+  // border-radius: 32rpx;
+  // background: linear-gradient(180deg, rgba(255, 252, 246, 0.96) 0%, rgba(255, 246, 232, 0.96) 100%);
+  // box-shadow:
+  //   0 12rpx 28rpx rgba(245, 166, 35, 0.1),
+  //   inset 0 0 0 4rpx rgba(245, 214, 154, 0.4);
 }
 
 .complete-badge {
@@ -593,7 +593,7 @@ onMounted(() => {
 }
 
 .complete-icon {
-  font-size: 120rpx;
+  font-size: 160rpx;
   margin-bottom: 24rpx;
 }
 
@@ -610,7 +610,7 @@ onMounted(() => {
   color: #2f2a24;
   font-family: 'KaiTi', 'STKaiti', serif;
   line-height: 1.1;
-  margin: 16rpx 0 24rpx;
+  margin: 24rpx;
 }
 
 .complete-desc {
@@ -621,7 +621,6 @@ onMounted(() => {
 
 .btn-next {
   width: 100%;
-  max-width: 420rpx;
   height: 104rpx;
   background: linear-gradient(135deg, #f5a623 0%, #eb9a1a 52%, #e28412 100%);
   border: none;
