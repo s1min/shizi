@@ -558,9 +558,6 @@ onMounted(() => {
 }
 
 .learn-content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
   padding: 24rpx 24rpx 32rpx;
 }
 

@@ -225,7 +225,7 @@ function playWord(word: string) {
   margin: 0;
   border-radius: 48rpx;
   border: 2rpx solid transparent;
-  font-size: 28rpx;
+  font-size: 32rpx;
   font-weight: 600;
   box-shadow:
     0 6rpx 12rpx rgba(214, 153, 41, 0.08),

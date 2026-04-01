@@ -48,46 +48,38 @@
     </div>
 
     <!-- 状态提示 -->
-    <div class="status-bar" :class="{ idle: !quizMode && !isAnimating }">
-      <!-- #ifdef MP-WEIXIN -->
-      <text v-if="quizMode" class="status-quiz">
-        请按笔顺描写（第 {{ currentStrokeIndex + 1 }} / {{ char.strokes }} 笔）
-      </text>
-      <text v-else-if="isAnimating" class="status-anim">笔顺示范中...</text>
-      <text v-else class="status-idle">点击「示范」查看笔顺，或点击「测试」开始描红</text>
-      <!-- #endif -->
-      <!-- #ifdef H5 -->
-      <text v-if="isAnimating" class="status-anim">笔顺示范中...</text>
-      <text v-else-if="quizMode" class="status-quiz">请跟随轨迹练习当前汉字</text>
-      <text v-else class="status-idle">点击「示范」查看笔顺，或点击「测试」开始描红</text>
-      <!-- #endif -->
-    </div>
+    <!-- <div class="status-bar" :class="statusBarClass">
+      <text v-if="quizMode" class="status-quiz">跟着笔顺写一写</text>
+      <text v-else-if="isAnimating" class="status-anim">正在看笔顺</text>
+      <text v-else-if="localFeedback === 'mistake'" class="status-mistake">笔顺方向不对，再试试</text>
+      <text v-else-if="practiceCount >= 1" class="status-ready">这一遍完成，可以继续了</text>
+      <text v-else class="status-idle">先看示范，再开始写</text>
+    </div> -->
 
     <!-- 操作按钮 -->
     <div class="action-bar">
       <button class="btn-action btn-clear" @click="clearCanvas">
-        <text class="btn-icon">🗑️</text>
+        <wd-icon name="delete" size="24px" />
         <text>清除</text>
       </button>
-      <button class="btn-action btn-demo" :disabled="isAnimating" @click="playStrokeDemo">
-        <text class="btn-icon">{{ isAnimating ? '⏸️' : '▶️' }}</text>
-        <text>{{ isAnimating ? '播放中' : '示范' }}</text>
+      <button class="btn-action btn-demo" :class="{ active: isAnimating }" :disabled="isAnimating" @click="playStrokeDemo">
+        <wd-icon name="video" size="24px" />
+        <text>示范</text>
       </button>
       <button v-if="!quizMode" class="btn-action btn-quiz" @click="startQuizMode">
-        <text class="btn-icon">✍️</text>
+        <wd-icon name="edit" size="24px" />
         <text>测试</text>
       </button>
-      <button v-if="quizMode" class="btn-action btn-next-stroke" @click="confirmStroke">
-        <text class="btn-icon">✓</text>
+      <button v-else class="btn-action btn-next-stroke" @click="confirmStroke">
+        <wd-icon name="check" size="24x" />
         <text>下一笔</text>
       </button>
     </div>
 
     <!-- 练习次数提示 -->
-    <div class="practice-hint">
-      已练习 {{ practiceCount }} 次
-      <text v-if="practiceCount >= 2" class="hint-done">✓ 完成</text>
-    </div>
+    <!-- <div class="practice-hint" :class="{ done: practiceCount >= 1 }">
+      <text>{{ practiceCount >= 1 ? '已完成本字练习' : `今天已练习 ${practiceCount} 次` }}</text>
+    </div> -->
 
     <!-- 底部切换按钮 -->
     <div class="step-actions" :class="{ ready: practiceCount >= 1 }">
@@ -109,7 +101,7 @@
 <script lang="ts" setup>
 // @ts-nocheck
 import type { Character } from '@/types/character'
-import { getCurrentInstance, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
+import { computed, getCurrentInstance, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { loadFullCharData } from '@/utils/stroke-loader'
 // #ifdef H5
 import HanziWriter from 'hanzi-writer'
@@ -130,6 +122,12 @@ const fullChar = ref<Character>(props.char)
 const practiceCount = ref(0)
 const isAnimating = ref(false)
 const quizMode = ref(false)
+const localFeedback = ref<'mistake' | ''>('')
+const statusBarClass = computed(() => ({
+  idle: !quizMode.value && !isAnimating.value && practiceCount.value < 1 && !localFeedback.value,
+  ready: !quizMode.value && !isAnimating.value && practiceCount.value >= 1,
+  mistake: localFeedback.value === 'mistake',
+}))
 
 // #ifdef H5
 let writer: HanziWriter | null = null
@@ -168,6 +166,9 @@ function initHanziWriter() {
 function playStrokeDemo() {
   if (!writer || isAnimating.value)
     return
+
+  localFeedback.value = ''
+  quizMode.value = false
   isAnimating.value = true
   writer.animateCharacter({
     onComplete: () => {
@@ -178,28 +179,30 @@ function playStrokeDemo() {
 }
 
 function startQuizMode() {
-  if (!writer)
+  if (!writer || isAnimating.value)
     return
+
+  localFeedback.value = ''
   quizMode.value = true
   writer.quiz({
-    onMistake: (strokeData: any) => console.log('错误笔画:', strokeData.strokeNum),
-    onCorrectStroke: (strokeData: any) => console.log('正确笔画:', strokeData.strokeNum),
-    onComplete: (summaryData: any) => {
+    onMistake: () => {},
+    onCorrectStroke: () => {},
+    onComplete: () => {
       quizMode.value = false
       practiceCount.value++
-      if (summaryData.totalMistakes === 0) {
-        uni.showToast({ title: '太棒了！全对！', icon: 'success' })
-      }
     },
   })
 }
 
 function clearCanvas() {
-  if (writer) {
-    writer.cancelQuiz()
-    quizMode.value = false
-    initHanziWriter()
-  }
+  if (!writer)
+    return
+
+  writer.cancelQuiz()
+  localFeedback.value = ''
+  quizMode.value = false
+  isAnimating.value = false
+  initHanziWriter()
 }
 
 onMounted(async () => {
@@ -212,6 +215,8 @@ watch(() => props.char._id, async () => {
   const full = await loadFullCharData(props.char._id)
   if (full)
     fullChar.value = full
+  practiceCount.value = 0
+  localFeedback.value = ''
   initHanziWriter()
 })
 onUnmounted(() => { writer = null })
@@ -406,6 +411,7 @@ function playStrokeDemo() {
     return
   isAnimating.value = true
   canDraw.value = false
+  localFeedback.value = ''
   quizMode.value = false
 
   const paths = fullChar.value.stroke_paths || []
@@ -445,6 +451,10 @@ function playStrokeDemo() {
 
 // ─── 描红模式 ───────────────────────────────────────────────────────
 function startQuizMode() {
+  if (isAnimating.value)
+    return
+
+  localFeedback.value = ''
   quizMode.value = true
   canDraw.value = true
   currentStrokeIndex.value = 0
@@ -487,6 +497,7 @@ function confirmStroke() {
   const correct = isStrokeCorrect()
 
   if (correct) {
+    localFeedback.value = ''
     currentStrokeIndex.value++
     currentStrokePath = []
 
@@ -495,7 +506,6 @@ function confirmStroke() {
       quizMode.value = false
       canDraw.value = false
       practiceCount.value++
-      uni.showToast({ title: '写完了！', icon: 'success' })
       renderFrame()
     }
     else {
@@ -503,7 +513,7 @@ function confirmStroke() {
     }
   }
   else {
-    uni.showToast({ title: '笔顺方向不对，再试试', icon: 'none', duration: 1500 })
+    localFeedback.value = 'mistake'
     currentStrokePath = []
     renderFrame()
   }
@@ -550,6 +560,7 @@ function onTouchEnd() {
 function clearCanvas() {
   if (animTimer) { clearTimeout(animTimer); animTimer = null }
   if (rafId !== null && canvas) { canvas.cancelAnimationFrame(rafId); rafId = null }
+  localFeedback.value = ''
   isAnimating.value = false
   quizMode.value = false
   canDraw.value = false
@@ -588,6 +599,7 @@ onMounted(async () => {
 watch(() => props.char._id, async () => {
   if (animTimer) { clearTimeout(animTimer); animTimer = null }
   practiceCount.value = 0
+  localFeedback.value = ''
   isAnimating.value = false
   quizMode.value = false
   canDraw.value = false
@@ -612,71 +624,70 @@ const handleNext = () => emit('next')
 
 <style lang="scss" scoped>
 .tracing-practice {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
   width: 100%;
   color: #4a3728;
 }
 
 .char-header {
-  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 24rpx;
-  margin-bottom: 32rpx;
+  gap: 16rpx;
+  margin-bottom: 16rpx;
 }
 
 .char-preview {
-  font-size: 100rpx;
-  font-weight: bold;
-  font-family: 'KaiTi', 'STKaiti', serif;
-  color: #333;
+  font-size: 144rpx;
   line-height: 1;
+  font-weight: 700;
+  font-family: 'KaiTi', 'STKaiti', serif;
+  color: #2f2a24;
 }
 
 .char-info {
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
   gap: 8rpx;
 }
 
 .pinyin {
-  font-size: 32rpx;
-  color: #666;
+  font-size: 48rpx;
+  font-weight: 600;
+  color: #625344;
 }
 
 .stroke-count {
+  min-width: 72rpx;
+  padding: 8rpx 16rpx;
+  border-radius: 999rpx;
   font-size: 24rpx;
-  color: #999;
-  background: #f0f0f0;
-  padding: 4rpx 16rpx;
-  border-radius: 20rpx;
+  font-weight: 700;
+  color: #9a8368;
+  background: linear-gradient(180deg, #f4f1ea 0%, #ece6da 100%);
 }
 
 .tracing-area {
-  width: 100%;
   display: flex;
   justify-content: center;
-  margin-bottom: 24rpx;
-  padding: 24rpx;
-  border-radius: 24rpx;
-  background: linear-gradient(180deg, rgba(255, 252, 246, 0.96) 0%, rgba(255, 248, 239, 0.94) 100%);
-  box-shadow:
-    0 8rpx 16rpx rgba(229, 180, 83, 0.04),
-    inset 0 0 0 4rpx rgba(244, 226, 193, 0.5);
+  margin-bottom: 16px;
+  // padding: 24rpx;
+  // border-radius: 28rpx;
+  // background: linear-gradient(180deg, rgba(255, 252, 246, 0.98) 0%, rgba(255, 248, 239, 0.95) 100%);
+  // box-shadow:
+  //   0 8rpx 18rpx rgba(229, 180, 83, 0.04),
+  //   inset 0 0 0 4rpx rgba(244, 226, 193, 0.42);
 }
 
 .grid-container {
-  width: 500rpx;
-  height: 500rpx;
   position: relative;
-  background: #fff8f0;
-  border: 4rpx solid #e0d5c0;
-  border-radius: 16rpx;
+  width: 100%;
+  max-width: 520rpx;
+  aspect-ratio: 1;
+  border-radius: 20rpx;
   overflow: hidden;
+  background: rgba(255, 250, 242, 0.96);
+  box-shadow: inset 0 0 0 4rpx rgba(225, 205, 168, 0.55);
 }
 
 .grid-bg {
@@ -728,80 +739,121 @@ const handleNext = () => emit('next')
 }
 
 .status-bar {
-  height: 48rpx;
+  min-height: 48rpx;
+  margin-top: 12rpx;
   margin-bottom: 16rpx;
-  font-size: 26rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   text-align: center;
+}
 
-  .status-quiz {
-    color: #e65100;
-  }
-  .status-anim {
-    color: #1976d2;
-  }
-  .status-idle {
-    color: #999;
-  }
+.status-idle,
+.status-anim,
+.status-quiz,
+.status-ready,
+.status-mistake {
+  font-size: 26rpx;
+  line-height: 1.4;
+  font-weight: 600;
+}
+
+.status-idle {
+  color: #9a8368;
+}
+
+.status-anim,
+.status-quiz {
+  color: #8c6a3d;
+}
+
+.status-ready {
+  color: #5f7f38;
+}
+
+.status-mistake {
+  color: #c56d52;
 }
 
 .action-bar {
   width: 100%;
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  padding: 24rpx 0;
+  display: flex;
+  justify-content: space-between;
   gap: 16rpx;
-  margin-bottom: 24rpx;
+  margin-bottom: 16rpx;
+  box-sizing: border-box;
 }
 
 .btn-action {
-  min-height: 88rpx;
+  width: 200rpx;
+  height: 100rpx;
+  padding: 16rpx 24rpx;
+  margin: 0;
+  border-radius: 48rpx;
+  border: 2rpx solid transparent;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12rpx;
-  padding: 16rpx 20rpx;
-  border-radius: 24rpx;
-  font-size: 28rpx;
-  font-weight: 700;
-  border: none;
+  gap: 16rpx;
+  font-size: 32rpx;
+  font-weight: 600;
+  box-shadow:
+    0 6rpx 12rpx rgba(214, 153, 41, 0.08),
+    inset 0 2rpx 0 rgba(255, 255, 255, 0.6);
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
 
-  &.btn-clear {
-    background: #f5f5f5;
-    color: #666;
+  &::after {
+    border: none;
   }
 
-  &.btn-demo {
-    background: #e3f2fd;
-    color: #1976d2;
-
-    &:disabled {
-      opacity: 0.6;
-    }
-  }
-
-  &.btn-quiz {
-    background: #fff3e0;
-    color: #e65100;
-  }
-
-  &.btn-next-stroke {
-    background: #e8f5e9;
-    color: #2e7d32;
+  &:active {
+    transform: scale(0.96);
+    box-shadow: 0 4rpx 8rpx rgba(214, 153, 41, 0.08);
   }
 }
 
-.btn-icon {
-  font-size: 32rpx;
+.btn-clear {
+  background: linear-gradient(180deg, #f7f5f1 0%, #efebe4 100%);
+  border-color: rgba(205, 195, 181, 0.72);
+  color: #8b8377;
+}
+
+.btn-demo {
+  background: linear-gradient(180deg, #f5fbff 0%, #e6f4ff 100%);
+  border-color: rgba(150, 199, 242, 0.72);
+  color: #426b93;
+
+  &.active {
+    background: linear-gradient(180deg, #edf6ff 0%, #dcecff 100%);
+    border-color: rgba(122, 181, 236, 0.78);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+  }
+}
+
+.btn-quiz,
+.btn-next-stroke {
+  background: linear-gradient(180deg, #fff7ef 0%, #ffefd8 100%);
+  border-color: rgba(242, 197, 119, 0.72);
+  color: #8c5b2d;
 }
 
 .practice-hint {
-  font-size: 28rpx;
-  color: #999;
-  margin-bottom: 40rpx;
+  min-height: 32rpx;
+  margin-bottom: 20rpx;
+  text-align: center;
+  font-size: 24rpx;
+  font-weight: 600;
+  color: #9a8368;
 }
 
-.hint-done {
-  color: #82c785;
-  margin-left: 16rpx;
+.practice-hint.done {
+  color: #5f7f38;
 }
 
 .step-actions {
