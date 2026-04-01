@@ -45,18 +45,24 @@
       <text class="feedback-text">{{ isCorrect ? '选对了！' : `正确读音：${char.pinyin}` }}</text>
     </div>
 
-    <!-- 下一步按钮 -->
-    <button
-      v-if="canProceed"
-      class="btn-continue"
-      @click="handleNext"
-    >
-      继续下一步
-    </button>
+    <!-- 底部切换按钮 -->
+    <div class="step-actions" :class="{ ready: canProceed }">
+      <button class="btn-secondary" @click="handlePrev">
+        上一步
+      </button>
+      <button
+        class="btn-continue"
+        :class="{ disabled: !canProceed }"
+        :disabled="!canProceed"
+        @click="handleNext"
+      >
+        下一步
+      </button>
+    </div>
 
     <!-- 跳过按钮 -->
     <div v-if="!canProceed && !answered" class="skip-link" @click="handleSkip">
-      跳过此步骤
+      先去下一步
     </div>
   </div>
 </template>
@@ -72,6 +78,7 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
+  prev: []
   next: []
 }>()
 
@@ -181,6 +188,10 @@ function selectOption(idx: number) {
       canProceed.value = true
     }, 1000)
   }
+}
+
+function handlePrev() {
+  emit('prev')
 }
 
 function handleNext() {
@@ -384,20 +395,70 @@ onMounted(() => {
 }
 
 .btn-continue {
-  margin-top: auto;
   width: 100%;
-  height: 96rpx;
-  background: linear-gradient(135deg, #82c785, #6ab06d);
+  height: 106rpx;
+  background: linear-gradient(135deg, #f5a623 0%, #eb9a1a 52%, #e28412 100%);
   border: none;
-  border-radius: 48rpx;
-  font-size: 34rpx;
-  font-weight: bold;
+  border-radius: 56rpx;
+  font-size: 38rpx;
+  font-weight: 700;
+  letter-spacing: 2rpx;
   color: #fff;
-  box-shadow: 0 8rpx 24rpx rgba(130, 199, 133, 0.4);
+  box-shadow: 0 14rpx 30rpx rgba(230, 145, 24, 0.36);
+
+  &.disabled {
+    opacity: 0.45;
+    box-shadow: none;
+  }
+
+  &::after {
+    border: none;
+  }
+
+  &:active {
+    transform: translateY(2rpx);
+    box-shadow: 0 8rpx 18rpx rgba(230, 145, 24, 0.26);
+  }
+}
+
+.step-actions {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20rpx;
+  margin-top: auto;
+}
+
+.step-actions.ready {
+  .btn-secondary {
+    opacity: 1;
+  }
+}
+
+.btn-secondary {
+  width: 100%;
+  height: 106rpx;
+  background: linear-gradient(180deg, #fffaf1 0%, #fff1db 100%);
+  border: 2rpx solid rgba(232, 177, 68, 0.2);
+  border-radius: 56rpx;
+  font-size: 38rpx;
+  font-weight: 700;
+  letter-spacing: 2rpx;
+  color: #c5871a;
+  box-shadow: 0 12rpx 26rpx rgba(226, 188, 112, 0.18);
+
+  &::after {
+    border: none;
+  }
+
+  &:active {
+    transform: translateY(2rpx);
+    box-shadow: 0 8rpx 18rpx rgba(226, 188, 112, 0.14);
+  }
 }
 
 .skip-link {
-  margin-top: auto;
+  margin-top: 24rpx;
   font-size: 28rpx;
   color: #999;
   padding: 20rpx;

@@ -84,14 +84,20 @@
       <text v-if="practiceCount >= 2" class="hint-done">✓ 完成</text>
     </div>
 
-    <!-- 下一步按钮 -->
-    <button
-      v-if="practiceCount >= 1"
-      class="btn-continue"
-      @click="handleNext"
-    >
-      {{ practiceCount >= 2 ? '继续下一步' : '跳过练习' }}
-    </button>
+    <!-- 底部切换按钮 -->
+    <div class="step-actions" :class="{ ready: practiceCount >= 1 }">
+      <button class="btn-secondary" @click="emit('prev')">
+        上一步
+      </button>
+      <button
+        class="btn-continue"
+        :class="{ disabled: practiceCount < 1 }"
+        :disabled="practiceCount < 1"
+        @click="handleNext"
+      >
+        下一步
+      </button>
+    </div>
   </div>
 </template>
 
@@ -110,6 +116,7 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
+  prev: []
   next: []
 }>()
 
@@ -779,16 +786,66 @@ const handleNext = () => emit('next')
   margin-left: 16rpx;
 }
 
-.btn-continue {
-  margin-top: auto;
+.step-actions {
   width: 100%;
-  height: 96rpx;
-  background: linear-gradient(135deg, #f5a623, #e8941a);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20rpx;
+  margin-top: auto;
+}
+
+.step-actions.ready {
+  .btn-secondary {
+    opacity: 1;
+  }
+}
+
+.btn-secondary {
+  width: 100%;
+  height: 106rpx;
+  background: linear-gradient(180deg, #fffaf1 0%, #fff1db 100%);
+  border: 2rpx solid rgba(232, 177, 68, 0.2);
+  border-radius: 56rpx;
+  font-size: 38rpx;
+  font-weight: 700;
+  letter-spacing: 2rpx;
+  color: #c5871a;
+  box-shadow: 0 12rpx 26rpx rgba(226, 188, 112, 0.18);
+}
+
+.btn-secondary::after {
   border: none;
-  border-radius: 48rpx;
-  font-size: 34rpx;
-  font-weight: bold;
+}
+
+.btn-secondary:active {
+  transform: translateY(2rpx);
+  box-shadow: 0 8rpx 18rpx rgba(226, 188, 112, 0.14);
+}
+
+.btn-continue {
+  width: 100%;
+  height: 106rpx;
+  background: linear-gradient(135deg, #f5a623 0%, #eb9a1a 52%, #e28412 100%);
+  border: none;
+  border-radius: 56rpx;
+  font-size: 38rpx;
+  font-weight: 700;
+  letter-spacing: 2rpx;
   color: #fff;
-  box-shadow: 0 8rpx 24rpx rgba(245, 166, 35, 0.4);
+  box-shadow: 0 14rpx 30rpx rgba(230, 145, 24, 0.36);
+}
+
+.btn-continue.disabled {
+  opacity: 0.45;
+  box-shadow: none;
+}
+
+.btn-continue::after {
+  border: none;
+}
+
+.btn-continue:active {
+  transform: translateY(2rpx);
+  box-shadow: 0 8rpx 18rpx rgba(230, 145, 24, 0.26);
 }
 </style>

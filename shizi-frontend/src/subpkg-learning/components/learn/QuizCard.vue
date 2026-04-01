@@ -78,14 +78,13 @@
       </div>
     </div>
 
-    <!-- 结果反馈（底部横条，不遮挡选项） -->
-    <div v-if="showResult" class="result-bar" :class="isCorrect ? 'correct' : 'wrong'">
-      <div class="result-left">
-        <text class="result-icon">{{ isCorrect ? '🎉' : '❌' }}</text>
-        <text class="result-text">{{ isCorrect ? '答对了！' : `正确答案是「${char._id}」` }}</text>
-      </div>
+    <!-- 底部切换按钮 -->
+    <div v-if="showResult" class="step-actions">
+      <button class="btn-secondary" @click="handlePrev">
+        上一步
+      </button>
       <button class="btn-next" @click="handleNext">
-        继续
+        完成小测
       </button>
     </div>
   </div>
@@ -110,6 +109,7 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
+  prev: []
   next: [correct: boolean, quizType: string]
 }>()
 
@@ -227,6 +227,10 @@ function playAudio() {
     onEnd: () => { isPlaying.value = false },
     onError: () => { isPlaying.value = false },
   })
+}
+
+function handlePrev() {
+  emit('prev')
 }
 
 function handleNext() {
@@ -359,55 +363,57 @@ watch(() => props.char._id, () => {
   font-size: 72rpx;
 }
 
-/* 底部结果横条 */
-.result-bar {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 32rpx 40rpx;
-  padding-bottom: calc(32rpx + env(safe-area-inset-bottom));
-  z-index: 100;
-  animation: slide-up 0.3s ease-out;
-
-  &.correct {
-    background: #e8f5e9;
-    border-top: 4rpx solid #82c785;
-  }
-
-  &.wrong {
-    background: #ffebee;
-    border-top: 4rpx solid #ff6b6b;
-  }
+/* 底部结果导航 */
+.step-actions {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20rpx;
+  margin-top: 20rpx;
 }
 
-.result-left {
-  display: flex;
-  align-items: center;
-  gap: 16rpx;
+.btn-secondary {
+  width: 100%;
+  height: 106rpx;
+  background: linear-gradient(180deg, #fffaf1 0%, #fff1db 100%);
+  border: 2rpx solid rgba(232, 177, 68, 0.2);
+  border-radius: 56rpx;
+  font-size: 38rpx;
+  font-weight: 700;
+  letter-spacing: 2rpx;
+  color: #c5871a;
+  box-shadow: 0 12rpx 26rpx rgba(226, 188, 112, 0.18);
 }
 
-.result-icon {
-  font-size: 48rpx;
+.btn-secondary::after {
+  border: none;
 }
 
-.result-text {
-  font-size: 30rpx;
-  font-weight: bold;
-  color: #333;
+.btn-secondary:active {
+  transform: translateY(2rpx);
+  box-shadow: 0 8rpx 18rpx rgba(226, 188, 112, 0.14);
 }
 
 .btn-next {
-  padding: 16rpx 48rpx;
-  border-radius: 40rpx;
+  width: 100%;
+  height: 106rpx;
+  border-radius: 56rpx;
   border: none;
-  font-size: 30rpx;
-  font-weight: bold;
+  font-size: 38rpx;
+  font-weight: 700;
+  letter-spacing: 2rpx;
   color: #fff;
-  background: linear-gradient(135deg, #f5a623, #e8941a);
+  background: linear-gradient(135deg, #f5a623 0%, #eb9a1a 52%, #e28412 100%);
+  box-shadow: 0 14rpx 30rpx rgba(230, 145, 24, 0.36);
+}
+
+.btn-next::after {
+  border: none;
+}
+
+.btn-next:active {
+  transform: translateY(2rpx);
+  box-shadow: 0 8rpx 18rpx rgba(230, 145, 24, 0.26);
 }
 
 @keyframes slide-up {

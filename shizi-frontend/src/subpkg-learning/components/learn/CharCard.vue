@@ -49,7 +49,7 @@
     <!-- 下一步按钮 -->
     <div class="btn-continue-wrap" :class="{ show: showButton }">
       <button class="btn-continue" @click="handleNext">
-        我记住了，继续
+        看好了，下一步
       </button>
     </div>
   </div>
@@ -77,14 +77,14 @@ const displayWords = computed(() =>
   (props.char.example_words ?? []).filter(Boolean).slice(0, 4),
 )
 const wordThemes = [
-  { bg: 'linear-gradient(180deg, #fff8f2 0%, #ffe9dc 100%)', border: 'rgba(244, 183, 149, 0.72)', color: '#9a6138' },
-  { bg: 'linear-gradient(180deg, #fff7ef 0%, #ffefd8 100%)', border: 'rgba(242, 197, 119, 0.72)', color: '#8c5b2d' },
   { bg: 'linear-gradient(180deg, #f5fbff 0%, #e6f4ff 100%)', border: 'rgba(150, 199, 242, 0.72)', color: '#426b93' },
   { bg: 'linear-gradient(180deg, #f7fff2 0%, #e9f8dc 100%)', border: 'rgba(171, 214, 120, 0.72)', color: '#567a2c' },
   { bg: 'linear-gradient(180deg, #fff5fb 0%, #ffe5f3 100%)', border: 'rgba(239, 171, 207, 0.72)', color: '#9b4d7a' },
   { bg: 'linear-gradient(180deg, #fffaf0 0%, #fff1c9 100%)', border: 'rgba(241, 205, 123, 0.72)', color: '#8b6727' },
   { bg: 'linear-gradient(180deg, #f4fbfb 0%, #dff5f1 100%)', border: 'rgba(133, 214, 201, 0.72)', color: '#3f7f75' },
   { bg: 'linear-gradient(180deg, #f8f6ff 0%, #ece8ff 100%)', border: 'rgba(182, 170, 241, 0.72)', color: '#6556a6' },
+  { bg: 'linear-gradient(180deg, #fff8f2 0%, #ffe9dc 100%)', border: 'rgba(244, 183, 149, 0.72)', color: '#9a6138' },
+  { bg: 'linear-gradient(180deg, #fff7ef 0%, #ffefd8 100%)', border: 'rgba(242, 197, 119, 0.72)', color: '#8c5b2d' },
 ]
 
 function getWordStyle(index: number) {

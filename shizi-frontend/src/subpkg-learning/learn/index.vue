@@ -18,42 +18,68 @@
           {{ currentCharIndex }}/{{ totalChars }}
         </div>
       </div>
+      <div class="step-flow">
+        <template v-for="(item, index) in stepItems" :key="item.key">
+          <button
+            class="step-chip"
+            :class="[`is-${item.state}`, { clickable: item.clickable }]"
+            :disabled="!item.clickable"
+            @click="handleStepClick(item.key)"
+          >
+            <div class="step-chip-dot">
+              <wd-icon v-if="item.state === 'done'" name="check" size="18px" />
+              <span v-else>{{ index + 1 }}</span>
+            </div>
+            <div class="step-chip-label">
+              {{ item.label }}
+            </div>
+          </button>
+          <div
+            v-if="index < stepItems.length - 1"
+            class="step-segment"
+            :class="{ done: isConnectorDone(index) }"
+          />
+        </template>
+      </div>
     </div>
 
     <!-- 学习内容区域 -->
     <div class="learn-content">
       <!-- 步骤1: 字源动画 -->
       <CharCard
-        v-if="step === 'origin'"
+        v-if="currentStep === 'origin'"
         :char="currentChar"
-        @next="goToSpeak"
+        @next="goToNextStep"
       />
 
       <!-- 步骤2: 跟读互动 -->
       <SpeakPractice
-        v-else-if="step === 'speak'"
+        v-else-if="currentStep === 'speak'"
         :char="currentChar"
         :all-chars="unitChars"
-        @next="goToTrace"
+        @prev="goToPreviousStep"
+        @next="goToNextStep"
       />
 
       <!-- 步骤3: 描红练习 -->
       <TracingPractice
-        v-else-if="step === 'trace'"
+        v-else-if="currentStep === 'trace'"
         :char="currentChar"
-        @next="goToQuiz"
+        @prev="goToPreviousStep"
+        @next="goToNextStep"
       />
 
       <!-- 步骤4: 小测验 -->
       <QuizCard
-        v-else-if="step === 'quiz'"
+        v-else-if="currentStep === 'quiz'"
         :char="currentChar"
         :all-chars="unitChars"
+        @prev="goToPreviousStep"
         @next="handleQuizComplete"
       />
 
       <!-- 单字学习完成 -->
-      <div v-else-if="step === 'complete'" class="complete-screen">
+      <div v-else-if="currentStep === 'complete'" class="complete-screen">
         <div class="complete-icon">
           🎉
         </div>
@@ -76,7 +102,7 @@
 
 <script lang="ts" setup>
 import type { Character } from '@/types/character'
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useLearnStore } from '@/store'
 import { getCustomNavBarMetrics } from '@/utils/navbar'
 import CharCard from '../components/learn/CharCard.vue'
@@ -99,13 +125,22 @@ const headerStyle = computed(() => ({
 
 // 学习步骤
 type LearnStep = 'origin' | 'speak' | 'trace' | 'quiz' | 'complete'
+type NavigableStep = Exclude<LearnStep, 'complete'>
 
-const step = ref<LearnStep>('origin')
+type StepVisualState = 'current' | 'done' | 'available'
+
+const stepOrder: NavigableStep[] = ['origin', 'speak', 'trace', 'quiz']
+const currentStep = ref<LearnStep>('origin')
+const completedSteps = ref<NavigableStep[]>([])
+const quizResultRecorded = ref(false)
 const charIndex = ref(0)
 const unitId = ref('unit_1')
 
 const unitChars = ref<Character[]>([])
 const currentChar = computed(() => unitChars.value[charIndex.value] || {} as Character)
+const currentStepIndex = computed(() =>
+  currentStep.value === 'complete' ? stepOrder.length - 1 : stepOrder.indexOf(currentStep.value as NavigableStep),
+)
 
 // 进度计算
 const totalChars = computed(() => unitChars.value.length)
@@ -116,45 +151,100 @@ const progressPercent = computed(() =>
   totalChars.value > 0 ? (currentCharIndex.value / totalChars.value) * 100 : 0,
 )
 const stepLabelMap: Record<LearnStep, string> = {
-  origin: '字形认知',
-  speak: '跟读练习',
-  trace: '描红练习',
-  quiz: '趣味小测',
+  origin: '看一看',
+  speak: '读一读',
+  trace: '写一写',
+  quiz: '试一试',
   complete: '本字完成',
 }
-const stepLabel = computed(() => stepLabelMap[step.value])
-const charProgressLabel = computed(() => {
-  if (totalChars.value === 0)
-    return '正在准备学习内容'
-  return `当前生字 ${currentCharIndex.value}/${totalChars.value}`
-})
-
-// 步骤切换
-function goToSpeak() {
-  step.value = 'speak'
+const stepLabel = computed(() => stepLabelMap[currentStep.value])
+const stepItems = computed(() =>
+  stepOrder.map((stepKey, index) => ({
+    key: stepKey,
+    label: stepLabelMap[stepKey],
+    state: getStepState(stepKey),
+    clickable: index <= currentStepIndex.value || isStepCompleted(stepKey),
+  })),
+)
+function isConnectorDone(index: number) {
+  return isStepCompleted(stepOrder[index])
 }
 
-function goToTrace() {
-  step.value = 'trace'
+function isStepCompleted(stepKey: NavigableStep) {
+  return completedSteps.value.includes(stepKey)
 }
 
-function goToQuiz() {
-  step.value = 'quiz'
+function getStepState(stepKey: NavigableStep): StepVisualState {
+  if (currentStep.value === stepKey)
+    return 'current'
+  if (isStepCompleted(stepKey))
+    return 'done'
+  return 'available'
 }
-function handleQuizComplete(correct: boolean, quizType?: string) {
-  // 记录学习结果
-  learnStore.markCharLearned(currentChar.value._id, correct)
-  // 答错记录错题
-  if (!correct) {
-    learnStore.recordWrong(currentChar.value._id, quizType || 'unknown', unitId.value)
+
+function markStepCompleted(stepKey: NavigableStep) {
+  if (!completedSteps.value.includes(stepKey))
+    completedSteps.value = [...completedSteps.value, stepKey]
+}
+
+function resetCharFlow() {
+  currentStep.value = 'origin'
+  completedSteps.value = []
+  quizResultRecorded.value = false
+}
+
+function moveToStep(stepKey: LearnStep) {
+  currentStep.value = stepKey
+}
+
+function goToPreviousStep() {
+  if (currentStep.value === 'complete') {
+    moveToStep('quiz')
+    return
   }
-  step.value = 'complete'
+
+  const currentIndex = currentStepIndex.value
+  if (currentIndex <= 0)
+    return
+  moveToStep(stepOrder[currentIndex - 1])
+}
+
+function goToNextStep() {
+  if (currentStep.value === 'complete')
+    return
+
+  const stepKey = currentStep.value as NavigableStep
+  markStepCompleted(stepKey)
+  const nextStep = stepOrder[currentStepIndex.value + 1]
+  if (nextStep)
+    moveToStep(nextStep)
+}
+
+function handleStepClick(stepKey: NavigableStep) {
+  const item = stepItems.value.find(step => step.key === stepKey)
+  if (!item?.clickable || currentStep.value === stepKey)
+    return
+  moveToStep(stepKey)
+}
+
+function handleQuizComplete(correct: boolean, quizType?: string) {
+  markStepCompleted('quiz')
+
+  if (!quizResultRecorded.value) {
+    learnStore.markCharLearned(currentChar.value._id, correct)
+    if (!correct) {
+      learnStore.recordWrong(currentChar.value._id, quizType || 'unknown', unitId.value)
+    }
+    quizResultRecorded.value = true
+  }
+
+  moveToStep('complete')
 }
 
 function nextChar() {
   if (charIndex.value < unitChars.value.length - 1) {
     charIndex.value++
-    step.value = 'origin'
+    resetCharFlow()
     // 保存单元进度
     learnStore.updateUnitProgress(unitId.value, charIndex.value)
   }
@@ -179,6 +269,10 @@ function handleClose() {
   })
 }
 
+watch(charIndex, () => {
+  resetCharFlow()
+})
+
 // 加载单元数据
 onMounted(() => {
   const pages = getCurrentPages()
@@ -200,6 +294,7 @@ onMounted(() => {
     if (progress.charIndex > 0 && !progress.completed) {
       charIndex.value = progress.charIndex
     }
+    resetCharFlow()
   }
 })
 </script>
@@ -216,10 +311,10 @@ onMounted(() => {
 }
 
 .progress-header {
-  padding: 18rpx 32rpx 24rpx;
+  padding: 18rpx 32rpx 30rpx;
   display: flex;
   flex-direction: column;
-  gap: 14rpx;
+  gap: 16rpx;
   background: linear-gradient(180deg, rgba(255, 252, 246, 0.98), rgba(255, 247, 234, 0.96));
   border-bottom-left-radius: 40rpx;
   border-bottom-right-radius: 40rpx;
@@ -247,7 +342,7 @@ onMounted(() => {
 .progress-row {
   display: flex;
   align-items: center;
-  gap: 16rpx;
+  gap: 18rpx;
 }
 
 .progress-bg {
@@ -279,6 +374,156 @@ onMounted(() => {
   font-size: 30rpx;
   font-weight: 700;
   color: #8b7357;
+}
+
+.step-flow {
+  position: relative;
+  display: grid;
+  grid-template-columns:
+    max-content minmax(24rpx, 1fr)
+    max-content minmax(24rpx, 1fr)
+    max-content minmax(24rpx, 1fr)
+    max-content;
+  justify-content: space-between;
+  align-items: start;
+  column-gap: 0;
+  row-gap: 0;
+  padding: 14rpx 0 6rpx;
+}
+
+.step-segment {
+  align-self: start;
+  width: calc(100% + 20rpx);
+  min-width: 24rpx;
+  margin-top: 38rpx;
+  margin-left: -10rpx;
+  margin-right: -10rpx;
+  height: 6rpx;
+  border-radius: 999rpx;
+  background: linear-gradient(90deg, rgba(220, 210, 190, 0.8), rgba(232, 224, 210, 0.8));
+  box-shadow: inset 0 1rpx 1rpx rgba(255, 255, 255, 0.48);
+}
+
+.step-segment.done {
+  background: linear-gradient(90deg, rgba(190, 224, 128, 0.92), rgba(143, 198, 71, 0.92));
+  box-shadow:
+    0 0 6rpx rgba(173, 219, 96, 0.14),
+    inset 0 1rpx 0 rgba(245, 255, 232, 0.64);
+}
+
+.step-chip {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12rpx;
+  padding: 12rpx 6rpx 10rpx;
+  background: transparent;
+  border: none;
+  color: #a38b6b;
+  transition:
+    transform 0.18s ease,
+    opacity 0.18s ease,
+    filter 0.18s ease;
+
+  &[disabled]:not(.clickable) {
+    background: transparent;
+  }
+
+  &::after {
+    border: none;
+  }
+
+  &:active {
+    transform: scale(0.96);
+  }
+
+  &.clickable {
+    cursor: pointer;
+  }
+
+  &:disabled {
+    opacity: 1;
+  }
+
+  &:not(.clickable) {
+    filter: saturate(0.7);
+    cursor: default;
+  }
+
+  &.is-current {
+    color: #704f1f;
+  }
+
+  &.is-done {
+    color: #567a2c;
+  }
+}
+
+.step-chip-dot {
+  width: 56rpx;
+  height: 56rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999rpx;
+  font-size: 24rpx;
+  font-weight: 700;
+  border: 2rpx solid rgba(226, 198, 151, 0.78);
+  background:
+    radial-gradient(circle at 30% 28%, rgba(255, 255, 255, 0.96), rgba(255, 250, 241, 0.92) 58%, rgba(255, 242, 214, 0.9) 100%);
+  box-shadow:
+    0 10rpx 18rpx rgba(223, 186, 113, 0.14),
+    inset 0 2rpx 0 rgba(255, 255, 255, 0.82);
+  transition: all 0.2s ease;
+}
+
+.step-chip-label {
+  font-size: 24rpx;
+  line-height: 1.2;
+  font-weight: 700;
+  letter-spacing: 1rpx;
+  transition: color 0.2s ease, opacity 0.2s ease;
+}
+
+.step-chip.is-current .step-chip-dot {
+  background: radial-gradient(circle at 34% 30%, #fff3bf 0%, #ffd86f 55%, #f5b42b 100%);
+  border-color: rgba(237, 164, 28, 0.66);
+  color: #7a4a00;
+  box-shadow:
+    0 8rpx 14rpx rgba(245, 166, 35, 0.12),
+    0 0 0 2rpx rgba(255, 233, 170, 0.12),
+    inset 0 2rpx 0 rgba(255, 250, 228, 0.88);
+}
+
+.step-chip.is-current .step-chip-label {
+  color: #704f1f;
+}
+
+.step-chip.is-done .step-chip-dot {
+  background: radial-gradient(circle at 30% 28%, #f7ffe7 0%, #dff5b7 58%, #b8df77 100%);
+  border-color: rgba(163, 210, 96, 0.72);
+  color: #567a2c;
+  box-shadow:
+    0 8rpx 14rpx rgba(143, 198, 71, 0.12),
+    0 0 0 2rpx rgba(214, 239, 165, 0.12),
+    inset 0 2rpx 0 rgba(255, 255, 255, 0.82);
+}
+
+.step-chip.is-done .step-chip-label {
+  color: #5f7f38;
+}
+
+.step-chip:not(.clickable) .step-chip-dot {
+  background: transparent;
+  border-color: rgba(224, 208, 181, 0.74);
+  color: #b79f82;
+  box-shadow: none;
+}
+
+.step-chip:not(.clickable) .step-chip-label {
+  color: #c2b39f;
 }
 
 .exit-entry {
