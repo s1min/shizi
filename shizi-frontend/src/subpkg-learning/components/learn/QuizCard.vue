@@ -1,78 +1,65 @@
 <template>
   <div class="quiz-card">
-    <!-- 题目类型提示 -->
-    <div class="quiz-type">
-      {{ quizTypeLabel }}
-    </div>
+    <div class="question-card learning-quiz-question-card">
+      <div class="question-meta learning-quiz-question-meta">
+        <div class="quiz-type learning-quiz-type">
+          {{ quizTypeLabel }}
+        </div>
+        <div class="question-hint learning-quiz-hint">
+          {{ quizHint }}
+        </div>
+      </div>
 
-    <div class="quiz-body">
-      <!-- 题目区域 -->
-      <div class="question-area">
-        <!-- 题型A: 看字选图 -->
+      <div class="question-content learning-quiz-content">
         <template v-if="quizType === 'char-to-image'">
-          <div class="question-char">
+          <div class="question-char learning-quiz-char">
             {{ char._id }}
           </div>
-          <div class="question-hint">
-            选择正确的图片
-          </div>
         </template>
 
-        <!-- 题型B: 看图选字 -->
         <template v-else-if="quizType === 'image-to-char'">
-          <div class="question-image">
+          <div class="question-image learning-quiz-image">
             {{ char.teaching?.emoji_fallback || '❓' }}
           </div>
-          <div class="question-hint">
-            选择正确的汉字
-          </div>
         </template>
 
-        <!-- 题型C: 听音选字 -->
         <template v-else-if="quizType === 'audio-to-char'">
-          <button class="btn-audio" @click="playAudio">
-            <text class="audio-icon">{{ isPlaying ? '🔊' : '🔈' }}</text>
+          <button class="btn-audio learning-quiz-audio-btn" @click="playAudio">
+            <text class="audio-icon learning-quiz-audio-icon">{{ isPlaying ? '🔊' : '🔈' }}</text>
             <text>{{ isPlaying ? '播放中...' : '再听一遍' }}</text>
           </button>
-          <div class="question-hint">
-            听发音，选汉字
-          </div>
         </template>
 
-        <!-- 题型D: 拼音选字 -->
         <template v-else-if="quizType === 'pinyin-to-char'">
-          <div class="question-pinyin">
+          <div class="question-pinyin learning-quiz-pinyin">
             {{ char.pinyin }}
-          </div>
-          <div class="question-hint">
-            选择正确的汉字
           </div>
         </template>
       </div>
+    </div>
 
-      <!-- 选项区域 -->
-      <div class="options-area">
+    <div class="options-panel learning-quiz-options-panel">
+      <div class="options-area learning-quiz-options-grid">
         <div
           v-for="(option, index) in options"
           :key="index"
-          class="option-item"
+          class="option-item learning-quiz-option"
           :class="{
             selected: selectedIndex === index,
             correct: showResult && option.isCorrect,
             wrong: showResult && selectedIndex === index && !option.isCorrect,
+            disabled: showResult,
           }"
           @click="selectOption(index)"
         >
-          <!-- 图片选项 -->
           <template v-if="quizType === 'char-to-image'">
-            <div class="option-image">
+            <div class="option-image learning-quiz-option-image">
               {{ option.emoji }}
             </div>
           </template>
 
-          <!-- 汉字选项 -->
           <template v-else>
-            <div class="option-char">
+            <div class="option-char learning-quiz-option-char">
               {{ option.char }}
             </div>
           </template>
@@ -80,12 +67,29 @@
       </div>
     </div>
 
-    <!-- 底部切换按钮 -->
-    <div class="step-actions">
-      <button class="btn-secondary" @click="handlePrev">
+    <div v-if="feedbackState !== 'hidden'" class="feedback-dock learning-quiz-feedback-dock">
+      <div class="feedback-card learning-quiz-feedback-card" :class="feedbackState">
+        <div class="feedback-main learning-quiz-feedback-main">
+          <div class="feedback-icon-wrap learning-quiz-feedback-icon-wrap">
+            <text class="feedback-icon-large learning-quiz-feedback-icon">{{ isCorrect ? '🎉' : '💡' }}</text>
+          </div>
+          <div class="feedback-copy learning-quiz-feedback-copy">
+            <div class="feedback-title learning-quiz-feedback-title">
+              {{ feedbackTitle }}
+            </div>
+            <div class="feedback-desc learning-quiz-feedback-desc">
+              {{ feedbackDesc }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step-actions learning-quiz-actions">
+      <button class="btn-secondary learning-quiz-btn-secondary" @click="handlePrev">
         上一步
       </button>
-      <button class="btn-next" :class="{ disabled: !showResult }" :disabled="!showResult" @click="handleNext">
+      <button class="btn-next learning-quiz-btn-primary" :class="{ disabled: !showResult }" :disabled="!showResult" @click="handleNext">
         完成小测
       </button>
     </div>
@@ -131,6 +135,30 @@ const quizTypeLabel = computed(() => {
   }
   return labels[quizType.value]
 })
+
+const quizHint = computed(() => {
+  const hints: Record<QuizType, string> = {
+    'char-to-image': '选择正确的图片',
+    'image-to-char': '选择正确的汉字',
+    'audio-to-char': '听发音，选汉字',
+    'pinyin-to-char': '选择正确的汉字',
+  }
+  return hints[quizType.value]
+})
+
+const feedbackState = computed(() => {
+  if (!showResult.value)
+    return 'hidden'
+  return isCorrect.value ? 'success' : 'error'
+})
+
+const feedbackTitle = computed(() =>
+  isCorrect.value ? '答对啦！' : '再看一看这个字',
+)
+
+const feedbackDesc = computed(() =>
+  isCorrect.value ? '已经记住这个字了，继续下一步吧。' : '先听一听正确发音，再完成这一题。',
+)
 
 function initQuiz() {
   selectedIndex.value = null
@@ -255,210 +283,10 @@ watch(() => props.char._id, () => {
   display: flex;
   flex-direction: column;
   width: 100%;
-  padding: 0;
   color: #4a3728;
 }
 
-.quiz-type {
-  align-self: center;
-  font-size: 32rpx;
-  font-weight: 700;
-  color: #9a8368;
-  background: linear-gradient(180deg, #fffaf1 0%, #fff1db 100%);
-  padding: 8rpx 24rpx;
-  border-radius: 20rpx;
-  margin-bottom: 24rpx;
-}
-
-.quiz-body {
-  // display: flex;
-  // flex-direction: column;
-  // gap: 0;
-  // padding: 24rpx;
-  // border-radius: 24rpx;
-  // background: linear-gradient(180deg, rgba(255, 252, 246, 0.96) 0%, rgba(255, 248, 239, 0.94) 100%);
-  // box-shadow:
-  //   0 8rpx 16rpx rgba(229, 180, 83, 0.04),
-  //   inset 0 0 0 4rpx rgba(244, 226, 193, 0.5);
-}
-
-.question-area {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: 32rpx;
-}
-
-.question-char {
-  font-size: 160rpx;
-  font-weight: bold;
-  font-family: 'KaiTi', 'STKaiti', serif;
-  color: #333;
-  line-height: 1;
-  margin-bottom: 20rpx;
-}
-
-.question-image {
-  font-size: 140rpx;
-  margin-bottom: 20rpx;
-}
-
-.question-pinyin {
-  font-size: 64rpx;
-  color: #333;
-  margin-bottom: 20rpx;
-}
-
-.question-hint {
-  font-size: 28rpx;
-  color: #666;
-}
-
-.btn-audio {
-  display: flex;
-  align-items: center;
-  gap: 16rpx;
-  min-width: 240rpx;
-  min-height: 88rpx;
-  padding: 24rpx 32rpx;
-  background: linear-gradient(180deg, #fffaf1 0%, #ffefcf 100%);
-  border: none;
-  border-radius: 48rpx;
-  font-size: 32rpx;
-  font-weight: 700;
-  color: #d08a16;
-  margin-bottom: 16rpx;
-  box-shadow:
-    0 8rpx 16rpx rgba(232, 177, 68, 0.14),
-    inset 0 4rpx 0 rgba(255, 255, 255, 0.72);
-}
-
-.audio-icon {
-  font-size: 48rpx;
-}
-
-.options-area {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 24rpx;
-  margin-bottom: 24rpx;
-}
-
-.option-item {
-  min-height: 144rpx;
-  padding: 24rpx;
-  border-radius: 24rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(180deg, #fffefd 0%, #fff8ef 100%);
-  transition: all 0.3s;
-  box-shadow:
-    0 4rpx 12rpx rgba(223, 185, 108, 0.05),
-    inset 0 0 0 4rpx rgba(240, 222, 190, 0.72);
-
-  &.selected {
-    background: linear-gradient(180deg, #fff4d8 0%, #ffeabf 100%);
-    box-shadow:
-      0 8rpx 16rpx rgba(237, 179, 70, 0.1),
-      inset 0 0 0 4rpx rgba(245, 166, 35, 0.28);
-  }
-
-  &.correct {
-    background: linear-gradient(180deg, #f5ffef 0%, #e7f8d7 100%);
-    box-shadow:
-      0 8rpx 16rpx rgba(130, 199, 133, 0.1),
-      inset 0 0 0 4rpx rgba(130, 199, 133, 0.32);
-    transform: scale(1.03);
-  }
-
-  &.wrong {
-    background: linear-gradient(180deg, #fff3f1 0%, #ffe2df 100%);
-    box-shadow:
-      0 8rpx 16rpx rgba(255, 138, 128, 0.1),
-      inset 0 0 0 4rpx rgba(255, 138, 128, 0.26);
-    opacity: 0.84;
-  }
-}
-
-.option-char {
-  font-size: 100rpx;
-  font-family: 'KaiTi', 'STKaiti', serif;
-  font-weight: bold;
-  color: #333;
-}
-
-.option-image {
-  font-size: 72rpx;
-}
-
-/* 底部结果导航 */
-.step-actions {
-  width: 100%;
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 24rpx;
-  margin-top: auto;
-  padding-top: 32rpx;
-}
-
-.btn-secondary {
-  width: 100%;
-  height: 104rpx;
-  background: linear-gradient(180deg, #fffaf1 0%, #fff1db 100%);
-  border: 2rpx solid rgba(232, 177, 68, 0.2);
-  border-radius: 56rpx;
-  font-size: 38rpx;
-  font-weight: 700;
-  letter-spacing: 2rpx;
-  color: #c5871a;
-  box-shadow: 0 12rpx 26rpx rgba(226, 188, 112, 0.18);
-}
-
-.btn-secondary::after {
-  border: none;
-}
-
-.btn-secondary:active {
-  transform: translateY(2rpx);
-  box-shadow: 0 8rpx 18rpx rgba(226, 188, 112, 0.14);
-}
-
-.btn-next {
-  width: 100%;
-  height: 104rpx;
-  border-radius: 56rpx;
-  border: none;
-  font-size: 38rpx;
-  font-weight: 700;
-  letter-spacing: 2rpx;
-  color: #fff;
-  background: linear-gradient(135deg, #f5a623 0%, #eb9a1a 52%, #e28412 100%);
-  box-shadow: 0 14rpx 30rpx rgba(230, 145, 24, 0.36);
-}
-
-.btn-next.disabled {
-  opacity: 0.45;
-  color: rgba(255, 255, 255, 0.9);
-  background: linear-gradient(135deg, #f4d69f 0%, #efcb89 52%, #e7bf72 100%);
-  box-shadow: none;
-}
-
-.btn-next::after {
-  border: none;
-}
-
-.btn-next:active {
-  transform: translateY(2rpx);
-  box-shadow: 0 8rpx 18rpx rgba(230, 145, 24, 0.26);
-}
-
-@keyframes slide-up {
-  0% {
-    transform: translateY(100%);
-  }
-  100% {
-    transform: translateY(0);
-  }
+.options-panel {
+  margin-top: 24rpx;
 }
 </style>

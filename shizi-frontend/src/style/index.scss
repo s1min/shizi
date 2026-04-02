@@ -9,6 +9,17 @@
   color: red;
 }
 
+// 测试用的 iconfont，可生效
+// @import './iconfont.css';
+
+.test {
+  // 可以通过 @apply 多个样式封装整体样式
+  @apply mt-4 ml-4;
+
+  padding-top: 4px;
+  color: red;
+}
+
 :root,
 page {
   // 修改按主题色
@@ -16,6 +27,289 @@ page {
 
   // 修改按钮背景色
   // --wot-button-primary-bg-color: green;
+}
+
+.learning-quiz-question-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24rpx;
+  padding: 32rpx 24rpx 40rpx;
+  border-radius: 32rpx;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(255, 250, 242, 0.94) 100%);
+  box-shadow:
+    0 12rpx 28rpx rgba(226, 182, 92, 0.08),
+    inset 0 0 0 2rpx rgba(255, 244, 220, 0.6);
+}
+
+.learning-quiz-question-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.learning-quiz-type {
+  align-self: center;
+  padding: 8rpx 24rpx;
+  border-radius: 20rpx;
+  font-size: 24rpx;
+  font-weight: 700;
+  color: #9a8368;
+  background: linear-gradient(180deg, #fffaf1 0%, #fff1db 100%);
+}
+
+.learning-quiz-hint {
+  font-size: 28rpx;
+  line-height: 1.5;
+  color: #8d7863;
+  text-align: center;
+}
+
+.learning-quiz-content {
+  width: 100%;
+  min-height: 320rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16rpx;
+  text-align: center;
+}
+
+.learning-quiz-char {
+  font-size: 176rpx;
+  font-weight: 700;
+  font-family: 'KaiTi', 'STKaiti', serif;
+  color: #2f2a24;
+  line-height: 1;
+}
+
+.learning-quiz-image {
+  font-size: 152rpx;
+  line-height: 1;
+}
+
+.learning-quiz-pinyin {
+  font-size: 72rpx;
+  line-height: 1.2;
+  font-weight: 700;
+  color: #2f2a24;
+}
+
+.learning-quiz-audio-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16rpx;
+  min-width: 248rpx;
+  min-height: 88rpx;
+  padding: 20rpx 32rpx;
+  border: 2rpx solid rgba(247, 213, 153, 0.36);
+  border-radius: 48rpx;
+  background: linear-gradient(180deg, #fffaf1 0%, #ffefcf 100%);
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #d08a16;
+  box-shadow:
+    0 8rpx 16rpx rgba(232, 177, 68, 0.12),
+    inset 0 2rpx 0 rgba(255, 255, 255, 0.72);
+}
+
+.learning-quiz-audio-btn::after {
+  border: none;
+}
+
+.learning-quiz-audio-icon {
+  font-size: 40rpx;
+}
+
+.learning-quiz-options-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.learning-quiz-options-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24rpx;
+  width: 100%;
+}
+
+.learning-quiz-option {
+  min-height: 152rpx;
+  padding: 24rpx;
+  border-radius: 24rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, #fffefd 0%, #fff8ef 100%);
+  box-shadow:
+    0 4rpx 12rpx rgba(223, 185, 108, 0.05),
+    inset 0 0 0 4rpx rgba(240, 222, 190, 0.72);
+  transition: all 0.24s ease;
+}
+
+.learning-quiz-option.disabled {
+  pointer-events: none;
+}
+
+.learning-quiz-option.selected {
+  background: linear-gradient(180deg, #fff4d8 0%, #ffeabf 100%);
+  box-shadow:
+    0 8rpx 16rpx rgba(237, 179, 70, 0.1),
+    inset 0 0 0 4rpx rgba(245, 166, 35, 0.28);
+}
+
+.learning-quiz-option.correct {
+  background: linear-gradient(180deg, #f5ffef 0%, #e7f8d7 100%);
+  box-shadow:
+    0 8rpx 16rpx rgba(130, 199, 133, 0.1),
+    inset 0 0 0 4rpx rgba(130, 199, 133, 0.32);
+  transform: scale(1.03);
+}
+
+.learning-quiz-option.wrong {
+  background: linear-gradient(180deg, #fff3f1 0%, #ffe2df 100%);
+  box-shadow:
+    0 8rpx 16rpx rgba(255, 138, 128, 0.1),
+    inset 0 0 0 4rpx rgba(255, 138, 128, 0.26);
+  opacity: 0.84;
+}
+
+.learning-quiz-option-char {
+  font-size: 100rpx;
+  font-family: 'KaiTi', 'STKaiti', serif;
+  font-weight: 700;
+  color: #333;
+}
+
+.learning-quiz-option-image {
+  font-size: 72rpx;
+  line-height: 1;
+}
+
+.learning-quiz-feedback-dock {
+  position: fixed;
+  left: 24rpx;
+  right: 24rpx;
+  bottom: 24rpx;
+  z-index: 120;
+}
+
+.learning-quiz-feedback-card {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+  padding: 24rpx;
+  border-radius: 28rpx;
+  box-shadow:
+    0 16rpx 32rpx rgba(99, 73, 33, 0.1),
+    inset 0 0 0 2rpx rgba(255, 255, 255, 0.48);
+}
+
+.learning-quiz-feedback-card.success {
+  background: linear-gradient(180deg, #fffdf6 0%, #fff5df 100%);
+}
+
+.learning-quiz-feedback-card.error,
+.learning-quiz-feedback-card.retryable-error,
+.learning-quiz-feedback-card.final-error {
+  background: linear-gradient(180deg, #fffdf8 0%, #fff4ea 100%);
+}
+
+.learning-quiz-feedback-main {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.learning-quiz-feedback-icon-wrap {
+  width: 80rpx;
+  height: 80rpx;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999rpx;
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: inset 0 2rpx 0 rgba(255, 255, 255, 0.84);
+}
+
+.learning-quiz-feedback-icon {
+  font-size: 40rpx;
+  line-height: 1;
+}
+
+.learning-quiz-feedback-copy {
+  flex: 1;
+  min-width: 0;
+}
+
+.learning-quiz-feedback-title {
+  font-size: 32rpx;
+  line-height: 1.4;
+  font-weight: 700;
+  color: #4a3728;
+}
+
+.learning-quiz-feedback-desc {
+  margin-top: 4rpx;
+  font-size: 24rpx;
+  line-height: 1.5;
+  color: #7d6954;
+}
+
+.learning-quiz-actions {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16rpx;
+}
+
+.learning-quiz-actions.single {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.learning-quiz-btn-secondary,
+.learning-quiz-btn-primary {
+  width: 100%;
+  height: 96rpx;
+  border-radius: 48rpx;
+  font-size: 32rpx;
+  font-weight: 700;
+}
+
+.learning-quiz-btn-secondary {
+  background: linear-gradient(180deg, #fffaf1 0%, #fff1db 100%);
+  border: 2rpx solid rgba(232, 177, 68, 0.2);
+  color: #c5871a;
+  box-shadow: 0 10rpx 20rpx rgba(226, 188, 112, 0.12);
+}
+
+.learning-quiz-btn-primary {
+  border: none;
+  color: #fff;
+  background: linear-gradient(135deg, #f5a623 0%, #eb9a1a 52%, #e28412 100%);
+  box-shadow: 0 12rpx 24rpx rgba(230, 145, 24, 0.24);
+}
+
+.learning-quiz-btn-primary.disabled {
+  opacity: 0.45;
+  color: rgba(255, 255, 255, 0.9);
+  background: linear-gradient(135deg, #f4d69f 0%, #efcb89 52%, #e7bf72 100%);
+  box-shadow: none;
+}
+
+.learning-quiz-btn-secondary::after,
+.learning-quiz-btn-primary::after {
+  border: none;
+}
+
+.learning-quiz-btn-secondary:active,
+.learning-quiz-btn-primary:active {
+  transform: translateY(2rpx);
 }
 
 /*

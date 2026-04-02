@@ -5,93 +5,114 @@
       :current="currentIndex + 1"
       :total="questions.length"
       :progress-percent="progressPercent"
-      :step-items="testStepItems"
       :show-steps="false"
       @back="handleClose"
     />
 
-    <!-- 题目区域 -->
     <div v-if="!testDone && currentQuestion" class="question-area">
-      <div class="question-card">
-        <div class="quiz-type-tag">
-          {{ currentQuestion.typeLabel }}
+      <div class="question-card learning-quiz-question-card" :class="questionCardClass">
+        <div class="question-meta learning-quiz-question-meta">
+          <div class="quiz-type learning-quiz-type">
+            {{ currentQuestion.typeLabel }}
+          </div>
+          <div class="question-hint learning-quiz-hint">
+            {{ currentQuestion.hint }}
+          </div>
         </div>
 
-        <div class="question-content">
-          <!-- 看字选图 / 看图选字 -->
-          <div v-if="currentQuestion.type === 'char-to-image'" class="question-char">
+        <div class="question-content learning-quiz-content">
+          <div v-if="currentQuestion.type === 'char-to-image'" class="question-char learning-quiz-char">
             {{ currentQuestion.targetChar }}
           </div>
-          <div v-else-if="currentQuestion.type === 'image-to-char'" class="question-emoji">
+          <div v-else-if="currentQuestion.type === 'image-to-char'" class="question-image learning-quiz-image">
             {{ currentQuestion.targetEmoji }}
           </div>
-          <!-- 听音选字 -->
-          <button v-else-if="currentQuestion.type === 'audio-to-char'" class="btn-audio" @click="playQuestionAudio">
-            <text class="audio-icon">{{ isPlaying ? '🔊' : '🔈' }}</text>
+          <button v-else-if="currentQuestion.type === 'audio-to-char'" class="btn-audio learning-quiz-audio-btn" @click="playQuestionAudio">
+            <text class="audio-icon learning-quiz-audio-icon">{{ isPlaying ? '🔊' : '🔈' }}</text>
             <text>{{ isPlaying ? '播放中...' : '再听一遍' }}</text>
           </button>
-          <!-- 拼音选字 -->
-          <div v-else-if="currentQuestion.type === 'pinyin-to-char'" class="question-pinyin">
+          <div v-else-if="currentQuestion.type === 'pinyin-to-char'" class="question-pinyin learning-quiz-pinyin">
             {{ currentQuestion.targetPinyin }}
           </div>
-          <!-- 语境选字 -->
-          <div v-else-if="currentQuestion.type === 'context'" class="question-sentence">
-            <text
-              v-for="(seg, i) in currentQuestion.sentenceSegments"
-              :key="i"
-              :class="{ blank: seg === '___' }"
-            >
-              {{ seg }}
-            </text>
+          <div v-else-if="currentQuestion.type === 'context'" class="question-context-block">
+            <div class="question-sentence">
+              <text
+                v-for="(seg, i) in currentQuestion.sentenceSegments"
+                :key="i"
+                :class="{ blank: seg === '___' }"
+              >
+                {{ seg }}
+              </text>
+            </div>
           </div>
         </div>
-
-        <div class="question-hint">
-          {{ currentQuestion.hint }}
-        </div>
       </div>
 
-      <!-- 选项 -->
-      <div class="options-grid">
-        <div
-          v-for="(opt, i) in currentQuestion.options"
-          :key="i"
-          class="option-btn"
-          :class="{
-            correct: answered && opt.isCorrect,
-            wrong: answered && selectedIdx === i && !opt.isCorrect,
-            selected: selectedIdx === i,
-          }"
-          @click="selectAnswer(i)"
-        >
-          <template v-if="currentQuestion.type === 'char-to-image'">
-            <div class="opt-emoji">
-              {{ opt.emoji }}
-            </div>
-          </template>
-          <template v-else>
-            <div class="opt-char">
-              {{ opt.char }}
-            </div>
-          </template>
+      <div class="options-panel learning-quiz-options-panel">
+        <div class="options-area learning-quiz-options-grid">
+          <div
+            v-for="(opt, i) in currentQuestion.options"
+            :key="i"
+            class="option-item learning-quiz-option"
+            :class="{
+              correct: answered && opt.isCorrect,
+              wrong: answered && selectedIdx === i && !opt.isCorrect,
+              selected: selectedIdx === i,
+              disabled: feedbackState !== 'hidden',
+            }"
+            @click="selectAnswer(i)"
+          >
+            <template v-if="currentQuestion.type === 'char-to-image'">
+              <div class="option-image learning-quiz-option-image">
+                {{ opt.emoji }}
+              </div>
+            </template>
+            <template v-else>
+              <div class="option-char learning-quiz-option-char">
+                {{ opt.char }}
+              </div>
+            </template>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- 答题反馈（底部横条） -->
-    <div v-if="showFeedback" class="feedback-bar" :class="lastCorrect ? 'correct' : 'wrong'">
-      <div class="feedback-left">
-        <text class="feedback-icon">{{ lastCorrect ? '🎉' : '💡' }}</text>
-        <text class="feedback-text">{{ lastCorrect ? '答对了！' : `正确答案是「${currentQuestion?.targetChar}」` }}</text>
+    <div v-if="feedbackState !== 'hidden'" class="feedback-dock learning-quiz-feedback-dock">
+      <div class="feedback-card learning-quiz-feedback-card" :class="feedbackState">
+        <div class="feedback-main learning-quiz-feedback-main">
+          <div class="feedback-icon-wrap learning-quiz-feedback-icon-wrap">
+            <text class="feedback-icon-large learning-quiz-feedback-icon">{{ feedbackIcon }}</text>
+          </div>
+          <div class="feedback-copy learning-quiz-feedback-copy">
+            <div class="feedback-title learning-quiz-feedback-title">
+              {{ feedbackTitle }}
+            </div>
+            <div class="feedback-desc learning-quiz-feedback-desc">
+              {{ feedbackDesc }}
+            </div>
+          </div>
+        </div>
+        <div v-if="feedbackState === 'retryable-error'" class="feedback-actions learning-quiz-actions">
+          <button class="btn-modal-secondary learning-quiz-btn-secondary" @click="skipCurrentQuestion">
+            先看下一题
+          </button>
+          <button class="btn-modal-primary learning-quiz-btn-primary" @click="retryCurrentQuestion">
+            再试一次
+          </button>
+        </div>
+        <div v-else-if="feedbackState === 'final-error'" class="feedback-actions learning-quiz-actions single">
+          <button class="btn-modal-primary learning-quiz-btn-primary" @click="goNextFromFinalError">
+            继续下一题
+          </button>
+        </div>
       </div>
-      <button class="btn-feedback-next" @click="goNext">
-        继续
-      </button>
     </div>
 
-    <!-- 结果页 -->
     <div v-if="testDone" class="result-page">
       <div class="result-summary-card">
+        <div class="result-badge">
+          单元小测完成
+        </div>
         <div class="result-stars">
           <span v-for="i in 3" :key="i" class="star" :class="{ active: i <= resultStars }">
             {{ i <= resultStars ? '⭐' : '☆' }}
@@ -103,18 +124,39 @@
         <div class="result-score">
           {{ correctCount }}/{{ questions.length }} 题正确
         </div>
-        <div class="result-accuracy">
-          正确率 {{ accuracy }}%
+        <div class="result-stats">
+          <div class="result-stat-item">
+            <div class="result-stat-value">
+              {{ accuracy }}%
+            </div>
+            <div class="result-stat-label">
+              正确率
+            </div>
+          </div>
+          <div class="result-stat-divider" />
+          <div class="result-stat-item">
+            <div class="result-stat-value">
+              {{ formattedTime }}
+            </div>
+            <div class="result-stat-label">
+              用时
+            </div>
+          </div>
         </div>
-        <div class="result-time">
-          用时 {{ formattedTime }}
+        <div class="result-summary-text">
+          {{ resultSummaryText }}
+        </div>
+        <div class="result-next-hint">
+          {{ passed ? '保持这个状态，进入下一步继续学。' : '先进入下一步学习，之后回来再练会更稳。' }}
         </div>
       </div>
 
-      <!-- 错题回顾 -->
       <div v-if="wrongList.length > 0" class="wrong-review">
         <div class="wrong-title">
           需要加强的字
+        </div>
+        <div class="wrong-desc">
+          把这些字再看一看，会更有把握。
         </div>
         <div class="wrong-chars">
           <div v-for="w in wrongList" :key="w.char" class="wrong-char-item">
@@ -130,10 +172,10 @@
 
       <div class="result-actions">
         <button v-if="!passed" class="btn-retry" @click="retryTest">
-          再试一次
+          再练一次
         </button>
         <button class="btn-primary" @click="goToComplete">
-          {{ passed ? '继续' : '跳过' }}
+          {{ passed ? '进入下一步' : '先去学习页' }}
         </button>
       </div>
     </div>
@@ -143,7 +185,7 @@
 <script lang="ts" setup>
 import type { LearnFlowHeaderStepItem } from '../components/learn/LearnFlowHeader.vue'
 import type { Character } from '@/types/character'
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useLearnStore } from '@/store'
 import { navigateBackOrTo } from '@/utils/navigation'
 import { speakText } from '@/utils/tts'
@@ -170,6 +212,8 @@ interface Question {
 }
 
 type TestFlowStep = 'origin' | 'speak' | 'trace' | 'quiz'
+type FeedbackState = 'hidden' | 'success' | 'retryable-error' | 'final-error'
+type AnswerResultType = 'correct_first_try' | 'correct_after_retry' | 'skipped_after_wrong' | 'wrong_final'
 
 const PASS_THRESHOLD = 60 // 及格线 60%
 
@@ -196,17 +240,48 @@ const questions = ref<Question[]>([])
 const currentIndex = ref(0)
 const selectedIdx = ref<number | null>(null)
 const answered = ref(false)
-const showFeedback = ref(false)
-const lastCorrect = ref(false)
+const feedbackState = ref<FeedbackState>('hidden')
+const attemptCount = ref(0)
 const isPlaying = ref(false)
 const testDone = ref(false)
 const correctCount = ref(0)
 const startTime = ref(0)
 const elapsedMs = ref(0)
-// 记录答错的字（charId → pinyin）
 const wrongList = ref<{ char: string, pinyin: string }[]>([])
+const answerRecords = ref<{
+  questionIndex: number
+  char: string
+  quizType: string
+  result: AnswerResultType
+}[]>([])
+
+const successMessages = [
+  '你越来越厉害啦',
+  '这个字你记住了',
+  '真棒，继续下一个',
+] as const
+const retrySuccessMessages = [
+  '再试一次就成功了',
+  '你自己想出来了',
+  '很棒，继续保持',
+] as const
+const retryErrorMessages = [
+  '你已经很接近啦',
+  '差一点点，再试试',
+  '再看看，一定可以',
+] as const
+const finalErrorMessages = [
+  '先继续下一题吧',
+  '先往下学，等会再回顾它',
+  '这个字之后再练一练',
+] as const
+
+let successTimer: ReturnType<typeof setTimeout> | null = null
 
 const currentQuestion = computed(() => questions.value[currentIndex.value])
+const questionCardClass = computed(() => ({
+  'is-context': currentQuestion.value?.type === 'context',
+}))
 const progressPercent = computed(() =>
   questions.value.length > 0 ? ((currentIndex.value + 1) / questions.value.length) * 100 : 0,
 )
@@ -232,12 +307,150 @@ const resultTitle = computed(() => {
     return '通过了，再练练更好！'
   return '还需要多练习哦'
 })
+const retrySuccessCount = computed(() =>
+  answerRecords.value.filter(item => item.result === 'correct_after_retry').length,
+)
+const resultSummaryText = computed(() => {
+  if (retrySuccessCount.value >= 3)
+    return '你已经会很多了，再练一练会更稳。'
+  if (retrySuccessCount.value > 0)
+    return '有些字再试一次就答对了，继续加油。'
+  if (wrongList.value.length === 0)
+    return '这次状态很棒，很多字都已经记住了。'
+  return '把需要加强的字再看一看，会更有把握。'
+})
 const formattedTime = computed(() => {
   const s = Math.floor(elapsedMs.value / 1000)
   const m = Math.floor(s / 60)
   const sec = s % 60
   return m > 0 ? `${m}分${sec}秒` : `${sec}秒`
 })
+const feedbackIcon = computed(() => {
+  if (feedbackState.value === 'success')
+    return '🎉'
+  if (feedbackState.value === 'retryable-error')
+    return '💡'
+  if (feedbackState.value === 'final-error')
+    return '🌱'
+  return ''
+})
+const feedbackTitle = computed(() => {
+  if (feedbackState.value === 'success')
+    return '答对啦！'
+  if (feedbackState.value === 'retryable-error')
+    return '再想一想'
+  if (feedbackState.value === 'final-error')
+    return '这个字我们之后再练一练'
+  return ''
+})
+const feedbackDesc = computed(() => {
+  if (feedbackState.value === 'success') {
+    const messages = attemptCount.value === 1 ? successMessages : retrySuccessMessages
+    return messages[currentIndex.value % messages.length]
+  }
+  if (feedbackState.value === 'retryable-error')
+    return retryErrorMessages[currentIndex.value % retryErrorMessages.length]
+  if (feedbackState.value === 'final-error')
+    return finalErrorMessages[currentIndex.value % finalErrorMessages.length]
+  return ''
+})
+
+function recordAnswerResult(result: AnswerResultType) {
+  if (!currentQuestion.value)
+    return
+  answerRecords.value.push({
+    questionIndex: currentIndex.value,
+    char: currentQuestion.value.targetChar,
+    quizType: currentQuestion.value.type,
+    result,
+  })
+}
+
+function markCurrentQuestionWrong() {
+  if (!currentQuestion.value)
+    return
+  learnStore.recordWrong(
+    currentQuestion.value.targetChar,
+    currentQuestion.value.type,
+    unitId.value,
+  )
+
+  if (!wrongList.value.some(w => w.char === currentQuestion.value.targetChar)) {
+    wrongList.value.push({
+      char: currentQuestion.value.targetChar,
+      pinyin: currentQuestion.value.targetPinyin || '',
+    })
+  }
+}
+
+function clearSuccessTimer() {
+  if (successTimer) {
+    clearTimeout(successTimer)
+    successTimer = null
+  }
+}
+
+function playSuccessSfx() {
+  uni.vibrateShort?.({ type: 'light' as any })
+}
+
+function playErrorSfx() {
+  uni.vibrateShort?.({ type: 'light' as any })
+}
+
+function resetCurrentQuestionState() {
+  selectedIdx.value = null
+  answered.value = false
+  feedbackState.value = 'hidden'
+  attemptCount.value = 0
+}
+
+function goNextQuestion() {
+  clearSuccessTimer()
+  if (currentIndex.value < questions.value.length - 1) {
+    currentIndex.value++
+    resetCurrentQuestionState()
+    const next = questions.value[currentIndex.value]
+    if (next?.type === 'audio-to-char') {
+      setTimeout(() => playQuestionAudio(), 400)
+    }
+  }
+  else {
+    elapsedMs.value = Date.now() - startTime.value
+    testDone.value = true
+    if (passed.value) {
+      learnStore.completeUnit(unitId.value, resultStars.value)
+    }
+  }
+}
+
+function scheduleNextQuestion() {
+  clearSuccessTimer()
+  successTimer = setTimeout(() => {
+    goNextQuestion()
+  }, 900)
+}
+
+function retryCurrentQuestion() {
+  feedbackState.value = 'hidden'
+  selectedIdx.value = null
+  answered.value = false
+  if (currentQuestion.value?.type === 'audio-to-char') {
+    setTimeout(() => playQuestionAudio(), 300)
+  }
+}
+
+function skipCurrentQuestion() {
+  recordAnswerResult('skipped_after_wrong')
+  markCurrentQuestionWrong()
+  feedbackState.value = 'hidden'
+  goNextQuestion()
+}
+
+function goNextFromFinalError() {
+  feedbackState.value = 'hidden'
+  goNextQuestion()
+}
 
 /** 为每个字生成多道题，确保题型覆盖 */
 function generateQuestions(chars: Character[], allChars: Character[]) {
@@ -356,63 +569,36 @@ function shuffle<T>(arr: T[]): T[] {
 }
 
 function selectAnswer(idx: number) {
-  if (answered.value)
+  if (answered.value || feedbackState.value !== 'hidden' || !currentQuestion.value)
     return
+
   selectedIdx.value = idx
   answered.value = true
+  attemptCount.value += 1
 
   const correct = currentQuestion.value.options[idx].isCorrect
-  lastCorrect.value = correct
-  if (correct)
+  if (correct) {
     correctCount.value++
-
-  // 答错记录错题
-  if (!correct) {
-    learnStore.recordWrong(
-      currentQuestion.value.targetChar,
-      currentQuestion.value.type,
-      unitId.value,
-    )
-    // 记录到本次错题列表（去重）
-    if (!wrongList.value.some(w => w.char === currentQuestion.value.targetChar)) {
-      wrongList.value.push({
-        char: currentQuestion.value.targetChar,
-        pinyin: currentQuestion.value.targetPinyin || '',
-      })
-    }
+    recordAnswerResult(attemptCount.value === 1 ? 'correct_first_try' : 'correct_after_retry')
+    feedbackState.value = 'success'
+    playSuccessSfx()
+    scheduleNextQuestion()
+    return
   }
 
-  showFeedback.value = true
-
-  // 答错时播放正确答案的发音
-  if (!correct) {
-    setTimeout(() => {
-      speakText(currentQuestion.value.targetChar, currentQuestion.value.targetPinyin)
-    }, 600)
+  playErrorSfx()
+  if (attemptCount.value === 1) {
+    feedbackState.value = 'retryable-error'
+    return
   }
+
+  recordAnswerResult('wrong_final')
+  markCurrentQuestionWrong()
+  feedbackState.value = 'final-error'
 }
 
 function goNext() {
-  showFeedback.value = false
-  if (currentIndex.value < questions.value.length - 1) {
-    currentIndex.value++
-    selectedIdx.value = null
-    answered.value = false
-    // 如果下一题是听音选字，自动播放
-    const next = questions.value[currentIndex.value]
-    if (next?.type === 'audio-to-char') {
-      setTimeout(() => playQuestionAudio(), 400)
-    }
-  }
-  else {
-    // 测试结束
-    elapsedMs.value = Date.now() - startTime.value
-    testDone.value = true
-    // 只有通过才记录星级
-    if (passed.value) {
-      learnStore.completeUnit(unitId.value, resultStars.value)
-    }
-  }
+  goNextQuestion()
 }
 
 function playQuestionAudio() {
@@ -427,17 +613,15 @@ function playQuestionAudio() {
 
 /** 重新测试 */
 function retryTest() {
+  clearSuccessTimer()
   testDone.value = false
   currentIndex.value = 0
-  selectedIdx.value = null
-  answered.value = false
-  showFeedback.value = false
   correctCount.value = 0
   wrongList.value = []
-  // 重新生成题目
+  answerRecords.value = []
+  resetCurrentQuestionState()
   questions.value = generateQuestions(unitChars.value, learnStore.allChars as Character[])
   startTime.value = Date.now()
-  // 第一题如果是听音选字，自动播放
   if (questions.value[0]?.type === 'audio-to-char') {
     setTimeout(() => playQuestionAudio(), 400)
   }
@@ -493,6 +677,9 @@ function initTest() {
 }
 
 onMounted(() => initTest())
+onUnmounted(() => {
+  clearSuccessTimer()
+})
 </script>
 
 <style lang="scss" scoped>
@@ -510,232 +697,40 @@ onMounted(() => initTest())
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 0;
-  padding: 24rpx 24rpx 176rpx;
+  gap: 24rpx;
+  padding: 24rpx 24rpx 196rpx;
   color: #4a3728;
 }
 
 .question-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0;
-  padding: 0;
-  border-radius: 0;
-  background: transparent;
-  box-shadow: none;
+  &.is-context {
+    align-items: stretch;
+  }
 }
 
-.quiz-type-tag {
-  align-self: center;
-  font-size: 32rpx;
-  font-weight: 700;
-  color: #9a8368;
-  background: linear-gradient(180deg, #fffaf1 0%, #fff1db 100%);
-  padding: 8rpx 24rpx;
-  border-radius: 20rpx;
-  margin-bottom: 24rpx;
-}
-
-.question-content {
+.question-context-block {
   width: 100%;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0;
-  text-align: center;
-  margin-bottom: 0;
-}
-
-.question-char {
-  font-size: 160rpx;
-  font-weight: 700;
-  font-family: 'KaiTi', 'STKaiti', serif;
-  color: #333;
-  line-height: 1;
-  margin-bottom: 20rpx;
-}
-
-.question-emoji {
-  font-size: 140rpx;
-  line-height: 1;
-  margin-bottom: 20rpx;
-}
-
-.question-pinyin {
-  font-size: 64rpx;
-  line-height: 1.2;
-  color: #333;
-  margin-bottom: 20rpx;
+  padding: 24rpx 24rpx 28rpx;
+  border-radius: 24rpx;
+  background: linear-gradient(180deg, rgba(255, 251, 244, 0.96) 0%, rgba(255, 247, 238, 0.92) 100%);
+  box-shadow: inset 0 0 0 2rpx rgba(247, 225, 196, 0.72);
 }
 
 .question-sentence {
-  font-size: 56rpx;
-  line-height: 1.6;
+  font-size: 48rpx;
+  line-height: 1.7;
   color: #4a3728;
   text-align: center;
-  margin-bottom: 20rpx;
 
   .blank {
-    color: #f5a623;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 88rpx;
+    margin: 0 8rpx;
+    color: #e39a22;
     font-weight: 700;
-    border-bottom: 4rpx solid #f5a623;
-    padding: 0 8rpx;
-  }
-}
-
-.btn-audio {
-  display: flex;
-  align-items: center;
-  gap: 16rpx;
-  min-width: 240rpx;
-  min-height: 88rpx;
-  padding: 24rpx 32rpx;
-  background: linear-gradient(180deg, #fffaf1 0%, #ffefcf 100%);
-  border: none;
-  border-radius: 48rpx;
-  font-size: 32rpx;
-  font-weight: 700;
-  color: #d08a16;
-  margin-bottom: 16rpx;
-  box-shadow:
-    0 8rpx 16rpx rgba(232, 177, 68, 0.14),
-    inset 0 4rpx 0 rgba(255, 255, 255, 0.72);
-}
-
-.audio-icon {
-  font-size: 48rpx;
-}
-
-.question-hint {
-  font-size: 28rpx;
-  color: #666;
-}
-
-.options-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 24rpx;
-  width: 100%;
-  margin-top: 32rpx;
-}
-
-.option-btn {
-  min-height: 144rpx;
-  padding: 24rpx;
-  border-radius: 24rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  background: linear-gradient(180deg, #fffefd 0%, #fff8ef 100%);
-  box-shadow:
-    0 4rpx 12rpx rgba(223, 185, 108, 0.05),
-    inset 0 0 0 4rpx rgba(240, 222, 190, 0.72);
-  transition: all 0.3s;
-
-  &.selected {
-    background: linear-gradient(180deg, #fff4d8 0%, #ffeabf 100%);
-    box-shadow:
-      0 8rpx 16rpx rgba(237, 179, 70, 0.1),
-      inset 0 0 0 4rpx rgba(245, 166, 35, 0.28);
-  }
-
-  &.correct {
-    background: linear-gradient(180deg, #f5ffef 0%, #e7f8d7 100%);
-    box-shadow:
-      0 8rpx 16rpx rgba(130, 199, 133, 0.1),
-      inset 0 0 0 4rpx rgba(130, 199, 133, 0.32);
-    transform: scale(1.03);
-  }
-
-  &.wrong {
-    background: linear-gradient(180deg, #fff3f1 0%, #ffe2df 100%);
-    box-shadow:
-      0 8rpx 16rpx rgba(255, 138, 128, 0.1),
-      inset 0 0 0 4rpx rgba(255, 138, 128, 0.26);
-    opacity: 0.84;
-  }
-}
-
-.opt-char {
-  font-size: 100rpx;
-  font-family: 'KaiTi', 'STKaiti', serif;
-  font-weight: 700;
-  color: #333;
-}
-
-.opt-emoji {
-  font-size: 72rpx;
-  line-height: 1;
-}
-
-.feedback-bar {
-  position: fixed;
-  left: 24rpx;
-  right: 24rpx;
-  bottom: calc(24rpx + env(safe-area-inset-bottom));
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16rpx;
-  padding: 20rpx 24rpx;
-  border-radius: 24rpx;
-  box-shadow: 0 12rpx 28rpx rgba(0, 0, 0, 0.08);
-  z-index: 100;
-  animation: slide-up 0.3s ease-out;
-
-  &.correct {
-    background: linear-gradient(180deg, #f7fff0 0%, #eef8df 100%);
-    border: 2rpx solid rgba(163, 210, 96, 0.44);
-  }
-
-  &.wrong {
-    background: linear-gradient(180deg, #fffaf6 0%, #fff1ea 100%);
-    border: 2rpx solid rgba(241, 165, 142, 0.4);
-  }
-}
-
-.feedback-left {
-  min-width: 0;
-  display: flex;
-  align-items: center;
-  gap: 12rpx;
-}
-
-.feedback-icon {
-  flex-shrink: 0;
-  font-size: 36rpx;
-}
-
-.feedback-text {
-  font-size: 28rpx;
-  line-height: 1.4;
-  font-weight: 600;
-  color: #5a4737;
-}
-
-.btn-feedback-next {
-  flex-shrink: 0;
-  height: 72rpx;
-  padding: 0 32rpx;
-  border-radius: 36rpx;
-  border: none;
-  font-size: 28rpx;
-  font-weight: 700;
-  color: #fff;
-  background: linear-gradient(135deg, #f5a623, #e8941a);
-  box-shadow: 0 8rpx 20rpx rgba(245, 166, 35, 0.22);
-}
-
-@keyframes slide-up {
-  0% {
-    transform: translateY(100%);
-  }
-  100% {
-    transform: translateY(0);
+    border-bottom: 4rpx solid rgba(227, 154, 34, 0.72);
   }
 }
 
@@ -760,10 +755,19 @@ onMounted(() => initTest())
   text-align: center;
 }
 
+.result-badge {
+  padding: 8rpx 24rpx;
+  border-radius: 20rpx;
+  font-size: 24rpx;
+  font-weight: 700;
+  color: #9a8368;
+  background: linear-gradient(180deg, #fffaf1 0%, #fff1db 100%);
+}
+
 .result-stars {
   display: flex;
   gap: 20rpx;
-  margin-bottom: 32rpx;
+  margin-top: 24rpx;
 }
 
 .star {
@@ -776,27 +780,67 @@ onMounted(() => initTest())
 }
 
 .result-title {
+  margin-top: 24rpx;
   font-size: 44rpx;
   font-weight: 700;
   color: #4a3728;
-  margin-bottom: 16rpx;
 }
 
 .result-score {
+  margin-top: 16rpx;
   font-size: 32rpx;
   color: #6f5b49;
-  margin-bottom: 8rpx;
 }
 
-.result-accuracy {
-  font-size: 28rpx;
-  color: #8f7d6b;
-  margin-bottom: 8rpx;
+.result-stats {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24rpx;
+  margin-top: 24rpx;
+  padding: 24rpx 32rpx;
+  border-radius: 24rpx;
+  background: rgba(255, 250, 242, 0.8);
 }
 
-.result-time {
+.result-stat-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.result-stat-value {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #4a3728;
+}
+
+.result-stat-label {
   font-size: 24rpx;
-  color: #ab9987;
+  color: #9c8b79;
+}
+
+.result-stat-divider {
+  width: 2rpx;
+  height: 56rpx;
+  background: rgba(232, 177, 68, 0.18);
+}
+
+.result-summary-text {
+  margin-top: 24rpx;
+  font-size: 26rpx;
+  line-height: 1.6;
+  color: #7f6a56;
+}
+
+.result-next-hint {
+  margin-top: 12rpx;
+  font-size: 24rpx;
+  line-height: 1.5;
+  color: #9c8b79;
 }
 
 .wrong-review {
@@ -814,13 +858,20 @@ onMounted(() => initTest())
   line-height: 1.4;
   color: #bf7f3e;
   font-weight: 700;
-  margin-bottom: 20rpx;
+}
+
+.wrong-desc {
+  margin-top: 8rpx;
+  font-size: 24rpx;
+  line-height: 1.5;
+  color: #9c8b79;
 }
 
 .wrong-chars {
   display: flex;
   flex-wrap: wrap;
   gap: 16rpx;
+  margin-top: 20rpx;
 }
 
 .wrong-char-item {
@@ -860,22 +911,28 @@ onMounted(() => initTest())
 .btn-retry,
 .btn-primary {
   flex: 1;
-  height: 88rpx;
-  border-radius: 24rpx;
-  font-size: 30rpx;
+  height: 96rpx;
+  border-radius: 48rpx;
+  font-size: 32rpx;
   font-weight: 700;
 }
 
 .btn-retry {
-  background: #fff;
-  border: 2rpx solid rgba(245, 166, 35, 0.56);
-  color: #f5a623;
+  background: linear-gradient(180deg, #fffaf1 0%, #fff1db 100%);
+  border: 2rpx solid rgba(232, 177, 68, 0.2);
+  color: #c5871a;
+  box-shadow: 0 10rpx 20rpx rgba(226, 188, 112, 0.12);
 }
 
 .btn-primary {
   border: none;
-  background: linear-gradient(135deg, #f5a623, #e8941a);
+  background: linear-gradient(135deg, #f5a623 0%, #eb9a1a 52%, #e28412 100%);
   color: #fff;
-  box-shadow: 0 8rpx 24rpx rgba(245, 166, 35, 0.22);
+  box-shadow: 0 12rpx 24rpx rgba(230, 145, 24, 0.24);
+}
+
+.btn-retry::after,
+.btn-primary::after {
+  border: none;
 }
 </style>
