@@ -1,48 +1,49 @@
 <template>
   <div class="test-container">
-    <!-- 顶部进度 -->
-    <div class="test-header" :style="headerStyle">
-      <div class="test-progress-row">
-        <div class="progress-bg">
-          <div class="progress-fill" :style="{ width: `${progressPercent}%` }" />
-        </div>
-        <div class="progress-text">
-          {{ currentIndex + 1 }}/{{ questions.length }}
-        </div>
-        <button class="exit-entry" @click="handleClose">
-          退出测试
-        </button>
-      </div>
-    </div>
+    <LearnFlowHeader
+      title="单元测试"
+      :current="currentIndex + 1"
+      :total="questions.length"
+      :progress-percent="progressPercent"
+      :step-items="testStepItems"
+      :show-steps="false"
+      @back="handleClose"
+    />
 
     <!-- 题目区域 -->
     <div v-if="!testDone && currentQuestion" class="question-area">
-      <!-- 题型标签 -->
-      <div class="quiz-type-tag">
-        {{ currentQuestion.typeLabel }}
-      </div>
+      <div class="question-card">
+        <div class="quiz-type-tag">
+          {{ currentQuestion.typeLabel }}
+        </div>
 
-      <!-- 题干 -->
-      <div class="question-content">
-        <!-- 看字选图 / 看图选字 -->
-        <div v-if="currentQuestion.type === 'char-to-image'" class="question-char">
-          {{ currentQuestion.targetChar }}
-        </div>
-        <div v-else-if="currentQuestion.type === 'image-to-char'" class="question-emoji">
-          {{ currentQuestion.targetEmoji }}
-        </div>
-        <!-- 听音选字 -->
-        <button v-else-if="currentQuestion.type === 'audio-to-char'" class="btn-audio" @click="playQuestionAudio">
-          <text class="audio-icon">{{ isPlaying ? '🔊' : '🔈' }}</text>
-          <text>{{ isPlaying ? '播放中...' : '再听一遍' }}</text>
-        </button>
-        <!-- 拼音选字 -->
-        <div v-else-if="currentQuestion.type === 'pinyin-to-char'" class="question-pinyin">
-          {{ currentQuestion.targetPinyin }}
-        </div>
-        <!-- 语境选字 -->
-        <div v-else-if="currentQuestion.type === 'context'" class="question-sentence">
-          <text v-for="(seg, i) in currentQuestion.sentenceSegments" :key="i" :class="{ blank: seg === '___' }">{{ seg }}</text>
+        <div class="question-content">
+          <!-- 看字选图 / 看图选字 -->
+          <div v-if="currentQuestion.type === 'char-to-image'" class="question-char">
+            {{ currentQuestion.targetChar }}
+          </div>
+          <div v-else-if="currentQuestion.type === 'image-to-char'" class="question-emoji">
+            {{ currentQuestion.targetEmoji }}
+          </div>
+          <!-- 听音选字 -->
+          <button v-else-if="currentQuestion.type === 'audio-to-char'" class="btn-audio" @click="playQuestionAudio">
+            <text class="audio-icon">{{ isPlaying ? '🔊' : '🔈' }}</text>
+            <text>{{ isPlaying ? '播放中...' : '再听一遍' }}</text>
+          </button>
+          <!-- 拼音选字 -->
+          <div v-else-if="currentQuestion.type === 'pinyin-to-char'" class="question-pinyin">
+            {{ currentQuestion.targetPinyin }}
+          </div>
+          <!-- 语境选字 -->
+          <div v-else-if="currentQuestion.type === 'context'" class="question-sentence">
+            <text
+              v-for="(seg, i) in currentQuestion.sentenceSegments"
+              :key="i"
+              :class="{ blank: seg === '___' }"
+            >
+              {{ seg }}
+            </text>
+          </div>
         </div>
 
         <div class="question-hint">
@@ -80,7 +81,7 @@
     <!-- 答题反馈（底部横条） -->
     <div v-if="showFeedback" class="feedback-bar" :class="lastCorrect ? 'correct' : 'wrong'">
       <div class="feedback-left">
-        <text class="feedback-icon">{{ lastCorrect ? '🎉' : '❌' }}</text>
+        <text class="feedback-icon">{{ lastCorrect ? '🎉' : '💡' }}</text>
         <text class="feedback-text">{{ lastCorrect ? '答对了！' : `正确答案是「${currentQuestion?.targetChar}」` }}</text>
       </div>
       <button class="btn-feedback-next" @click="goNext">
@@ -90,22 +91,24 @@
 
     <!-- 结果页 -->
     <div v-if="testDone" class="result-page">
-      <div class="result-stars">
-        <span v-for="i in 3" :key="i" class="star" :class="{ active: i <= resultStars }">
-          {{ i <= resultStars ? '⭐' : '☆' }}
-        </span>
-      </div>
-      <div class="result-title">
-        {{ resultTitle }}
-      </div>
-      <div class="result-score">
-        {{ correctCount }}/{{ questions.length }} 题正确
-      </div>
-      <div class="result-accuracy">
-        正确率 {{ accuracy }}%
-      </div>
-      <div class="result-time">
-        用时 {{ formattedTime }}
+      <div class="result-summary-card">
+        <div class="result-stars">
+          <span v-for="i in 3" :key="i" class="star" :class="{ active: i <= resultStars }">
+            {{ i <= resultStars ? '⭐' : '☆' }}
+          </span>
+        </div>
+        <div class="result-title">
+          {{ resultTitle }}
+        </div>
+        <div class="result-score">
+          {{ correctCount }}/{{ questions.length }} 题正确
+        </div>
+        <div class="result-accuracy">
+          正确率 {{ accuracy }}%
+        </div>
+        <div class="result-time">
+          用时 {{ formattedTime }}
+        </div>
       </div>
 
       <!-- 错题回顾 -->
@@ -138,12 +141,13 @@
 </template>
 
 <script lang="ts" setup>
+import type { LearnFlowHeaderStepItem } from '../components/learn/LearnFlowHeader.vue'
 import type { Character } from '@/types/character'
 import { computed, onMounted, ref } from 'vue'
 import { useLearnStore } from '@/store'
-import { getCustomNavBarMetrics } from '@/utils/navbar'
 import { navigateBackOrTo } from '@/utils/navigation'
 import { speakText } from '@/utils/tts'
+import LearnFlowHeader from '../components/learn/LearnFlowHeader.vue'
 
 definePage({
   style: {
@@ -165,13 +169,26 @@ interface Question {
   options: { char?: string, emoji?: string, isCorrect: boolean }[]
 }
 
+type TestFlowStep = 'origin' | 'speak' | 'trace' | 'quiz'
+
 const PASS_THRESHOLD = 60 // 及格线 60%
 
 const learnStore = useLearnStore()
-const navMetrics = getCustomNavBarMetrics()
-const headerStyle = computed(() => ({
-  paddingTop: `${navMetrics.navBarPaddingTop + navMetrics.navBarContentHeight + 16}px`,
-}))
+const testStepItems = computed<LearnFlowHeaderStepItem[]>(() => {
+  const stepLabelMap: Record<TestFlowStep, string> = {
+    origin: '看一看',
+    speak: '读一读',
+    trace: '写一写',
+    quiz: '试一试',
+  }
+
+  return (['origin', 'speak', 'trace', 'quiz'] as TestFlowStep[]).map(key => ({
+    key,
+    label: stepLabelMap[key],
+    state: key === 'quiz' ? 'current' : 'done',
+    clickable: false,
+  }))
+})
 
 const unitId = ref('')
 const unitChars = ref<Character[]>([])
@@ -332,8 +349,8 @@ function getDistractors(char: Character, allChars: Character[], count: number): 
 function shuffle<T>(arr: T[]): T[] {
   const a = [...arr]
   for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]]
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[a[i], a[j]] = [a[j], a[i]]
   }
   return a
 }
@@ -481,121 +498,89 @@ onMounted(() => initTest())
 <style lang="scss" scoped>
 .test-container {
   min-height: 100vh;
-  background: linear-gradient(180deg, #fff9e6 0%, #ffffff 100%);
+  background:
+    radial-gradient(circle at 12% 16%, rgba(251, 210, 128, 0.2) 0%, rgba(251, 210, 128, 0) 32%),
+    radial-gradient(circle at 84% 28%, rgba(255, 230, 184, 0.28) 0%, rgba(255, 230, 184, 0) 36%),
+    linear-gradient(180deg, #fffaf2 0%, #fffdf8 56%, #ffffff 100%);
   display: flex;
   flex-direction: column;
-  padding: 40rpx;
-}
-
-.test-header {
-  padding: 24rpx 32rpx 24rpx;
-  display: flex;
-  flex-direction: column;
-  gap: 18rpx;
-  background: rgba(255, 255, 255, 0.96);
-  border-bottom-left-radius: 28rpx;
-  border-bottom-right-radius: 28rpx;
-  box-shadow: 0 10rpx 28rpx rgba(245, 166, 35, 0.08);
-}
-
-.test-progress-row {
-  display: flex;
-  align-items: center;
-  gap: 20rpx;
-}
-
-.progress-bg {
-  flex: 1;
-  min-width: 0;
-  height: 16rpx;
-  background: rgba(245, 166, 35, 0.18);
-  border-radius: 999rpx;
-  overflow: hidden;
-}
-
-.progress-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #f7c65d, #f5a623);
-  border-radius: 999rpx;
-  transition: width 0.3s;
-}
-
-.progress-text {
-  min-width: 76rpx;
-  text-align: right;
-  font-size: 24rpx;
-  font-weight: 600;
-  color: #8a7a68;
-}
-
-.exit-entry {
-  flex-shrink: 0;
-  min-width: 132rpx;
-  height: 60rpx;
-  padding: 0 20rpx;
-  border: 2rpx solid rgba(183, 170, 150, 0.35);
-  border-radius: 999rpx;
-  background: rgba(255, 255, 255, 0.88);
-  font-size: 24rpx;
-  color: #9f927f;
-  line-height: 56rpx;
-  text-align: center;
-}
-
-.quiz-type-tag {
-  align-self: center;
-  font-size: 24rpx;
-  color: #9a815f;
-  background: #fff1cc;
-  padding: 12rpx 32rpx;
-  border-radius: 999rpx;
-  margin-bottom: 40rpx;
 }
 
 .question-area {
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding-top: 24rpx;
+  gap: 0;
+  padding: 24rpx 24rpx 176rpx;
+  color: #4a3728;
 }
 
-.question-content {
+.question-card {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 56rpx;
-  padding: 0 24rpx;
+  gap: 0;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.quiz-type-tag {
+  align-self: center;
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #9a8368;
+  background: linear-gradient(180deg, #fffaf1 0%, #fff1db 100%);
+  padding: 8rpx 24rpx;
+  border-radius: 20rpx;
+  margin-bottom: 24rpx;
+}
+
+.question-content {
+  width: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  text-align: center;
+  margin-bottom: 0;
 }
 
 .question-char {
-  font-size: 176rpx;
-  font-weight: bold;
+  font-size: 160rpx;
+  font-weight: 700;
   font-family: 'KaiTi', 'STKaiti', serif;
-  color: #4a3728;
+  color: #333;
   line-height: 1;
-  margin-bottom: 24rpx;
+  margin-bottom: 20rpx;
 }
 
 .question-emoji {
-  font-size: 156rpx;
-  margin-bottom: 24rpx;
+  font-size: 140rpx;
+  line-height: 1;
+  margin-bottom: 20rpx;
 }
 
 .question-pinyin {
-  font-size: 76rpx;
-  font-weight: 700;
-  color: #4a3728;
-  margin-bottom: 24rpx;
+  font-size: 64rpx;
+  line-height: 1.2;
+  color: #333;
+  margin-bottom: 20rpx;
 }
 
 .question-sentence {
-  font-size: 40rpx;
+  font-size: 56rpx;
+  line-height: 1.6;
   color: #4a3728;
-  margin-bottom: 24rpx;
+  text-align: center;
+  margin-bottom: 20rpx;
 
   .blank {
     color: #f5a623;
-    font-weight: bold;
+    font-weight: 700;
     border-bottom: 4rpx solid #f5a623;
     padding: 0 8rpx;
   }
@@ -605,13 +590,19 @@ onMounted(() => initTest())
   display: flex;
   align-items: center;
   gap: 16rpx;
-  padding: 32rpx 48rpx;
-  background: linear-gradient(135deg, #5dade2, #4a9bd9);
+  min-width: 240rpx;
+  min-height: 88rpx;
+  padding: 24rpx 32rpx;
+  background: linear-gradient(180deg, #fffaf1 0%, #ffefcf 100%);
   border: none;
-  border-radius: 60rpx;
+  border-radius: 48rpx;
   font-size: 32rpx;
-  color: #fff;
-  margin-bottom: 24rpx;
+  font-weight: 700;
+  color: #d08a16;
+  margin-bottom: 16rpx;
+  box-shadow:
+    0 8rpx 16rpx rgba(232, 177, 68, 0.14),
+    inset 0 4rpx 0 rgba(255, 255, 255, 0.72);
 }
 
 .audio-icon {
@@ -619,104 +610,124 @@ onMounted(() => initTest())
 }
 
 .question-hint {
-  font-size: 30rpx;
-  color: #7a6a58;
-  text-align: center;
+  font-size: 28rpx;
+  color: #666;
 }
 
 .options-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 24rpx;
   width: 100%;
+  margin-top: 32rpx;
 }
 
 .option-btn {
-  min-height: 188rpx;
-  background: #fff;
-  border: 4rpx solid #f2e2c3;
-  border-radius: 28rpx;
-  padding: 38rpx;
+  min-height: 144rpx;
+  padding: 24rpx;
+  border-radius: 24rpx;
   display: flex;
   align-items: center;
   justify-content: center;
+  border: none;
+  background: linear-gradient(180deg, #fffefd 0%, #fff8ef 100%);
+  box-shadow:
+    0 4rpx 12rpx rgba(223, 185, 108, 0.05),
+    inset 0 0 0 4rpx rgba(240, 222, 190, 0.72);
   transition: all 0.3s;
-  box-shadow: 0 10rpx 28rpx rgba(245, 166, 35, 0.1);
 
   &.selected {
-    border-color: #f5a623;
-    background: #fff8e8;
+    background: linear-gradient(180deg, #fff4d8 0%, #ffeabf 100%);
+    box-shadow:
+      0 8rpx 16rpx rgba(237, 179, 70, 0.1),
+      inset 0 0 0 4rpx rgba(245, 166, 35, 0.28);
   }
+
   &.correct {
-    border-color: #82c785;
-    background: #eef8ef;
+    background: linear-gradient(180deg, #f5ffef 0%, #e7f8d7 100%);
+    box-shadow:
+      0 8rpx 16rpx rgba(130, 199, 133, 0.1),
+      inset 0 0 0 4rpx rgba(130, 199, 133, 0.32);
     transform: scale(1.03);
   }
+
   &.wrong {
-    border-color: #f3a6a6;
-    background: #fff4f4;
-    opacity: 0.82;
+    background: linear-gradient(180deg, #fff3f1 0%, #ffe2df 100%);
+    box-shadow:
+      0 8rpx 16rpx rgba(255, 138, 128, 0.1),
+      inset 0 0 0 4rpx rgba(255, 138, 128, 0.26);
+    opacity: 0.84;
   }
 }
 
 .opt-char {
-  font-size: 80rpx;
+  font-size: 100rpx;
   font-family: 'KaiTi', 'STKaiti', serif;
-  font-weight: bold;
+  font-weight: 700;
   color: #333;
 }
 
 .opt-emoji {
   font-size: 72rpx;
+  line-height: 1;
 }
 
 .feedback-bar {
   position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  left: 24rpx;
+  right: 24rpx;
+  bottom: calc(24rpx + env(safe-area-inset-bottom));
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 28rpx 40rpx;
-  padding-bottom: calc(28rpx + env(safe-area-inset-bottom));
+  gap: 16rpx;
+  padding: 20rpx 24rpx;
+  border-radius: 24rpx;
+  box-shadow: 0 12rpx 28rpx rgba(0, 0, 0, 0.08);
   z-index: 100;
   animation: slide-up 0.3s ease-out;
 
   &.correct {
-    background: #eef8ef;
-    border-top: 4rpx solid #82c785;
+    background: linear-gradient(180deg, #f7fff0 0%, #eef8df 100%);
+    border: 2rpx solid rgba(163, 210, 96, 0.44);
   }
 
   &.wrong {
-    background: #fff5f0;
-    border-top: 4rpx solid #f3b26b;
+    background: linear-gradient(180deg, #fffaf6 0%, #fff1ea 100%);
+    border: 2rpx solid rgba(241, 165, 142, 0.4);
   }
 }
 
 .feedback-left {
+  min-width: 0;
   display: flex;
   align-items: center;
-  gap: 16rpx;
+  gap: 12rpx;
 }
 
 .feedback-icon {
-  font-size: 48rpx;
+  flex-shrink: 0;
+  font-size: 36rpx;
 }
+
 .feedback-text {
-  font-size: 30rpx;
-  font-weight: bold;
-  color: #4a3728;
+  font-size: 28rpx;
+  line-height: 1.4;
+  font-weight: 600;
+  color: #5a4737;
 }
 
 .btn-feedback-next {
-  padding: 18rpx 52rpx;
-  border-radius: 999rpx;
+  flex-shrink: 0;
+  height: 72rpx;
+  padding: 0 32rpx;
+  border-radius: 36rpx;
   border: none;
-  font-size: 30rpx;
-  font-weight: bold;
+  font-size: 28rpx;
+  font-weight: 700;
   color: #fff;
   background: linear-gradient(135deg, #f5a623, #e8941a);
+  box-shadow: 0 8rpx 20rpx rgba(245, 166, 35, 0.22);
 }
 
 @keyframes slide-up {
@@ -732,126 +743,139 @@ onMounted(() => initTest())
   flex: 1;
   display: flex;
   flex-direction: column;
+  gap: 24rpx;
+  padding: 24rpx 24rpx 40rpx;
+}
+
+.result-summary-card {
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  padding-top: 48rpx;
-  padding-bottom: 32rpx;
+  padding: 40rpx 32rpx;
+  border-radius: 32rpx;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(255, 251, 243, 0.94) 100%);
+  box-shadow:
+    0 12rpx 28rpx rgba(226, 182, 92, 0.08),
+    inset 0 0 0 2rpx rgba(255, 244, 220, 0.6);
+  text-align: center;
 }
 
 .result-stars {
   display: flex;
   gap: 20rpx;
-  margin-bottom: 40rpx;
+  margin-bottom: 32rpx;
 }
 
 .star {
-  font-size: 80rpx;
+  font-size: 72rpx;
   opacity: 0.3;
+
   &.active {
     opacity: 1;
   }
 }
 
 .result-title {
-  font-size: 48rpx;
-  font-weight: bold;
+  font-size: 44rpx;
+  font-weight: 700;
   color: #4a3728;
   margin-bottom: 16rpx;
 }
 
 .result-score {
   font-size: 32rpx;
-  color: #666;
+  color: #6f5b49;
   margin-bottom: 8rpx;
 }
 
 .result-accuracy {
   font-size: 28rpx;
-  color: #999;
+  color: #8f7d6b;
   margin-bottom: 8rpx;
 }
 
 .result-time {
-  font-size: 26rpx;
-  color: #bbb;
-  margin-bottom: 40rpx;
+  font-size: 24rpx;
+  color: #ab9987;
 }
 
 .wrong-review {
   width: 100%;
-  background: #fff7f2;
-  border-radius: 20rpx;
-  padding: 32rpx;
-  margin-bottom: 40rpx;
+  padding: 28rpx 24rpx;
+  border-radius: 28rpx;
+  background: linear-gradient(180deg, rgba(255, 250, 245, 0.96) 0%, rgba(255, 244, 236, 0.96) 100%);
+  box-shadow:
+    0 8rpx 20rpx rgba(245, 166, 35, 0.06),
+    inset 0 0 0 2rpx rgba(255, 238, 225, 0.72);
 }
 
 .wrong-title {
   font-size: 28rpx;
-  color: #d88a35;
-  font-weight: bold;
+  line-height: 1.4;
+  color: #bf7f3e;
+  font-weight: 700;
   margin-bottom: 20rpx;
 }
 
 .wrong-chars {
   display: flex;
   flex-wrap: wrap;
-  gap: 24rpx;
+  gap: 16rpx;
 }
 
 .wrong-char-item {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4rpx;
+  gap: 8rpx;
 }
 
 .wrong-char {
   width: 80rpx;
   height: 80rpx;
-  background: #fff;
-  border: 2rpx solid #f3b26b;
-  border-radius: 12rpx;
   display: flex;
   align-items: center;
   justify-content: center;
+  border-radius: 20rpx;
+  border: 2rpx solid rgba(243, 178, 107, 0.48);
+  background: rgba(255, 255, 255, 0.92);
   font-size: 44rpx;
   font-family: 'KaiTi', 'STKaiti', serif;
-  font-weight: bold;
+  font-weight: 700;
   color: #333;
 }
 
 .wrong-pinyin {
   font-size: 20rpx;
-  color: #999;
+  color: #9c8b79;
 }
 
 .result-actions {
   width: 100%;
   display: flex;
-  gap: 24rpx;
+  gap: 16rpx;
   margin-top: auto;
-  padding-bottom: 40rpx;
+}
+
+.btn-retry,
+.btn-primary {
+  flex: 1;
+  height: 88rpx;
+  border-radius: 24rpx;
+  font-size: 30rpx;
+  font-weight: 700;
 }
 
 .btn-retry {
-  flex: 1;
-  height: 96rpx;
   background: #fff;
-  border: 4rpx solid #f5a623;
-  border-radius: 48rpx;
-  font-size: 34rpx;
-  font-weight: bold;
+  border: 2rpx solid rgba(245, 166, 35, 0.56);
   color: #f5a623;
 }
 
 .btn-primary {
-  flex: 1;
-  height: 96rpx;
-  background: linear-gradient(135deg, #f5a623, #e8941a);
   border: none;
-  border-radius: 48rpx;
-  font-size: 34rpx;
-  font-weight: bold;
+  background: linear-gradient(135deg, #f5a623, #e8941a);
   color: #fff;
-  box-shadow: 0 8rpx 24rpx rgba(245, 166, 35, 0.4);
+  box-shadow: 0 8rpx 24rpx rgba(245, 166, 35, 0.22);
 }
 </style>
