@@ -605,12 +605,14 @@ onMounted(() => {
 }
 
 .complete-char {
-  font-size: 200rpx;
-  font-weight: 700;
+  padding: 24rpx;
+  margin-bottom: 24rpx;
+  font-size: 260rpx;
+  font-weight: bold;
   color: #2f2a24;
   font-family: 'KaiTi', 'STKaiti', serif;
-  line-height: 1.1;
-  margin: 24rpx;
+  line-height: 1;
+  text-shadow: 0 8rpx 16rpx rgba(47, 42, 36, 0.08);
 }
 
 .complete-desc {
