@@ -10,7 +10,7 @@
     />
 
     <div v-if="!testDone && currentQuestion" class="question-area">
-      <div class="question-card learning-quiz-question-card" :class="questionCardClass">
+      <div class="question-card learning-quiz-question-card">
         <div class="question-meta learning-quiz-question-meta">
           <div class="quiz-type learning-quiz-type">
             {{ currentQuestion.typeLabel }}
@@ -34,17 +34,6 @@
           <div v-else-if="currentQuestion.type === 'pinyin-to-char'" class="question-pinyin learning-quiz-pinyin">
             {{ currentQuestion.targetPinyin }}
           </div>
-          <div v-else-if="currentQuestion.type === 'context'" class="question-context-block">
-            <div class="question-sentence">
-              <text
-                v-for="(seg, i) in currentQuestion.sentenceSegments"
-                :key="i"
-                :class="{ blank: seg === '___' }"
-              >
-                {{ seg }}
-              </text>
-            </div>
-          </div>
         </div>
       </div>
 
@@ -55,7 +44,7 @@
             :key="i"
             class="option-item learning-quiz-option"
             :class="{
-              correct: answered && opt.isCorrect,
+              correct: feedbackState === 'success' && opt.isCorrect,
               wrong: answered && selectedIdx === i && !opt.isCorrect,
               selected: selectedIdx === i,
               disabled: feedbackState !== 'hidden',
@@ -77,7 +66,7 @@
       </div>
     </div>
 
-    <div v-if="feedbackState !== 'hidden'" class="feedback-dock learning-quiz-feedback-dock">
+    <div v-if="!testDone && feedbackState !== 'hidden'" class="feedback-dock learning-quiz-feedback-dock">
       <div class="feedback-card learning-quiz-feedback-card" :class="feedbackState">
         <div class="feedback-main learning-quiz-feedback-main">
           <div class="feedback-icon-wrap learning-quiz-feedback-icon-wrap">
@@ -114,9 +103,14 @@
           单元小测完成
         </div>
         <div class="result-stars">
-          <span v-for="i in 3" :key="i" class="star" :class="{ active: i <= resultStars }">
-            {{ i <= resultStars ? '⭐' : '☆' }}
-          </span>
+          <wd-icon
+            v-for="i in 3"
+            :key="i"
+            class="result-star"
+            :class="{ active: i <= resultStars }"
+            :name="i <= resultStars ? 'star-filled' : 'star'"
+            size="36px"
+          />
         </div>
         <div class="result-title">
           {{ resultTitle }}
@@ -160,11 +154,11 @@
         </div>
         <div class="wrong-chars">
           <div v-for="w in wrongList" :key="w.char" class="wrong-char-item">
-            <div class="wrong-char">
-              {{ w.char }}
-            </div>
             <div class="wrong-pinyin">
               {{ w.pinyin }}
+            </div>
+            <div class="wrong-char">
+              {{ w.char }}
             </div>
           </div>
         </div>
@@ -183,7 +177,6 @@
 </template>
 
 <script lang="ts" setup>
-import type { LearnFlowHeaderStepItem } from '../components/learn/LearnFlowHeader.vue'
 import type { Character } from '@/types/character'
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useLearnStore } from '@/store'
@@ -198,7 +191,7 @@ definePage({
   },
 })
 
-type QuizType = 'char-to-image' | 'image-to-char' | 'audio-to-char' | 'pinyin-to-char' | 'context'
+type QuizType = 'char-to-image' | 'image-to-char' | 'audio-to-char' | 'pinyin-to-char'
 
 interface Question {
   type: QuizType
@@ -207,32 +200,15 @@ interface Question {
   targetChar: string
   targetEmoji?: string
   targetPinyin?: string
-  sentenceSegments?: string[]
   options: { char?: string, emoji?: string, isCorrect: boolean }[]
 }
 
-type TestFlowStep = 'origin' | 'speak' | 'trace' | 'quiz'
 type FeedbackState = 'hidden' | 'success' | 'retryable-error' | 'final-error'
 type AnswerResultType = 'correct_first_try' | 'correct_after_retry' | 'skipped_after_wrong' | 'wrong_final'
 
 const PASS_THRESHOLD = 60 // 及格线 60%
 
 const learnStore = useLearnStore()
-const testStepItems = computed<LearnFlowHeaderStepItem[]>(() => {
-  const stepLabelMap: Record<TestFlowStep, string> = {
-    origin: '看一看',
-    speak: '读一读',
-    trace: '写一写',
-    quiz: '试一试',
-  }
-
-  return (['origin', 'speak', 'trace', 'quiz'] as TestFlowStep[]).map(key => ({
-    key,
-    label: stepLabelMap[key],
-    state: key === 'quiz' ? 'current' : 'done',
-    clickable: false,
-  }))
-})
 
 const unitId = ref('')
 const unitChars = ref<Character[]>([])
@@ -279,9 +255,6 @@ const finalErrorMessages = [
 let successTimer: ReturnType<typeof setTimeout> | null = null
 
 const currentQuestion = computed(() => questions.value[currentIndex.value])
-const questionCardClass = computed(() => ({
-  'is-context': currentQuestion.value?.type === 'context',
-}))
 const progressPercent = computed(() =>
   questions.value.length > 0 ? ((currentIndex.value + 1) / questions.value.length) * 100 : 0,
 )
@@ -390,10 +363,6 @@ function clearSuccessTimer() {
   }
 }
 
-function playSuccessSfx() {
-  uni.vibrateShort?.({ type: 'light' as any })
-}
-
 function playErrorSfx() {
   uni.vibrateShort?.({ type: 'light' as any })
 }
@@ -463,9 +432,6 @@ function generateQuestions(chars: Character[], allChars: Character[]) {
     if (hasEmoji) {
       types.push('char-to-image', 'image-to-char')
     }
-    if (char.example_sentences?.length > 0) {
-      types.push('context')
-    }
     return types
   }
 
@@ -491,14 +457,12 @@ function buildQuestion(char: Character, type: QuizType, distractors: Character[]
     'image-to-char': '看图选字',
     'audio-to-char': '听音选字',
     'pinyin-to-char': '看拼音选字',
-    'context': '语境选字',
   }
   const hints: Record<QuizType, string> = {
     'char-to-image': '选择正确的图片',
     'image-to-char': '选择正确的汉字',
     'audio-to-char': '听发音，选汉字',
     'pinyin-to-char': '选择正确的汉字',
-    'context': '选择合适的字填空',
   }
 
   const q: Question = {
@@ -516,18 +480,6 @@ function buildQuestion(char: Character, type: QuizType, distractors: Character[]
         isCorrect: false,
       })),
     ]),
-  }
-
-  // 语境题：拆分句子
-  if (type === 'context' && char.example_sentences?.length > 0) {
-    const sentence = char.example_sentences[0].text
-    const idx = sentence.indexOf(char._id)
-    if (idx >= 0) {
-      q.sentenceSegments = [sentence.slice(0, idx), '___', sentence.slice(idx + 1)]
-    }
-    else {
-      q.sentenceSegments = [sentence, '（', '___', '）']
-    }
   }
 
   return q
@@ -581,7 +533,6 @@ function selectAnswer(idx: number) {
     correctCount.value++
     recordAnswerResult(attemptCount.value === 1 ? 'correct_first_try' : 'correct_after_retry')
     feedbackState.value = 'success'
-    playSuccessSfx()
     scheduleNextQuestion()
     return
   }
@@ -702,43 +653,11 @@ onUnmounted(() => {
   color: #4a3728;
 }
 
-.question-card {
-  &.is-context {
-    align-items: stretch;
-  }
-}
-
-.question-context-block {
-  width: 100%;
-  padding: 24rpx 24rpx 28rpx;
-  border-radius: 24rpx;
-  background: linear-gradient(180deg, rgba(255, 251, 244, 0.96) 0%, rgba(255, 247, 238, 0.92) 100%);
-  box-shadow: inset 0 0 0 2rpx rgba(247, 225, 196, 0.72);
-}
-
-.question-sentence {
-  font-size: 48rpx;
-  line-height: 1.7;
-  color: #4a3728;
-  text-align: center;
-
-  .blank {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 88rpx;
-    margin: 0 8rpx;
-    color: #e39a22;
-    font-weight: 700;
-    border-bottom: 4rpx solid rgba(227, 154, 34, 0.72);
-  }
-}
-
 .result-page {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 24rpx;
+  gap: 32rpx;
   padding: 24rpx 24rpx 40rpx;
 }
 
@@ -770,25 +689,27 @@ onUnmounted(() => {
   margin-top: 24rpx;
 }
 
-.star {
-  font-size: 72rpx;
-  opacity: 0.3;
+.result-star {
+  color: rgba(208, 198, 184, 0.68);
+}
 
-  &.active {
-    opacity: 1;
-  }
+.result-star.active {
+  color: #efb347;
 }
 
 .result-title {
   margin-top: 24rpx;
-  font-size: 44rpx;
+  font-size: 48rpx;
+  line-height: 1.3;
   font-weight: 700;
   color: #4a3728;
 }
 
 .result-score {
   margin-top: 16rpx;
-  font-size: 32rpx;
+  font-size: 36rpx;
+  line-height: 1.4;
+  font-weight: 700;
   color: #6f5b49;
 }
 
@@ -813,13 +734,15 @@ onUnmounted(() => {
 }
 
 .result-stat-value {
-  font-size: 32rpx;
+  font-size: 36rpx;
+  line-height: 1.2;
   font-weight: 700;
   color: #4a3728;
 }
 
 .result-stat-label {
   font-size: 24rpx;
+  line-height: 1.4;
   color: #9c8b79;
 }
 
@@ -831,7 +754,7 @@ onUnmounted(() => {
 
 .result-summary-text {
   margin-top: 24rpx;
-  font-size: 26rpx;
+  font-size: 28rpx;
   line-height: 1.6;
   color: #7f6a56;
 }
@@ -844,7 +767,6 @@ onUnmounted(() => {
 }
 
 .wrong-review {
-  width: 100%;
   padding: 28rpx 24rpx;
   border-radius: 28rpx;
   background: linear-gradient(180deg, rgba(255, 250, 245, 0.96) 0%, rgba(255, 244, 236, 0.96) 100%);
@@ -856,8 +778,8 @@ onUnmounted(() => {
 .wrong-title {
   font-size: 28rpx;
   line-height: 1.4;
-  color: #bf7f3e;
   font-weight: 700;
+  color: #6f5b49;
 }
 
 .wrong-desc {
@@ -870,48 +792,55 @@ onUnmounted(() => {
 .wrong-chars {
   display: flex;
   flex-wrap: wrap;
-  gap: 16rpx;
-  margin-top: 20rpx;
+  gap: 20rpx 16rpx;
+  margin-top: 24rpx;
 }
 
 .wrong-char-item {
+  width: 88rpx;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: flex-start;
   gap: 8rpx;
 }
 
 .wrong-char {
-  width: 80rpx;
-  height: 80rpx;
+  width: 88rpx;
+  height: 88rpx;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 20rpx;
-  border: 2rpx solid rgba(243, 178, 107, 0.48);
-  background: rgba(255, 255, 255, 0.92);
-  font-size: 44rpx;
+  border-radius: 24rpx;
+  border: 2rpx solid rgba(243, 178, 107, 0.4);
+  background: rgba(255, 255, 255, 0.96);
+  font-size: 48rpx;
   font-family: 'KaiTi', 'STKaiti', serif;
   font-weight: 700;
   color: #333;
+  box-shadow: 0 6rpx 12rpx rgba(226, 188, 112, 0.08);
 }
 
 .wrong-pinyin {
   font-size: 20rpx;
+  line-height: 1.2;
   color: #9c8b79;
+  text-align: center;
 }
 
 .result-actions {
   width: 100%;
   display: flex;
   gap: 16rpx;
-  margin-top: auto;
+  margin-top: 8rpx;
 }
 
 .btn-retry,
 .btn-primary {
   flex: 1;
   height: 96rpx;
+  line-height: 96rpx;
+  text-align: center;
   border-radius: 48rpx;
   font-size: 32rpx;
   font-weight: 700;
