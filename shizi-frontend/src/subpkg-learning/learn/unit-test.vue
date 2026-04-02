@@ -428,8 +428,12 @@ function retryTest() {
 
 function goToComplete() {
   const seconds = Math.floor(elapsedMs.value / 1000)
+  const query = passed.value
+    ? `unitId=${unitId.value}&accuracy=${accuracy.value}&time=${seconds}&stars=${resultStars.value}`
+    : `unitId=${unitId.value}`
+
   uni.redirectTo({
-    url: `/subpkg-learning/learn/unit-complete?unitId=${unitId.value}&accuracy=${accuracy.value}&time=${seconds}&stars=${resultStars.value}`,
+    url: `/subpkg-learning/learn/unit-complete?${query}`,
   })
 }
 

@@ -19,7 +19,7 @@
       </div>
 
       <div class="title">
-        单元完成！
+        {{ pageTitle }}
       </div>
       <div class="subtitle">
         {{ unitName }}
@@ -35,8 +35,8 @@
           学会汉字
         </div>
       </div>
-      <div class="stat-divider" />
-      <div class="stat-item">
+      <div v-if="showResultStats" class="stat-divider" />
+      <div v-if="showResultStats" class="stat-item">
         <div class="stat-val">
           {{ accuracyText }}
         </div>
@@ -44,8 +44,8 @@
           正确率
         </div>
       </div>
-      <div class="stat-divider" />
-      <div class="stat-item">
+      <div v-if="showResultStats" class="stat-divider" />
+      <div v-if="showResultStats" class="stat-item">
         <div class="stat-val">
           {{ timeText }}
         </div>
@@ -74,7 +74,7 @@
       累计识字 {{ learnStore.learnedCount }} 个
     </div>
 
-    <div class="action-area">
+    <div v-if="showPosterActions" class="action-area">
       <button class="btn-share" @click="generatePoster">
         <text>生成打卡海报</text>
       </button>
@@ -85,6 +85,15 @@
       <!-- #endif -->
       <button class="btn-primary" @click="goNext">
         {{ hasNextUnit ? '下一单元' : '返回首页' }}
+      </button>
+    </div>
+
+    <div v-else class="action-area">
+      <button class="btn-primary" @click="goToUnitTest">
+        开始单元小测
+      </button>
+      <button class="btn-secondary" @click="goHome">
+        稍后再测
       </button>
     </div>
 
@@ -147,6 +156,9 @@ const timeText = computed(() => {
   const s = timeSeconds.value % 60
   return m > 0 ? `${m}分${s}秒` : `${s}秒`
 })
+const showResultStats = computed(() => accuracyVal.value > 0 || timeSeconds.value > 0)
+const showPosterActions = computed(() => showResultStats.value)
+const pageTitle = computed(() => showResultStats.value ? '单元完成！' : '本单元学习完成')
 
 const todayStr = computed(() => {
   const d = new Date()
@@ -203,6 +215,13 @@ function goNext() {
     }
   }
   goHome()
+}
+
+function goToUnitTest() {
+  if (!unitId.value)
+    return
+
+  uni.redirectTo({ url: `/subpkg-learning/learn/unit-test?unitId=${unitId.value}` })
 }
 
 // ─── 海报绘制 ─────────────────────────────────────────────────────

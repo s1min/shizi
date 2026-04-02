@@ -24,8 +24,10 @@
       </div>
       <div class="step-flow">
         <template v-for="(item, index) in stepItems" :key="item.key">
-          <button class="step-chip" :class="[`is-${item.state}`, { clickable: item.clickable }]"
-            :disabled="!item.clickable" @click="handleStepClick(item.key)">
+          <button
+            class="step-chip" :class="[`is-${item.state}`, { clickable: item.clickable }]"
+            :disabled="!item.clickable" @click="handleStepClick(item.key)"
+          >
             <div class="step-chip-dot">
               <wd-icon v-if="item.state === 'done'" name="check" size="18px" />
               <span v-else>{{ index + 1 }}</span>
@@ -45,16 +47,22 @@
       <CharCard v-if="currentStep === 'origin'" :char="currentChar" @next="goToNextStep" />
 
       <!-- 步骤2: 跟读互动 -->
-      <SpeakPractice v-else-if="currentStep === 'speak'" :char="currentChar" :all-chars="unitChars"
-        @prev="goToPreviousStep" @next="goToNextStep" />
+      <SpeakPractice
+        v-else-if="currentStep === 'speak'" :char="currentChar" :all-chars="unitChars"
+        @prev="goToPreviousStep" @next="goToNextStep"
+      />
 
       <!-- 步骤3: 描红练习 -->
-      <TracingPractice v-else-if="currentStep === 'trace'" :char="currentChar" @prev="goToPreviousStep"
-        @next="goToNextStep" />
+      <TracingPractice
+        v-else-if="currentStep === 'trace'" :char="currentChar" @prev="goToPreviousStep"
+        @next="goToNextStep"
+      />
 
       <!-- 步骤4: 小测验 -->
-      <QuizCard v-else-if="currentStep === 'quiz'" :char="currentChar" :all-chars="unitChars" @prev="goToPreviousStep"
-        @next="handleQuizComplete" />
+      <QuizCard
+        v-else-if="currentStep === 'quiz'" :char="currentChar" :all-chars="unitChars" @prev="goToPreviousStep"
+        @next="handleQuizComplete"
+      />
 
       <!-- 单字学习完成 -->
       <div v-else-if="currentStep === 'complete'" class="complete-screen">
@@ -224,9 +232,8 @@ function nextChar() {
     learnStore.updateUnitProgress(unitId.value, charIndex.value)
   }
   else {
-    // 单元所有字学完，进入单元测试
-    learnStore.updateUnitProgress(unitId.value, unitChars.value.length)
-    uni.redirectTo({ url: `/subpkg-learning/learn/unit-test?unitId=${unitId.value}` })
+    learnStore.markUnitLearnCompleted(unitId.value)
+    uni.redirectTo({ url: `/subpkg-learning/learn/unit-complete?unitId=${unitId.value}` })
   }
 }
 
@@ -382,7 +389,8 @@ onMounted(() => {
   position: relative;
   display: grid;
   grid-template-columns:
-    max-content minmax(24rpx, 1fr) max-content minmax(24rpx, 1fr) max-content minmax(24rpx, 1fr) max-content;
+    max-content minmax(24rpx, 1fr) max-content minmax(24rpx, 1fr) max-content minmax(24rpx, 1fr)
+    max-content;
   justify-content: space-between;
   align-items: start;
   column-gap: 0;
@@ -469,8 +477,12 @@ onMounted(() => {
   font-size: 24rpx;
   font-weight: 700;
   border: 2rpx solid rgba(226, 198, 151, 0.78);
-  background:
-    radial-gradient(circle at 30% 28%, rgba(255, 255, 255, 0.96), rgba(255, 250, 241, 0.92) 58%, rgba(255, 242, 214, 0.9) 100%);
+  background: radial-gradient(
+    circle at 30% 28%,
+    rgba(255, 255, 255, 0.96),
+    rgba(255, 250, 241, 0.92) 58%,
+    rgba(255, 242, 214, 0.9) 100%
+  );
   box-shadow:
     0 10rpx 18rpx rgba(223, 186, 113, 0.14),
     inset 0 2rpx 0 rgba(255, 255, 255, 0.82);
@@ -482,7 +494,9 @@ onMounted(() => {
   line-height: 1.2;
   font-weight: 700;
   letter-spacing: 1rpx;
-  transition: color 0.2s ease, opacity 0.2s ease;
+  transition:
+    color 0.2s ease,
+    opacity 0.2s ease;
 }
 
 .step-chip.is-current .step-chip-dot {

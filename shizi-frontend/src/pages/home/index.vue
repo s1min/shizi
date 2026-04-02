@@ -41,7 +41,7 @@
       </div>
 
       <!-- Active Island -->
-      <div v-if="currentUnit" class="island-card active" @click="goToLearning">
+      <div v-if="currentUnit" class="island-card active" @click="handleCurrentUnitClick">
         <div class="island-visual active-bg">
           <div class="island-icon">
             🏞️
@@ -57,7 +57,7 @@
             </div>
           </div>
           <div class="btn-start">
-            {{ learnStore.getUnitProgress(currentUnit.id).charIndex > 0 ? '继续学习' : '开始学习' }}
+            {{ currentUnitActionText }}
           </div>
         </div>
       </div>
@@ -128,15 +128,15 @@
 </template>
 
 <script lang="ts" setup>
+import { computed, onMounted, ref } from 'vue'
+import { useLearnStore } from '@/store'
+
 definePage({
   type: 'home',
-style: {
+  style: {
     navigationBarTitleText: '今日',
   },
 })
-
-import { computed, onMounted, ref } from 'vue'
-import { useLearnStore } from '@/store'
 
 const learnStore = useLearnStore()
 
@@ -170,16 +170,47 @@ function selectLibrary(libId: string) {
   showLibPicker.value = false
 }
 
+const currentUnitTaskStatus = computed(() => {
+  if (!currentUnit.value)
+    return 'not_started'
+  return learnStore.getUnitTaskStatus(currentUnit.value.id)
+})
+
 /** 当前单元已学进度文案 */
 const unitProgressText = computed(() => {
   if (!currentUnit.value)
     return ''
+
   const progress = learnStore.getUnitProgress(currentUnit.value.id)
-  if (progress.completed)
-    return '已完成'
-  if (progress.charIndex > 0)
-    return `已学 ${progress.charIndex}/${currentUnit.value.chars.length} 字`
-  return `共 ${currentUnit.value.chars.length} 字`
+  const total = currentUnit.value.chars.length
+
+  switch (currentUnitTaskStatus.value) {
+    case 'not_started':
+      return `共 ${total} 字`
+    case 'learning':
+      return `已学 ${progress.charIndex}/${total} 字`
+    case 'ready_for_test':
+      return '本单元已学完，去闯关吧'
+    case 'tested':
+      return progress.stars > 0 ? `已完成，获得 ${progress.stars} 星` : '本单元已完成'
+    default:
+      return ''
+  }
+})
+
+const currentUnitActionText = computed(() => {
+  switch (currentUnitTaskStatus.value) {
+    case 'not_started':
+      return '开始学习'
+    case 'learning':
+      return '继续学习'
+    case 'ready_for_test':
+      return '开始小测'
+    case 'tested':
+      return '再次挑战'
+    default:
+      return '开始学习'
+  }
 })
 
 /** 后续单元列表（排除当前单元） */
@@ -189,11 +220,25 @@ const upcomingUnits = computed(() => {
   return currentStage.value.units.filter(u => u.id !== currentUnit.value?.id).slice(0, 3)
 })
 
-function goToLearning() {
-  if (currentUnit.value) {
-    uni.navigateTo({
-      url: `/subpkg-learning/learn/index?unitId=${currentUnit.value.id}`,
-    })
+function handleCurrentUnitClick() {
+  if (!currentUnit.value)
+    return
+
+  const unitId = currentUnit.value.id
+
+  switch (currentUnitTaskStatus.value) {
+    case 'not_started':
+    case 'learning':
+      uni.navigateTo({
+        url: `/subpkg-learning/learn/index?unitId=${unitId}`,
+      })
+      break
+    case 'ready_for_test':
+    case 'tested':
+      uni.navigateTo({
+        url: `/subpkg-learning/learn/unit-test?unitId=${unitId}`,
+      })
+      break
   }
 }
 
@@ -474,4 +519,3 @@ function goToReview() {
   }
 }
 </style>
-

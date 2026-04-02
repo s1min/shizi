@@ -30,9 +30,12 @@ interface WrongRecord {
 interface UnitProgress {
   unitId: string
   charIndex: number // 当前学到第几个字
-  completed: boolean
+  learnCompleted: boolean
+  testCompleted: boolean
   stars: number // 0-3
 }
+
+type UnitTaskStatus = 'not_started' | 'learning' | 'ready_for_test' | 'tested'
 
 export const useLearnStore = defineStore(
   'learn',
@@ -103,7 +106,27 @@ export const useLearnStore = defineStore(
 
     /** 获取单元进度 */
     function getUnitProgress(unitId: string): UnitProgress {
-      return unitProgressMap.value[unitId] || { unitId, charIndex: 0, completed: false, stars: 0 }
+      const progress = unitProgressMap.value[unitId] as (UnitProgress & { completed?: boolean }) | undefined
+      if (!progress) {
+        return {
+          unitId,
+          charIndex: 0,
+          learnCompleted: false,
+          testCompleted: false,
+          stars: 0,
+        }
+      }
+
+      const learnCompleted = progress.learnCompleted ?? progress.completed ?? false
+      const testCompleted = progress.testCompleted ?? ((progress.completed ?? false) && (progress.stars || 0) > 0)
+
+      return {
+        unitId,
+        charIndex: progress.charIndex || 0,
+        learnCompleted,
+        testCompleted,
+        stars: progress.stars || 0,
+      }
     }
 
     /** 单元是否已解锁 */
@@ -113,9 +136,21 @@ export const useLearnStore = defineStore(
       const idx = allUnits.findIndex(u => u.id === unitId)
       if (idx <= 0)
         return true
-      // 前一个单元完成才解锁
+      // 前一个单元学完才解锁
       const prevUnit = allUnits[idx - 1]
-      return getUnitProgress(prevUnit.id).completed
+      return getUnitProgress(prevUnit.id).learnCompleted
+    }
+
+    function getUnitTaskStatus(unitId: string): UnitTaskStatus {
+      const progress = getUnitProgress(unitId)
+
+      if (progress.testCompleted)
+        return 'tested'
+      if (progress.learnCompleted)
+        return 'ready_for_test'
+      if (progress.charIndex > 0)
+        return 'learning'
+      return 'not_started'
     }
 
     // ===== 操作 =====
@@ -160,13 +195,28 @@ export const useLearnStore = defineStore(
     function updateUnitProgress(unitId: string, charIndex: number) {
       const unit = library.value.stages.flatMap(s => s.units).find(u => u.id === unitId)
       const totalChars = unit?.chars.length || 0
-      const completed = charIndex >= totalChars
+      const normalizedIndex = charIndex >= totalChars ? totalChars : charIndex
+      const progress = getUnitProgress(unitId)
 
       unitProgressMap.value[unitId] = {
+        ...progress,
         unitId,
-        charIndex: completed ? totalChars : charIndex,
-        completed,
-        stars: unitProgressMap.value[unitId]?.stars || 0,
+        charIndex: normalizedIndex,
+        learnCompleted: normalizedIndex >= totalChars && totalChars > 0,
+      }
+    }
+
+    /** 标记单元学习完成 */
+    function markUnitLearnCompleted(unitId: string) {
+      const unit = library.value.stages.flatMap(s => s.units).find(u => u.id === unitId)
+      const totalChars = unit?.chars.length || 0
+      const progress = getUnitProgress(unitId)
+
+      unitProgressMap.value[unitId] = {
+        ...progress,
+        unitId,
+        charIndex: totalChars,
+        learnCompleted: true,
       }
     }
 
@@ -175,7 +225,8 @@ export const useLearnStore = defineStore(
       const progress = getUnitProgress(unitId)
       unitProgressMap.value[unitId] = {
         ...progress,
-        completed: true,
+        learnCompleted: true,
+        testCompleted: true,
         stars: Math.max(progress.stars, stars),
       }
       // 自动推进到下一个单元
@@ -314,9 +365,10 @@ export const useLearnStore = defineStore(
         else {
           mergedUnits[id] = {
             ...local,
-            completed: local.completed || (up as any).completed,
-            stars: Math.max(local.stars, (up as any).stars),
-            charIndex: Math.max(local.charIndex, (up as any).charIndex),
+            learnCompleted: local.learnCompleted || (up as any).learnCompleted || (up as any).completed || false,
+            testCompleted: local.testCompleted || (up as any).testCompleted || (((up as any).completed || false) && ((up as any).stars || 0) > 0),
+            stars: Math.max(local.stars, (up as any).stars || 0),
+            charIndex: Math.max(local.charIndex, (up as any).charIndex || 0),
           }
         }
       }
@@ -457,11 +509,13 @@ export const useLearnStore = defineStore(
       wrongChars,
       // 方法
       getUnitProgress,
+      getUnitTaskStatus,
       isUnitUnlocked,
       markCharLearned,
       reviewChar,
       recordWrong,
       updateUnitProgress,
+      markUnitLearnCompleted,
       completeUnit,
       // 云端同步
       syncing,
