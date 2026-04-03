@@ -126,6 +126,15 @@
       <div class="menu-group-title mt-4">
         家长中心
       </div>
+      <div class="menu-item" @click="goToUnitCenter">
+        <div class="menu-left">
+          <div class="menu-icon report">
+            📚
+          </div>
+          <text>学习单元</text>
+        </div>
+        <text class="arrow">></text>
+      </div>
       <div class="menu-item" @click="showLearningReport">
         <div class="menu-left">
           <div class="menu-icon report">
@@ -262,6 +271,10 @@ function goLogin() {
 
 function goToReview() {
   uni.navigateTo({ url: '/subpkg-learning/review/index' })
+}
+
+function goToUnitCenter() {
+  uni.navigateTo({ url: '/subpkg-learning/unit-list/index' })
 }
 
 function goToMedals() {

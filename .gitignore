@@ -7,3 +7,10 @@
 backups/
 *.log
 .worktrees/
+
+# Local agent tooling artifacts
+.agents/
+.claude/skills/
+.claude/worktrees/
+skills/
+skills-lock.json

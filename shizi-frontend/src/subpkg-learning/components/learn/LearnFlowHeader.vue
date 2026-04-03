@@ -64,10 +64,11 @@ const props = withDefaults(defineProps<{
   current: number
   total: number
   progressPercent: number
-  stepItems: LearnFlowHeaderStepItem[]
+  stepItems?: LearnFlowHeaderStepItem[]
   showBack?: boolean
   showSteps?: boolean
 }>(), {
+  stepItems: () => [],
   showBack: true,
   showSteps: true,
 })

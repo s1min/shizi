@@ -2,6 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { LearningRecord } from './learning.schema';
+import { LibraryService } from '../library/library.service';
+
+type UnitTaskStatus = 'not_started' | 'learning' | 'ready_for_test' | 'tested';
 
 @Injectable()
 export class LearningService {
@@ -58,5 +61,71 @@ export class LearningService {
     return Object.entries(record.charRecords)
       .filter(([, cr]: [string, any]) => cr.nextReviewAt && cr.nextReviewAt <= now)
       .map(([charId]) => charId);
+  }
+
+  private resolveUnitTaskStatus(progress?: any): UnitTaskStatus {
+    const charIndex = progress?.charIndex || 0;
+    const learnCompleted = progress?.learnCompleted ?? progress?.completed ?? false;
+    const testCompleted = progress?.testCompleted
+      ?? ((progress?.completed ?? false) && (progress?.stars || 0) > 0);
+
+    if (testCompleted) {
+      return 'tested';
+    }
+    if (learnCompleted) {
+      return 'ready_for_test';
+    }
+    if (charIndex > 0) {
+      return 'learning';
+    }
+    return 'not_started';
+  }
+
+  async getUnitOverview(
+    userId: string,
+    libraryId: string,
+    libraryService: Pick<LibraryService, 'findById'>,
+  ) {
+    const [record, library] = await Promise.all([
+      this.getProgress(userId),
+      libraryService.findById(libraryId),
+    ]);
+
+    if (!library) {
+      return null;
+    }
+
+    const unitProgressMap = record?.unitProgressMap || {};
+
+    return {
+      libraryId: library._id,
+      libraryName: library.name,
+      stages: (library.stages || []).map((stage: any) => ({
+        id: stage.id,
+        name: stage.name,
+        units: (stage.units || []).map((unit: any) => {
+          const raw = unitProgressMap[unit.id] || {};
+          const charIndex = raw.charIndex || 0;
+          const learnCompleted = raw.learnCompleted ?? raw.completed ?? false;
+          const testCompleted = raw.testCompleted
+            ?? ((raw.completed ?? false) && (raw.stars || 0) > 0);
+          const stars = raw.stars || 0;
+          const totalChars = Array.isArray(unit.chars) ? unit.chars.length : 0;
+
+          return {
+            id: unit.id,
+            name: unit.name,
+            lesson: unit.lesson,
+            chars: unit.chars || [],
+            totalChars,
+            charIndex,
+            learnCompleted,
+            testCompleted,
+            stars,
+            status: this.resolveUnitTaskStatus(raw),
+          };
+        }),
+      })),
+    };
   }
 }

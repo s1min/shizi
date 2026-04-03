@@ -6,7 +6,7 @@
         🎉
       </div>
       <div class="finish-title">
-        复习完成！
+        {{ finishTitle }}
       </div>
       <div class="finish-stats">
         <div class="stat-item">
@@ -38,13 +38,16 @@
         {{ encourageText }}
       </div>
       <button class="btn-back" @click="goBack">
-        返回首页
+        {{ backButtonText }}
       </button>
     </div>
 
     <!-- 闪卡复习 -->
     <template v-else>
       <div class="progress-header" :style="headerStyle">
+        <div class="mode-badge">
+          {{ reviewBadgeText }}
+        </div>
         <div class="progress-row">
           <div class="progress-bg">
             <div class="progress-fill" :style="{ width: `${progressPercent}%` }" />
@@ -109,13 +112,13 @@
           ✅
         </div>
         <div class="empty-title">
-          暂无待复习的字
+          {{ emptyTitle }}
         </div>
         <div class="empty-desc">
-          学过的字会按记忆规律安排复习
+          {{ emptyDesc }}
         </div>
         <button class="btn-back" @click="goBack">
-          返回首页
+          {{ backButtonText }}
         </button>
       </div>
     </template>
@@ -147,6 +150,9 @@ const charIndex = ref(0)
 const finished = ref(false)
 const knowCount = ref(0)
 const flipped = ref(false)
+const reviewMode = ref<'today' | 'unit'>('today')
+const reviewUnitId = ref('')
+const reviewScope = ref<'all' | 'wrong'>('all')
 
 const currentChar = computed(() => reviewChars.value[charIndex.value])
 const totalCount = computed(() => reviewChars.value.length)
@@ -154,7 +160,58 @@ const progressPercent = computed(() =>
   totalCount.value > 0 ? (charIndex.value / totalCount.value) * 100 : 0,
 )
 
+const reviewBadgeText = computed(() => {
+  if (reviewMode.value !== 'unit') {
+    return '今日复习'
+  }
+
+  return reviewScope.value === 'wrong' ? '错字强化任务' : '单元复习'
+})
+
+const finishTitle = computed(() => {
+  if (reviewMode.value !== 'unit') {
+    return '复习完成！'
+  }
+
+  return reviewScope.value === 'wrong' ? '错字强化完成！' : '单元复习完成！'
+})
+
+const emptyTitle = computed(() => {
+  if (reviewMode.value !== 'unit') {
+    return '暂无待复习的字'
+  }
+
+  return reviewScope.value === 'wrong' ? '本单元暂无待强化错字' : '本单元暂无可复习内容'
+})
+
+const emptyDesc = computed(() => {
+  if (reviewMode.value !== 'unit') {
+    return '学过的字会按记忆规律安排复习'
+  }
+
+  return reviewScope.value === 'wrong'
+    ? '你可以返回学习单元页，查看其他单元的错字强化任务'
+    : '你可以返回学习单元页，选择其他单元复习'
+})
+
+const backButtonText = computed(() => {
+  if (reviewMode.value !== 'unit') {
+    return '返回首页'
+  }
+
+  return reviewScope.value === 'wrong' ? '返回常错字强化' : '返回学习单元'
+})
+
 const encourageText = computed(() => {
+  if (reviewScope.value === 'wrong') {
+    const ratio = totalCount.value > 0 ? knowCount.value / totalCount.value : 0
+    if (ratio === 1)
+      return '这一轮错字都巩固住了，强化效果很好。'
+    if (ratio >= 0.7)
+      return '大部分错字已经稳住了，再巩固一轮会更扎实。'
+    return '这些字还需要多见几次，继续强化会越来越稳。'
+  }
+
   const ratio = totalCount.value > 0 ? knowCount.value / totalCount.value : 0
   if (ratio === 1)
     return '全部认识，记忆力超强！'
@@ -204,11 +261,46 @@ function handleClose() {
 }
 
 function goBack() {
+  if (reviewMode.value === 'unit') {
+    if (reviewScope.value === 'wrong' && reviewUnitId.value) {
+      uni.setStorageSync('unitReviewReturnState', {
+        tab: 'wrong',
+        highlightUnitId: reviewUnitId.value,
+        timestamp: Date.now(),
+      })
+      navigateBackOrTo('/subpkg-learning/unit-list/index', true)
+      return
+    }
+    navigateBackOrTo('/subpkg-learning/unit-list/index', true)
+    return
+  }
   navigateBackOrTo('/pages/home/index', true)
 }
 
-onMounted(() => {
+function loadReviewCharsByMode() {
+  const currentPage = getCurrentPages().pop() as { options?: Record<string, string> } | undefined
+  const mode = currentPage?.options?.mode
+  const unitId = currentPage?.options?.unitId
+  const scope = currentPage?.options?.scope
+
+  if (mode === 'unit' && unitId) {
+    reviewMode.value = 'unit'
+    reviewUnitId.value = unitId
+    reviewScope.value = scope === 'wrong' ? 'wrong' : 'all'
+    reviewChars.value = reviewScope.value === 'wrong'
+      ? learnStore.getUnitWrongChars(unitId)
+      : learnStore.getUnitReviewChars(unitId)
+    return
+  }
+
+  reviewMode.value = 'today'
+  reviewUnitId.value = ''
+  reviewScope.value = 'all'
   reviewChars.value = [...learnStore.todayReviewChars]
+}
+
+onMounted(() => {
+  loadReviewCharsByMode()
 })
 </script>
 
@@ -229,6 +321,16 @@ onMounted(() => {
   border-bottom-left-radius: 28rpx;
   border-bottom-right-radius: 28rpx;
   box-shadow: 0 10rpx 28rpx rgba(93, 173, 226, 0.1);
+}
+
+.mode-badge {
+  align-self: flex-start;
+  padding: 8rpx 20rpx;
+  border-radius: 999rpx;
+  background: rgba(93, 173, 226, 0.12);
+  color: #5f89a8;
+  font-size: 22rpx;
+  font-weight: 600;
 }
 
 .progress-row {

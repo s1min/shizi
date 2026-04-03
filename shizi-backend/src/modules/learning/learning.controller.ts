@@ -1,26 +1,32 @@
 import {
+  Body,
   Controller,
   Get,
-  Put,
   Post,
-  Body,
-  UseGuards,
+  Put,
+  Query,
   Req,
+  UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { LearningService } from './learning.service';
+import { LibraryService } from '../library/library.service';
 import { SyncProgressDto } from './dto/sync-progress.dto';
+import { LearningService } from './learning.service';
 
 @Controller('learning')
 @UseGuards(JwtAuthGuard)
 export class LearningController {
-  constructor(private readonly learningService: LearningService) {}
+  constructor(
+    private readonly learningService: LearningService,
+    private readonly libraryService: LibraryService,
+  ) {}
 
   /** 获取完整学习进度 */
   @Get('progress')
   async getProgress(@Req() req: any) {
     const record = await this.learningService.getProgress(req.user.userId);
-    if (!record) return null;
+    if (!record)
+      return null;
     return this.toClientData(record);
   }
 
@@ -48,6 +54,17 @@ export class LearningController {
   @Get('review-list')
   async getReviewList(@Req() req: any) {
     return this.learningService.getReviewList(req.user.userId);
+  }
+
+  /** 指定字库的单元总览 */
+  @Get('unit-overview')
+  async getUnitOverview(@Req() req: any, @Query('libraryId') libraryId?: string) {
+    const targetLibraryId = libraryId || 'lib_1a_upper';
+    return this.learningService.getUnitOverview(
+      req.user.userId,
+      targetLibraryId,
+      this.libraryService,
+    );
   }
 
   /** 转换为前端需要的格式（去掉 MongoDB 内部字段） */

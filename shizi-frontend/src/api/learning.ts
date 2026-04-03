@@ -12,6 +12,31 @@ export interface ILearningProgress {
   clientUpdatedAt: number
 }
 
+export interface IUnitOverviewItem {
+  id: string
+  name: string
+  lesson: string
+  chars: string[]
+  totalChars: number
+  charIndex: number
+  learnCompleted: boolean
+  testCompleted: boolean
+  stars: number
+  status: 'not_started' | 'learning' | 'ready_for_test' | 'tested'
+}
+
+export interface IUnitOverviewStage {
+  id: string
+  name: string
+  units: IUnitOverviewItem[]
+}
+
+export interface IUnitOverviewResponse {
+  libraryId: string
+  libraryName: string
+  stages: IUnitOverviewStage[]
+}
+
 /** 获取云端学习进度 */
 export function getProgress() {
   return http.get<ILearningProgress | null>('/learning/progress')
@@ -25,4 +50,8 @@ export function putProgress(data: ILearningProgress) {
 /** 增量同步学习进度 */
 export function syncProgress(data: ILearningProgress) {
   return http.post<ILearningProgress>('/learning/sync', data as any)
+}
+
+export function getUnitOverview(libraryId: string) {
+  return http.get<IUnitOverviewResponse>(`/learning/unit-overview?libraryId=${libraryId}`)
 }

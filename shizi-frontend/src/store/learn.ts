@@ -1,9 +1,9 @@
-import type { ILearningProgress } from '@/api/learning'
+import type { ILearningProgress, IUnitOverviewResponse } from '@/api/learning'
 import type { Character } from '@/types/character'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { getCharactersBatch } from '@/api/character'
-import { getProgress, syncProgress } from '@/api/learning'
+import { getProgress, getUnitOverview, syncProgress } from '@/api/learning'
 import { getLibraryById } from '@/api/library'
 import charactersData from '@/data/characters-light.json'
 import libraryData from '@/data/lib_1a_upper.json'
@@ -33,6 +33,7 @@ interface UnitProgress {
   learnCompleted: boolean
   testCompleted: boolean
   stars: number // 0-3
+  completed?: boolean
 }
 
 type UnitTaskStatus = 'not_started' | 'learning' | 'ready_for_test' | 'tested'
@@ -56,6 +57,8 @@ export const useLearnStore = defineStore(
     // 学习设置
     const dailyCharCount = ref(5) // 每日新字数：3/5/8
     const reminderTime = ref('19:00') // 学习提醒时间
+    const unitOverview = ref<Record<string, IUnitOverviewResponse>>({})
+    const loadingUnitOverview = ref(false)
 
     // ===== 计算属性 =====
     const libraryRef = ref<any>(libraryData)
@@ -151,6 +154,38 @@ export const useLearnStore = defineStore(
       if (progress.charIndex > 0)
         return 'learning'
       return 'not_started'
+    }
+
+    function resolveUnitIdByCharId(charId: string): string {
+      const allUnits = library.value?.stages?.flatMap((stage: any) => stage.units || []) || []
+      const unit = allUnits.find((item: any) => Array.isArray(item.chars) && item.chars.includes(charId))
+      return unit?.id || ''
+    }
+
+    function buildLocalUnitOverview(): IUnitOverviewResponse {
+      return {
+        libraryId: currentLibraryId.value,
+        libraryName: library.value?.name || '',
+        stages: (library.value?.stages || []).map((stage: any) => ({
+          id: stage.id,
+          name: stage.name,
+          units: (stage.units || []).map((unit: any) => {
+            const progress = getUnitProgress(unit.id)
+            return {
+              id: unit.id,
+              name: unit.name,
+              lesson: unit.lesson,
+              chars: unit.chars || [],
+              totalChars: Array.isArray(unit.chars) ? unit.chars.length : 0,
+              charIndex: progress.charIndex,
+              learnCompleted: progress.learnCompleted,
+              testCompleted: progress.testCompleted,
+              stars: progress.stars,
+              status: getUnitTaskStatus(unit.id),
+            }
+          }),
+        })),
+      }
     }
 
     // ===== 操作 =====
@@ -251,7 +286,7 @@ export const useLearnStore = defineStore(
 
     /** 获取复习间隔（毫秒） */
     function getNextReviewInterval(reviewCount: number): number {
-      const intervals = [1, 3, 7, 15, 30] // 天
+      const intervals = [0, 1, 3, 7, 15, 30] // 天；首次学习后当天进入第一次复习
       const days = intervals[Math.min(reviewCount, intervals.length - 1)]
       return days * 24 * 60 * 60 * 1000
     }
@@ -270,7 +305,7 @@ export const useLearnStore = defineStore(
           ...existing,
           quizCorrect: true,
           reviewCount: newCount,
-          nextReviewAt: now + getNextReviewInterval(newCount),
+          nextReviewAt: now + getNextReviewInterval(Math.max(0, newCount - 1)),
         }
         // 标记该字的错题为已重试
         wrongRecords.value
@@ -284,13 +319,13 @@ export const useLearnStore = defineStore(
           ...existing,
           quizCorrect: false,
           reviewCount: newCount,
-          nextReviewAt: now + getNextReviewInterval(0), // 明天
+          nextReviewAt: now + 24 * 60 * 60 * 1000,
         }
         // 记录错题
         wrongRecords.value.push({
           charId,
           quizType: 'review',
-          unitId: '',
+          unitId: resolveUnitIdByCharId(charId),
           wrongAt: now,
           retried: false,
         })
@@ -301,6 +336,39 @@ export const useLearnStore = defineStore(
       if (!learnDays.value.includes(today)) {
         learnDays.value.push(today)
       }
+    }
+
+    function getUnitReviewChars(unitId: string): Character[] {
+      const unit = library.value?.stages
+        ?.flatMap((s: any) => s.units)
+        ?.find((u: any) => u.id === unitId)
+
+      if (!unit) {
+        return []
+      }
+
+      return (unit.chars || [])
+        .map((id: string) => charMap.value.get(id))
+        .filter(Boolean) as Character[]
+    }
+
+    function getUnitWrongChars(unitId: string): Character[] {
+      const wrongIds = new Set(
+        wrongRecords.value
+          .filter((item) => {
+            if (item.retried) {
+              return false
+            }
+
+            const normalizedUnitId = item.unitId || resolveUnitIdByCharId(item.charId)
+            return normalizedUnitId === unitId
+          })
+          .map(item => item.charId),
+      )
+
+      return Array.from(wrongIds)
+        .map(id => charMap.value.get(id))
+        .filter(Boolean) as Character[]
     }
 
     /** 获取今日待复习的汉字 */
@@ -442,6 +510,41 @@ export const useLearnStore = defineStore(
       }
     }
 
+    async function setCurrentLibrary(libraryId: string) {
+      currentLibraryId.value = libraryId
+      currentStageIndex.value = 0
+
+      await loadLibraryFromApi(libraryId)
+      await loadCharsFromApi()
+
+      const firstUnit = library.value?.stages?.[0]?.units?.[0]
+      if (firstUnit?.id) {
+        currentUnitId.value = firstUnit.id
+      }
+    }
+
+    async function loadUnitOverview(libraryId?: string) {
+      const id = libraryId || currentLibraryId.value
+      try {
+        loadingUnitOverview.value = true
+        const data = await getUnitOverview(id)
+        if (data) {
+          unitOverview.value[id] = data
+          return data
+        }
+      }
+      catch (e) {
+        console.warn('加载单元总览失败，回退到本地拼装', e)
+      }
+      finally {
+        loadingUnitOverview.value = false
+      }
+
+      const fallback = buildLocalUnitOverview()
+      unitOverview.value[id] = fallback
+      return fallback
+    }
+
     // ===== 从 API 加载数据（fallback 到本地 JSON） =====
 
     /** 从 API 加载字库数据 */
@@ -495,6 +598,8 @@ export const useLearnStore = defineStore(
       wrongRecords,
       dailyCharCount,
       reminderTime,
+      unitOverview,
+      loadingUnitOverview,
       // 计算属性
       library,
       allChars,
@@ -517,10 +622,14 @@ export const useLearnStore = defineStore(
       updateUnitProgress,
       markUnitLearnCompleted,
       completeUnit,
+      getUnitReviewChars,
+      getUnitWrongChars,
       // 云端同步
       syncing,
       syncFromCloud,
       syncToCloud,
+      setCurrentLibrary,
+      loadUnitOverview,
       // API 数据加载
       loadLibraryFromApi,
       loadCharsFromApi,

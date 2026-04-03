@@ -24,6 +24,8 @@ class UnitProgress {
   @Prop() unitId: string;
   @Prop() charIndex: number;
   @Prop() completed: boolean;
+  @Prop() learnCompleted?: boolean;
+  @Prop() testCompleted?: boolean;
   @Prop() stars: number;
 }
 
