@@ -268,10 +268,10 @@ function goBack() {
         highlightUnitId: reviewUnitId.value,
         timestamp: Date.now(),
       })
-      navigateBackOrTo('/subpkg-learning/unit-list/index', true)
+      navigateBackOrTo('/pages/unit-list/index', true)
       return
     }
-    navigateBackOrTo('/subpkg-learning/unit-list/index', true)
+    navigateBackOrTo('/pages/unit-list/index', true)
     return
   }
   navigateBackOrTo('/pages/home/index', true)

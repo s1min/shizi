@@ -29,8 +29,8 @@ export const nativeTabbarList: NativeTabBarItem[] = [
   {
     iconPath: 'static/tabbar/example.png',
     selectedIconPath: 'static/tabbar/exampleHL.png',
-    pagePath: 'pages/loot/index',
-    text: '图鉴',
+    pagePath: 'pages/unit-list/index',
+    text: '学习单元',
   },
   {
     iconPath: 'static/tabbar/personal.png',
@@ -49,10 +49,10 @@ export const customTabbarList: CustomTabBarItem[] = [
     icon: 'i-carbon-home',
   },
   {
-    text: '图鉴',
-    pagePath: 'pages/loot/index',
+    text: '学习单元',
+    pagePath: 'pages/unit-list/index',
     iconType: 'unocss',
-    icon: 'i-carbon-book',
+    icon: 'i-carbon-notebook',
   },
   {
     text: '我的',

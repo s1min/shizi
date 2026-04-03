@@ -274,7 +274,7 @@ function goToReview() {
 }
 
 function goToUnitCenter() {
-  uni.navigateTo({ url: '/subpkg-learning/unit-list/index' })
+  uni.switchTab({ url: '/pages/unit-list/index' })
 }
 
 function goToMedals() {
@@ -282,7 +282,7 @@ function goToMedals() {
 }
 
 function goToLoot() {
-  uni.switchTab({ url: '/pages/loot/index' })
+  uni.navigateTo({ url: '/pages/loot/index' })
 }
 
 function showLearningReport() {
@@ -562,4 +562,3 @@ function showReminderPicker() {
   margin-top: 40rpx;
 }
 </style>
-
