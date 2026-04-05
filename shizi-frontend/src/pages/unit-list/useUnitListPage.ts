@@ -1,8 +1,8 @@
+import type { SummaryItem, UnitPageTab, UnitStageViewModel } from './types'
 import { onShow } from '@dcloudio/uni-app'
 import { computed, onMounted, ref } from 'vue'
 import { useLearnStore } from '@/store'
 import { navigateBackOrTo } from '@/utils/navigation'
-import type { SummaryItem, UnitPageTab, UnitStageViewModel } from './types'
 import {
   buildSummaryItems,
   compareUnitPriority,
@@ -12,11 +12,44 @@ import {
   getWrongTypeLabel,
 } from './view-model'
 
-export function useUnitListPage(options?: {
+interface UseUnitListPageOptions {
   showBack?: boolean
   backUrl?: string
   backIsTab?: boolean
-}) {
+}
+
+interface UseUnitListPageResult {
+  learnStore: ReturnType<typeof useLearnStore>
+  showLibrarySheet: ReturnType<typeof ref<boolean>>
+  activeTab: ReturnType<typeof ref<UnitPageTab>>
+  showClearedUnits: ReturnType<typeof ref<string[]>>
+  highlightUnitId: ReturnType<typeof ref<string>>
+  activeLibraryName: ReturnType<typeof computed<string>>
+  summaryItems: ReturnType<typeof computed<SummaryItem[]>>
+  wrongStats: ReturnType<typeof computed<{
+    unitCount: number
+    charCount: number
+    recentCharCount: number
+    primaryWeakness: string
+  }>>
+  unitStageSections: ReturnType<typeof computed<UnitStageViewModel[]>>
+  wrongPendingSections: ReturnType<typeof computed<UnitStageViewModel[]>>
+  wrongClearedSections: ReturnType<typeof computed<UnitStageViewModel[]>>
+  clearedUnitCount: ReturnType<typeof computed<number>>
+  libraryActions: ReturnType<typeof computed<Array<{
+    name: string
+    disabled: boolean
+    value: string
+  }>>>
+  handleBack: () => void
+  openLibraryPicker: () => void
+  handleLibrarySelect: ({ item }: any) => Promise<void>
+  handleUnitPrimary: (unitId: string) => void
+  handleUnitSecondary: (unitId: string) => void
+  handleWrongPrimary: (unitId: string) => void
+}
+
+export function useUnitListPage(options?: UseUnitListPageOptions): UseUnitListPageResult {
   const learnStore = useLearnStore()
   const showLibrarySheet = ref(false)
   const activeTab = ref<UnitPageTab>('unit')
@@ -244,7 +277,10 @@ export function useUnitListPage(options?: {
 
       const normalizedUnitId = item.unitId || learnStore.library.stages
         .flatMap((stage: any) => stage.units || [])
-        .find((unit: any) => Array.isArray(unit.chars) && unit.chars.includes(item.charId))?.id || ''
+        .find((unit: any) =>
+          Array.isArray(unit.chars) && unit.chars.includes(item.charId),
+        )
+        ?.id || ''
 
       return normalizedUnitId === unitId
     })
@@ -275,12 +311,12 @@ export function useUnitListPage(options?: {
       .sort((a, b) => b[1] - a[1])[0]?.[0]
 
     const labelMap: Record<string, string> = {
-      review: '复习识记薄弱',
+      'review': '复习识记薄弱',
       'char-to-image': '看字选图易错',
       'image-to-char': '看图认字易错',
       'audio-to-char': '听音认字易错',
       'pinyin-to-char': '拼音认字易错',
-      unknown: '识字题型易错',
+      'unknown': '识字题型易错',
     }
 
     return labelMap[primaryType || 'unknown'] || '识字题型易错'
