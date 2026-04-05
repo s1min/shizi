@@ -40,20 +40,20 @@ const emit = defineEmits<{
 
 <style lang="scss" scoped>
 .unit-stage-section {
-  margin-bottom: 32rpx;
+  margin-bottom: 24rpx;
 }
 
 .stage-title-row {
   display: flex;
   align-items: center;
   gap: 12rpx;
-  padding: 8rpx 8rpx 20rpx;
+  padding: 8rpx 8rpx 16rpx;
 }
 
 .stage-accent {
-  width: 8rpx;
-  height: 28rpx;
-  border-radius: 999rpx;
+  width: 6rpx;
+  height: 24rpx;
+  border-radius: 6rpx;
   background: linear-gradient(180deg, var(--tone-learning) 0%, var(--tone-ready) 100%);
 }
 
@@ -67,11 +67,6 @@ const emit = defineEmits<{
 .unit-list {
   display: flex;
   flex-direction: column;
-  gap: 24rpx;
-}
-
-:global(.theme-modern) .stage-accent {
-  width: 6rpx;
-  border-radius: 6rpx;
+  gap: 20rpx;
 }
 </style>
