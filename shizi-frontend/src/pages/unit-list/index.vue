@@ -1,5 +1,5 @@
 <template>
-  <view class="unit-page" :class="pageThemeClass">
+  <view class="unit-page">
     <view class="page-top-shell">
       <wd-navbar
         :left-arrow="showBack"
@@ -142,9 +142,6 @@ definePage({
   },
 })
 
-const previewTheme = 'cream'
-const pageThemeClass = `theme-${previewTheme}`
-
 const {
   learnStore,
   showLibrarySheet,
@@ -170,38 +167,26 @@ const {
 
 <style lang="scss" scoped>
 .unit-page {
-  --page-bg: #fffdf9;
-  --page-bg-accent: rgba(255, 214, 153, 0.14);
-  --surface-card: rgba(255, 255, 255, 0.92);
-  --surface-card-strong: #ffffff;
-  --text-main: #463224;
-  --text-sub: #8b7766;
-  --text-muted: #b5a698;
-  --line-soft: rgba(226, 214, 201, 0.72);
-  --shadow-card: 0 12rpx 32rpx rgba(92, 66, 42, 0.08);
-  --shadow-soft: 0 8rpx 20rpx rgba(92, 66, 42, 0.05);
-  --brand-primary: #5b8def;
-  --brand-primary-soft: rgba(91, 141, 239, 0.12);
-  --tone-learning: #5b8def;
-  --tone-ready: #f2a93b;
-  --tone-tested: #5fbc8a;
-  --tone-wrong: #ee7f5d;
-  min-height: 100vh;
-  background:
-    radial-gradient(circle at 0% 0%, var(--page-bg-accent) 0%, rgba(255, 255, 255, 0) 32%),
-    linear-gradient(180deg, #fffaf4 0%, var(--page-bg) 22%, #ffffff 100%);
-}
-
-.unit-page.theme-modern {
   --page-bg: #fbfcff;
-  --page-bg-accent: rgba(91, 141, 239, 0.1);
+  --page-bg-accent: rgba(91, 141, 239, 0.08);
   --surface-card: rgba(255, 255, 255, 0.96);
+  --surface-card-strong: #ffffff;
   --text-main: #24324a;
   --text-sub: #6e7b91;
   --text-muted: #96a1b3;
-  --line-soft: rgba(214, 223, 236, 0.9);
-  --shadow-card: 0 10rpx 28rpx rgba(41, 72, 126, 0.08);
-  --shadow-soft: 0 6rpx 18rpx rgba(41, 72, 126, 0.05);
+  --line-soft: rgba(214, 223, 236, 0.88);
+  --shadow-card: 0 10rpx 24rpx rgba(41, 72, 126, 0.06);
+  --shadow-soft: 0 6rpx 16rpx rgba(41, 72, 126, 0.04);
+  --brand-primary: #5b84e8;
+  --brand-primary-soft: rgba(91, 132, 232, 0.1);
+  --tone-learning: #5b84e8;
+  --tone-ready: #f0a63a;
+  --tone-tested: #58b782;
+  --tone-wrong: #ea7a59;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 0% 0%, var(--page-bg-accent) 0%, rgba(255, 255, 255, 0) 28%),
+    linear-gradient(180deg, #f9fbff 0%, var(--page-bg) 22%, #ffffff 100%);
 }
 
 .page-top-shell {
@@ -210,29 +195,30 @@ const {
   left: 0;
   right: 0;
   z-index: 20;
-  padding-bottom: 16rpx;
+  padding-bottom: 12rpx;
   background: linear-gradient(
-    135deg,
-    rgba(255, 248, 238, 0.96) 0%,
-    rgba(255, 243, 228, 0.92) 48%,
-    rgba(241, 247, 255, 0.96) 100%
+    180deg,
+    rgba(255, 255, 255, 0.98) 0%,
+    rgba(248, 251, 255, 0.96) 62%,
+    rgba(244, 248, 255, 0.94) 100%
   );
   backdrop-filter: blur(16rpx);
-  box-shadow: 0 6rpx 18rpx rgba(110, 84, 55, 0.06);
+  box-shadow: 0 4rpx 12rpx rgba(36, 50, 74, 0.04);
 }
 
-.unit-page.theme-modern .page-top-shell {
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.96) 0%,
-    rgba(247, 250, 255, 0.94) 58%,
-    rgba(240, 246, 255, 0.96) 100%
-  );
-  box-shadow: 0 6rpx 18rpx rgba(41, 72, 126, 0.05);
+.page-top-shell::after {
+  content: '';
+  position: absolute;
+  left: 24rpx;
+  right: 24rpx;
+  bottom: 0;
+  height: 2rpx;
+  background: rgba(214, 223, 236, 0.7);
+  border-radius: 999rpx;
 }
 
 .page-body {
-  padding: 176rpx 24rpx calc(40rpx + env(safe-area-inset-bottom));
+  padding: 168rpx 24rpx calc(40rpx + env(safe-area-inset-bottom));
 }
 
 .loading-wrap {
@@ -245,8 +231,8 @@ const {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 88rpx 32rpx;
-  border-radius: 28rpx;
+  padding: 80rpx 32rpx;
+  border-radius: 24rpx;
   background: var(--surface-card);
   box-shadow: var(--shadow-soft);
   text-align: center;
@@ -259,15 +245,15 @@ const {
 }
 
 .wrong-group {
-  margin-bottom: 32rpx;
+  margin-bottom: 24rpx;
 }
 
 .wrong-focus-banner {
-  padding: 24rpx;
-  margin-bottom: 24rpx;
-  border-radius: 24rpx;
-  background: rgba(255, 243, 238, 0.94);
-  box-shadow: inset 0 0 0 2rpx rgba(255, 227, 219, 0.92);
+  padding: 20rpx 24rpx;
+  margin-bottom: 20rpx;
+  border-radius: 20rpx;
+  background: rgba(255, 243, 239, 0.92);
+  box-shadow: inset 0 0 0 2rpx rgba(255, 229, 223, 0.84);
 }
 
 .wrong-focus-title {
@@ -288,7 +274,7 @@ const {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 4rpx 8rpx 20rpx;
+  padding: 4rpx 8rpx 16rpx;
 }
 
 .group-title {
