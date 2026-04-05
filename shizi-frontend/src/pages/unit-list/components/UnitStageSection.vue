@@ -22,8 +22,8 @@
 </template>
 
 <script lang="ts" setup>
-import UnitTaskCard from './UnitTaskCard.vue'
 import type { UnitCardViewModel, UnitPageTab } from '../types'
+import UnitTaskCard from './UnitTaskCard.vue'
 
 defineProps<{
   title: string
@@ -40,25 +40,26 @@ const emit = defineEmits<{
 
 <style lang="scss" scoped>
 .unit-stage-section {
-  margin-bottom: 24rpx;
+  margin-bottom: 32rpx;
 }
 
 .stage-title-row {
   display: flex;
   align-items: center;
   gap: 12rpx;
-  padding: 8rpx 8rpx 18rpx;
+  padding: 8rpx 8rpx 20rpx;
 }
 
 .stage-accent {
   width: 8rpx;
   height: 28rpx;
   border-radius: 999rpx;
-  background: linear-gradient(180deg, var(--status-learning) 0%, var(--status-ready) 100%);
+  background: linear-gradient(180deg, var(--tone-learning) 0%, var(--tone-ready) 100%);
 }
 
 .stage-title {
-  font-size: 28rpx;
+  font-size: 30rpx;
+  line-height: 1.2;
   font-weight: 700;
   color: var(--text-main);
 }
@@ -66,6 +67,11 @@ const emit = defineEmits<{
 .unit-list {
   display: flex;
   flex-direction: column;
-  gap: 20rpx;
+  gap: 24rpx;
+}
+
+:global(.theme-modern) .stage-accent {
+  width: 6rpx;
+  border-radius: 6rpx;
 }
 </style>
