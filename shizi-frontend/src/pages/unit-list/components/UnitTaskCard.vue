@@ -5,9 +5,9 @@
         <view class="unit-name">
           {{ unit.name }}
         </view>
-        <wd-tag round :type="tagType">
+        <view class="unit-status-badge" :class="`unit-status-badge--${unit.cardTone}`">
           {{ tagText }}
-        </wd-tag>
+        </view>
       </view>
     </template>
 
@@ -20,15 +20,12 @@
           {{ unit.wrongCount }} 个错字
         </view>
       </view>
+
       <view class="chars">
         {{ unit.charsPreview }}
       </view>
       <view class="progress-strip" :class="`progress-strip--${unit.cardTone}`">
         {{ unit.progressText }}
-      </view>
-
-      <view v-if="mode === 'unit' && unit.status === 'tested'" class="stars">
-        <text v-for="i in 3" :key="i" class="star">{{ i <= unit.stars ? '★' : '☆' }}</text>
       </view>
 
       <template v-if="mode === 'wrong'">
@@ -42,32 +39,39 @@
           {{ unit.primaryWeaknessText }}
         </view>
       </template>
-    </view>
 
-    <view class="unit-card-actions">
-      <wd-button
-        v-if="unit.secondaryActionText"
-        size="small"
-        plain
-        @click="emit('secondary', unit.id)"
-      >
-        {{ unit.secondaryActionText }}
-      </wd-button>
-      <wd-button
-        size="small"
-        type="primary"
-        :disabled="unit.disabled"
-        @click="emit('primary', unit.id)"
-      >
-        {{ unit.primaryActionText }}
-      </wd-button>
+      <view class="unit-card-footer">
+        <view v-if="mode === 'unit' && unit.status === 'tested'" class="stars">
+          <text v-for="i in 3" :key="i" class="star">{{ i <= unit.stars ? '★' : '☆' }}</text>
+        </view>
+        <view v-else class="stars-placeholder" />
+
+        <view class="unit-card-actions">
+          <button
+            v-if="unit.secondaryActionText"
+            class="action-btn action-btn--secondary"
+            hover-class="action-btn--hover"
+            @click="emit('secondary', unit.id)"
+          >
+            {{ unit.secondaryActionText }}
+          </button>
+          <button
+            class="action-btn action-btn--primary"
+            hover-class="action-btn--hover"
+            :disabled="unit.disabled"
+            @click="emit('primary', unit.id)"
+          >
+            {{ unit.primaryActionText }}
+          </button>
+        </view>
+      </view>
     </view>
   </wd-card>
 </template>
 
 <script lang="ts" setup>
-import { computed } from 'vue'
 import type { UnitCardViewModel, UnitPageTab } from '../types'
+import { computed } from 'vue'
 
 const props = defineProps<{
   unit: UnitCardViewModel
@@ -86,22 +90,6 @@ const customClass = computed(() => {
     `unit-task-card--${props.unit.cardTone}`,
     props.highlighted ? 'is-highlighted' : '',
   ].filter(Boolean).join(' ')
-})
-
-const tagType = computed(() => {
-  switch (props.unit.cardTone) {
-    case 'learning':
-      return 'primary'
-    case 'ready':
-      return 'warning'
-    case 'tested':
-    case 'cleared':
-      return 'success'
-    case 'wrong':
-      return 'danger'
-    default:
-      return 'default'
-  }
 })
 
 const tagText = computed(() => {
@@ -123,22 +111,55 @@ const tagText = computed(() => {
 <style lang="scss" scoped>
 .unit-card-head {
   display: flex;
+  align-items: flex-start;
   justify-content: space-between;
-  align-items: center;
   gap: 16rpx;
 }
 
 .unit-name {
   min-width: 0;
-  font-size: 30rpx;
+  padding-top: 4rpx;
+  font-size: 32rpx;
+  line-height: 1.3;
   font-weight: 700;
   color: var(--text-main);
+}
+
+.unit-status-badge {
+  flex-shrink: 0;
+  padding: 10rpx 18rpx;
+  border-radius: 0 24rpx 0 20rpx;
+  font-size: 22rpx;
+  line-height: 1;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.unit-status-badge--not_started {
+  background: #c6ced9;
+}
+
+.unit-status-badge--learning {
+  background: var(--tone-learning);
+}
+
+.unit-status-badge--ready {
+  background: var(--tone-ready);
+}
+
+.unit-status-badge--tested,
+.unit-status-badge--cleared {
+  background: var(--tone-tested);
+}
+
+.unit-status-badge--wrong {
+  background: var(--tone-wrong);
 }
 
 .unit-card-body {
   display: flex;
   flex-direction: column;
-  gap: 12rpx;
+  gap: 16rpx;
 }
 
 .lesson-row {
@@ -152,6 +173,7 @@ const tagText = computed(() => {
 .wrong-hint,
 .wrong-meta {
   font-size: 24rpx;
+  line-height: 1.5;
   color: var(--text-sub);
 }
 
@@ -160,50 +182,74 @@ const tagText = computed(() => {
 }
 
 .chars {
-  font-size: 30rpx;
-  font-weight: 600;
-  color: var(--text-main);
+  font-size: 32rpx;
   line-height: 1.45;
+  font-weight: 700;
+  color: var(--text-main);
 }
 
 .progress-strip {
-  padding: 12rpx 16rpx;
-  border-radius: 16rpx;
+  padding: 16rpx 20rpx;
+  border-radius: 20rpx;
   font-size: 24rpx;
   line-height: 1.45;
+  background: rgba(255, 250, 244, 0.92);
   color: var(--text-sub);
-  background: rgba(255, 248, 240, 0.88);
 }
 
 .progress-strip--learning {
-  background: rgba(93, 173, 226, 0.12);
-  color: #467fa5;
+  background: rgba(91, 141, 239, 0.12);
+  color: #416dbd;
 }
 
 .progress-strip--ready {
-  background: rgba(245, 166, 35, 0.14);
-  color: #b57912;
+  background: rgba(242, 169, 59, 0.14);
+  color: #b27a18;
 }
 
 .progress-strip--tested,
 .progress-strip--cleared {
-  background: rgba(104, 185, 132, 0.12);
-  color: #53886a;
+  background: rgba(95, 188, 138, 0.14);
+  color: #44815f;
 }
 
 .progress-strip--wrong {
-  background: rgba(239, 125, 87, 0.12);
-  color: #b55f42;
+  background: rgba(238, 127, 93, 0.14);
+  color: #b85f42;
 }
 
 .wrong-count-pill {
   flex-shrink: 0;
-  padding: 6rpx 14rpx;
+  padding: 8rpx 16rpx;
   border-radius: 999rpx;
   font-size: 20rpx;
+  line-height: 1;
+  font-weight: 700;
+  color: #b85f42;
+  background: rgba(238, 127, 93, 0.12);
+}
+
+.wrong-badge {
+  align-self: flex-start;
+  padding: 10rpx 18rpx;
+  border-radius: 999rpx;
+  font-size: 22rpx;
   font-weight: 600;
-  color: #b55f42;
-  background: rgba(239, 125, 87, 0.12);
+  color: #c7543f;
+  background: rgba(238, 127, 93, 0.12);
+}
+
+.unit-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16rpx;
+  margin-top: 8rpx;
+}
+
+.stars,
+.stars-placeholder {
+  min-width: 120rpx;
 }
 
 .stars {
@@ -212,69 +258,95 @@ const tagText = computed(() => {
 }
 
 .star {
-  font-size: 28rpx;
+  font-size: 34rpx;
   line-height: 1;
-  color: var(--status-ready);
-}
-
-.wrong-badge {
-  align-self: flex-start;
-  padding: 8rpx 18rpx;
-  border-radius: 999rpx;
-  font-size: 22rpx;
-  font-weight: 600;
-  color: #c7543f;
-  background: var(--bg-soft-red);
+  color: var(--tone-ready);
 }
 
 .unit-card-actions {
   display: flex;
-  flex-wrap: wrap;
+  align-items: center;
   justify-content: flex-end;
   gap: 16rpx;
-  margin-top: 20rpx;
+  flex: 1;
 }
 
-.unit-card-actions :deep(.wd-button) {
-  min-width: 144rpx;
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 152rpx;
+  height: 72rpx;
+  padding: 0 24rpx;
+  border: none;
+  border-radius: 999rpx;
+  font-size: 24rpx;
+  font-weight: 600;
+}
+
+.action-btn::after {
+  border: none;
+}
+
+.action-btn--secondary {
+  color: var(--brand-primary);
+  background: rgba(91, 141, 239, 0.08);
+  box-shadow: inset 0 0 0 2rpx rgba(91, 141, 239, 0.16);
+}
+
+.action-btn--primary {
+  color: #ffffff;
+  background: linear-gradient(135deg, #6d9dff 0%, #4d7ff0 100%);
+  box-shadow: 0 10rpx 18rpx rgba(91, 141, 239, 0.22);
+}
+
+.action-btn[disabled] {
+  opacity: 0.45;
+}
+
+.action-btn--hover {
+  opacity: 0.92;
+  transform: translateY(2rpx);
 }
 
 :deep(.unit-task-card) {
-  border-radius: 24rpx;
-  background: var(--bg-card);
-  box-shadow: var(--shadow-card);
   overflow: hidden;
+  border-radius: 28rpx;
+  background: var(--surface-card-strong);
+  box-shadow: var(--shadow-card);
 }
 
 :deep(.unit-task-card--not_started) {
-  border: 2rpx solid rgba(201, 205, 214, 0.55);
+  background: rgba(255, 255, 255, 0.94);
 }
 
 :deep(.unit-task-card--learning) {
-  border: 2rpx solid rgba(93, 173, 226, 0.24);
-  background: linear-gradient(180deg, var(--bg-soft-blue) 0%, #ffffff 100%);
+  background: linear-gradient(180deg, rgba(91, 141, 239, 0.08) 0%, rgba(255, 255, 255, 0.98) 100%);
 }
 
 :deep(.unit-task-card--ready) {
-  border: 2rpx solid rgba(245, 166, 35, 0.42);
-  background: linear-gradient(180deg, rgba(255, 246, 232, 0.95) 0%, #ffffff 100%);
-  box-shadow: 0 12rpx 28rpx rgba(245, 166, 35, 0.12);
+  background: linear-gradient(180deg, rgba(242, 169, 59, 0.12) 0%, rgba(255, 255, 255, 0.98) 100%);
 }
 
 :deep(.unit-task-card--tested),
 :deep(.unit-task-card--cleared) {
-  border: 2rpx solid rgba(104, 185, 132, 0.26);
-  background: linear-gradient(180deg, var(--bg-soft-green) 0%, #ffffff 100%);
+  background: linear-gradient(180deg, rgba(95, 188, 138, 0.12) 0%, rgba(255, 255, 255, 0.98) 100%);
 }
 
 :deep(.unit-task-card--wrong) {
-  border: 2rpx solid rgba(239, 125, 87, 0.38);
-  background: linear-gradient(180deg, rgba(255, 241, 235, 0.98) 0%, #ffffff 100%);
-  box-shadow: 0 12rpx 28rpx rgba(239, 125, 87, 0.1);
+  background: linear-gradient(180deg, rgba(238, 127, 93, 0.12) 0%, rgba(255, 255, 255, 0.98) 100%);
 }
 
 :deep(.unit-task-card.is-highlighted) {
-  border-color: rgba(104, 185, 132, 0.62);
-  box-shadow: 0 14rpx 32rpx rgba(104, 185, 132, 0.18);
+  box-shadow: 0 14rpx 32rpx rgba(95, 188, 138, 0.2);
+}
+
+:global(.theme-modern) .action-btn--primary {
+  background: linear-gradient(135deg, #5f8cf5 0%, #4d79dd 100%);
+  box-shadow: 0 8rpx 16rpx rgba(77, 121, 221, 0.18);
+}
+
+:global(.theme-modern) :deep(.unit-task-card) {
+  box-shadow: var(--shadow-soft);
 }
 </style>
