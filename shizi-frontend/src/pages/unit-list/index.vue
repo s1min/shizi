@@ -1,14 +1,17 @@
 <template>
-  <view class="unit-page">
-    <wd-navbar
-      :left-arrow="showBack"
-      safe-area-inset-top
-      @click-left="handleBack"
-    >
-      <template #title>
-        <UnitPageTabs v-model="activeTab" />
-      </template>
-    </wd-navbar>
+  <view class="unit-page" :class="pageThemeClass">
+    <view class="page-top-shell">
+      <wd-navbar
+        :left-arrow="showBack"
+        safe-area-inset-top
+        custom-class="unit-page-navbar"
+        @click-left="handleBack"
+      >
+        <template #title>
+          <UnitPageTabs v-model="activeTab" />
+        </template>
+      </wd-navbar>
+    </view>
 
     <view class="page-body">
       <LibrarySummaryCard
@@ -17,8 +20,6 @@
         :summary-items="summaryItems"
         @switch-library="openLibraryPicker"
       />
-
-      <StatusLegendBar :mode="activeTab" />
 
       <WrongSummaryCard
         v-if="activeTab === 'wrong'"
@@ -119,7 +120,6 @@
 
 <script lang="ts" setup>
 import LibrarySummaryCard from './components/LibrarySummaryCard.vue'
-import StatusLegendBar from './components/StatusLegendBar.vue'
 import UnitPageTabs from './components/UnitPageTabs.vue'
 import UnitStageSection from './components/UnitStageSection.vue'
 import WrongSummaryCard from './components/WrongSummaryCard.vue'
@@ -141,6 +141,9 @@ definePage({
     navigationStyle: 'custom',
   },
 })
+
+const previewTheme = 'cream'
+const pageThemeClass = `theme-${previewTheme}`
 
 const {
   learnStore,
@@ -167,30 +170,69 @@ const {
 
 <style lang="scss" scoped>
 .unit-page {
-  --bg-page: #fff9f2;
-  --bg-card: #ffffff;
-  --text-main: #4a3728;
-  --text-sub: #8c7b6b;
-  --text-muted: #b3a596;
-  --line-soft: #efe7dc;
-  --status-not-started: #c9cdd6;
-  --status-learning: #5dade2;
-  --status-ready: #f5a623;
-  --status-tested: #68b984;
-  --status-wrong: #ef7d57;
-  --bg-soft-blue: #eef7fd;
-  --bg-soft-orange: #fff6e8;
-  --bg-soft-green: #eef9f1;
-  --bg-soft-red: #fff1eb;
-  --shadow-card: 0 10rpx 26rpx rgba(74, 55, 40, 0.06);
+  --page-bg: #fffdf9;
+  --page-bg-accent: rgba(255, 214, 153, 0.14);
+  --surface-card: rgba(255, 255, 255, 0.92);
+  --surface-card-strong: #ffffff;
+  --text-main: #463224;
+  --text-sub: #8b7766;
+  --text-muted: #b5a698;
+  --line-soft: rgba(226, 214, 201, 0.72);
+  --shadow-card: 0 12rpx 32rpx rgba(92, 66, 42, 0.08);
+  --shadow-soft: 0 8rpx 20rpx rgba(92, 66, 42, 0.05);
+  --brand-primary: #5b8def;
+  --brand-primary-soft: rgba(91, 141, 239, 0.12);
+  --tone-learning: #5b8def;
+  --tone-ready: #f2a93b;
+  --tone-tested: #5fbc8a;
+  --tone-wrong: #ee7f5d;
   min-height: 100vh;
   background:
-    radial-gradient(circle at 12% 10%, rgba(255, 232, 200, 0.28) 0%, rgba(255, 232, 200, 0) 34%),
-    linear-gradient(180deg, var(--bg-page) 0%, #ffffff 100%);
+    radial-gradient(circle at 0% 0%, var(--page-bg-accent) 0%, rgba(255, 255, 255, 0) 32%),
+    linear-gradient(180deg, #fffaf4 0%, var(--page-bg) 22%, #ffffff 100%);
+}
+
+.unit-page.theme-modern {
+  --page-bg: #fbfcff;
+  --page-bg-accent: rgba(91, 141, 239, 0.1);
+  --surface-card: rgba(255, 255, 255, 0.96);
+  --text-main: #24324a;
+  --text-sub: #6e7b91;
+  --text-muted: #96a1b3;
+  --line-soft: rgba(214, 223, 236, 0.9);
+  --shadow-card: 0 10rpx 28rpx rgba(41, 72, 126, 0.08);
+  --shadow-soft: 0 6rpx 18rpx rgba(41, 72, 126, 0.05);
+}
+
+.page-top-shell {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  padding-bottom: 16rpx;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 248, 238, 0.96) 0%,
+    rgba(255, 243, 228, 0.92) 48%,
+    rgba(241, 247, 255, 0.96) 100%
+  );
+  backdrop-filter: blur(16rpx);
+  box-shadow: 0 6rpx 18rpx rgba(110, 84, 55, 0.06);
+}
+
+.unit-page.theme-modern .page-top-shell {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.96) 0%,
+    rgba(247, 250, 255, 0.94) 58%,
+    rgba(240, 246, 255, 0.96) 100%
+  );
+  box-shadow: 0 6rpx 18rpx rgba(41, 72, 126, 0.05);
 }
 
 .page-body {
-  padding: 24rpx 24rpx calc(40rpx + env(safe-area-inset-bottom));
+  padding: 176rpx 24rpx calc(40rpx + env(safe-area-inset-bottom));
 }
 
 .loading-wrap {
@@ -203,10 +245,10 @@ const {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 84rpx 32rpx;
-  background: rgba(255, 255, 255, 0.94);
-  border-radius: 24rpx;
-  box-shadow: var(--shadow-card);
+  padding: 88rpx 32rpx;
+  border-radius: 28rpx;
+  background: var(--surface-card);
+  box-shadow: var(--shadow-soft);
   text-align: center;
 }
 
@@ -217,19 +259,20 @@ const {
 }
 
 .wrong-group {
-  margin-bottom: 24rpx;
+  margin-bottom: 32rpx;
 }
 
 .wrong-focus-banner {
-  padding: 20rpx 24rpx;
-  margin-bottom: 20rpx;
-  border-radius: 20rpx;
-  background: rgba(255, 244, 239, 0.92);
-  box-shadow: inset 0 0 0 2rpx rgba(255, 227, 219, 0.88);
+  padding: 24rpx;
+  margin-bottom: 24rpx;
+  border-radius: 24rpx;
+  background: rgba(255, 243, 238, 0.94);
+  box-shadow: inset 0 0 0 2rpx rgba(255, 227, 219, 0.92);
 }
 
 .wrong-focus-title {
   font-size: 24rpx;
+  line-height: 1.2;
   font-weight: 700;
   color: #b55f42;
 }
@@ -243,13 +286,14 @@ const {
 
 .group-title-row {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 4rpx 8rpx 18rpx;
+  justify-content: space-between;
+  padding: 4rpx 8rpx 20rpx;
 }
 
 .group-title {
   font-size: 28rpx;
+  line-height: 1.2;
   font-weight: 700;
   color: var(--text-main);
 }
@@ -261,5 +305,10 @@ const {
 
 .collapse-list {
   padding-top: 16rpx;
+}
+
+:deep(.unit-page-navbar) {
+  background: transparent !important;
+  box-shadow: none !important;
 }
 </style>
