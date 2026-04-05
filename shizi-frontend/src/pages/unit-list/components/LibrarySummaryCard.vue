@@ -48,29 +48,21 @@ const emit = defineEmits<{
 
 <style lang="scss" scoped>
 .library-summary-card {
-  padding: 32rpx;
-  margin-bottom: 24rpx;
-  border-radius: 32rpx;
+  padding: 28rpx;
+  margin-bottom: 20rpx;
+  border-radius: 28rpx;
   background:
-    radial-gradient(circle at 100% 0%, rgba(255, 232, 204, 0.4) 0%, rgba(255, 232, 204, 0) 32%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(255, 251, 246, 0.96) 100%);
+    radial-gradient(circle at 100% 0%, rgba(91, 141, 239, 0.07) 0%, rgba(91, 141, 239, 0) 34%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(251, 253, 255, 0.98) 100%);
   box-shadow: var(--shadow-card);
-  border: 2rpx solid rgba(245, 235, 224, 0.9);
-}
-
-:deep(.theme-modern) .library-summary-card,
-:global(.theme-modern) .library-summary-card {
-  background:
-    radial-gradient(circle at 100% 0%, rgba(91, 141, 239, 0.08) 0%, rgba(91, 141, 239, 0) 36%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(250, 252, 255, 0.98) 100%);
-  border-color: rgba(225, 233, 245, 0.96);
+  border: 2rpx solid rgba(225, 233, 245, 0.88);
 }
 
 .card-head {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 24rpx;
+  gap: 20rpx;
 }
 
 .card-copy {
@@ -86,9 +78,9 @@ const emit = defineEmits<{
 }
 
 .desc {
-  margin-top: 12rpx;
-  max-width: 480rpx;
-  font-size: 24rpx;
+  margin-top: 8rpx;
+  max-width: 440rpx;
+  font-size: 22rpx;
   line-height: 1.5;
   color: var(--text-sub);
 }
@@ -97,15 +89,15 @@ const emit = defineEmits<{
   display: inline-flex;
   align-items: center;
   gap: 8rpx;
-  height: 72rpx;
-  padding: 0 24rpx;
+  height: 64rpx;
+  padding: 0 20rpx;
   border: none;
   border-radius: 999rpx;
-  background: rgba(91, 141, 239, 0.12);
+  background: rgba(91, 132, 232, 0.08);
   color: var(--brand-primary);
-  font-size: 24rpx;
+  font-size: 22rpx;
   font-weight: 600;
-  box-shadow: inset 0 0 0 2rpx rgba(91, 141, 239, 0.1);
+  box-shadow: inset 0 0 0 2rpx rgba(91, 132, 232, 0.1);
 }
 
 .switch-library-btn::after {
@@ -114,23 +106,22 @@ const emit = defineEmits<{
 
 .switch-library-btn--hover {
   opacity: 0.92;
-  transform: translateY(2rpx);
 }
 
 .summary-row {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16rpx;
-  margin-top: 24rpx;
+  gap: 12rpx;
+  margin-top: 20rpx;
 }
 
 .summary-item {
   display: flex;
   flex-direction: column;
-  gap: 8rpx;
-  padding: 20rpx;
-  border-radius: 20rpx;
-  background: rgba(255, 255, 255, 0.72);
+  gap: 6rpx;
+  padding: 18rpx 20rpx;
+  border-radius: 18rpx;
+  background: rgba(255, 255, 255, 0.74);
 }
 
 .summary-label {
@@ -146,22 +137,22 @@ const emit = defineEmits<{
 }
 
 .tone-default {
-  background: rgba(255, 251, 245, 0.9);
+  background: rgba(249, 251, 255, 0.92);
 }
 
 .tone-primary {
-  background: rgba(91, 141, 239, 0.1);
+  background: rgba(91, 132, 232, 0.08);
 }
 
 .tone-warning {
-  background: rgba(242, 169, 59, 0.12);
+  background: rgba(240, 166, 58, 0.1);
 }
 
 .tone-success {
-  background: rgba(95, 188, 138, 0.12);
+  background: rgba(88, 183, 130, 0.1);
 }
 
 .tone-danger {
-  background: rgba(238, 127, 93, 0.12);
+  background: rgba(234, 122, 89, 0.1);
 }
 </style>
