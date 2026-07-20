@@ -1,521 +1,341 @@
 <template>
-  <div class="page-container">
-    <!-- Top Bar -->
-    <div class="top-bar">
-      <div class="level-selector" @click="showLibPicker = true">
-        📚 {{ learnStore.library.name }} ▼
-      </div>
-      <div class="stats-mini">
-        <span>📝 {{ learnedCount }}字</span>
-        <span>🔥 {{ streakDays }}天</span>
-      </div>
-    </div>
+  <PaperPage class="home-page" safe-bottom>
+    <view class="home-header">
+      <view>
+        <text class="home-eyebrow">小明的学习册</text>
+        <text class="home-title">今天，认识几个字</text>
+        <text class="home-meta">已掌握 {{ learnedCount }} 字 · 学习第 {{ streakDays }} 天</text>
+      </view>
+      <button class="parent-entry" aria-label="打开家长入口" @click="parentGateVisible = true">
+        <UiIcon name="lock" :size="34" />
+      </button>
+    </view>
 
-    <!-- 复习提醒 -->
-    <div class="island-scroll">
-      <div
-        v-if="learnStore.todayReviewCount > 0"
-        class="review-card"
-        @click="goToReview"
-      >
-        <div class="review-left">
-          <div class="review-icon">
-            🔔
-          </div>
-          <div>
-            <div class="review-title">
-              今日复习
-            </div>
-            <div class="review-desc">
-              {{ learnStore.todayReviewCount }} 个字等你复习
-            </div>
-          </div>
-        </div>
-        <div class="review-btn">
-          开始 ▶
-        </div>
-      </div>
+    <OfflineNotice v-if="isOffline" />
 
-      <div class="unit-label">
-        当前单元
-      </div>
+    <PaperCard class="today-card">
+      <view class="bookmark">
+        今日学习
+      </view>
+      <view class="today-card__body">
+        <view class="today-card__copy">
+          <text class="today-card__title">{{ taskTitle }}</text>
+          <text class="today-card__summary">{{ taskSummary }}</text>
+          <AudioPrompt
+            v-if="uiMode.useVoicePrompt"
+            class="today-card__audio"
+            src=""
+            label="播放任务说明"
+            fallback-text="先复习，再学习新字"
+          />
+        </view>
+        <view class="today-card__mark">
+          <UiIcon :name="taskState === 'complete' ? 'check' : 'book'" :size="58" />
+        </view>
+      </view>
+      <PaperButton variant="primary" :loading="starting" @click="startToday">
+        {{ taskAction }}
+      </PaperButton>
+    </PaperCard>
 
-      <!-- Active Island -->
-      <div v-if="currentUnit" class="island-card active" @click="handleCurrentUnitClick">
-        <div class="island-visual active-bg">
-          <div class="island-icon">
-            🏞️
-          </div>
-        </div>
-        <div class="island-info">
-          <div>
-            <div class="island-title">
-              {{ currentUnit.name }}
-            </div>
-            <div class="island-desc">
-              {{ unitProgressText }} · {{ currentUnit.chars.slice(0, 4).join('、') }}...
-            </div>
-          </div>
-          <div class="btn-start">
-            {{ currentUnitActionText }}
-          </div>
-        </div>
-      </div>
+    <view class="facts-row">
+      <PaperCard class="fact-card">
+        <text class="fact-value">{{ learnStore.todayReviewCount }}</text>
+        <text class="fact-label">待复习</text>
+        <button class="fact-action" :disabled="learnStore.todayReviewCount === 0" @click="goToReview">
+          {{ learnStore.todayReviewCount > 0 ? '去复习' : '已完成' }}
+          <UiIcon name="chevron-right" :size="28" />
+        </button>
+      </PaperCard>
+      <PaperCard class="fact-card fact-card--soft">
+        <text class="fact-value">{{ currentUnit?.name || '第一单元' }}</text>
+        <text class="fact-label">当前学习单元</text>
+        <button class="fact-action" @click="startUnit">
+          {{ currentUnitActionText }}
+          <UiIcon name="chevron-right" :size="28" />
+        </button>
+      </PaperCard>
+    </view>
 
-      <div v-if="upcomingUnits.length > 0" class="unit-label mt-4">
-        即将解锁
-      </div>
+    <view class="home-progress">
+      <view class="section-heading">
+        <text>今天的学习进度</text>
+        <text class="section-heading__value">{{ progressPercent }}%</text>
+      </view>
+      <PaperProgress :percent="progressPercent" />
+      <text class="progress-hint">完成建议时长后，就可以把手机交还给家长啦</text>
+    </view>
 
-      <!-- Upcoming Islands -->
-      <div
-        v-for="unit in upcomingUnits"
-        :key="unit.id"
-        class="island-card"
-        :class="learnStore.isUnitUnlocked(unit.id) ? 'unlocked' : 'locked'"
-        @click="learnStore.isUnitUnlocked(unit.id) && goToUnit(unit.id)"
-      >
-        <div class="island-visual" :class="learnStore.isUnitUnlocked(unit.id) ? 'unlocked-bg' : 'locked-bg'">
-          <div class="island-icon">
-            {{ learnStore.isUnitUnlocked(unit.id) ? '🏝️' : '🔒' }}
-          </div>
-        </div>
-        <div class="island-info">
-          <div>
-            <div class="island-title">
-              {{ unit.name }}
-            </div>
-            <div class="island-desc">
-              包含：{{ unit.chars.slice(0, 4).join('、') }}...
-            </div>
-          </div>
-          <div class="lock-icon">
-            {{ learnStore.getUnitProgress(unit.id).completed ? `⭐${learnStore.getUnitProgress(unit.id).stars}` : (learnStore.isUnitUnlocked(unit.id) ? '▶' : '🔒') }}
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 字库选择弹窗 -->
-    <div v-if="showLibPicker" class="lib-mask" @click="showLibPicker = false">
-      <div class="lib-picker" @click.stop>
-        <div class="lib-picker-title">
-          选择字库
-        </div>
-        <div
-          v-for="lib in libraryList"
-          :key="lib.id"
-          class="lib-option"
-          :class="{ active: lib.id === learnStore.currentLibraryId, disabled: !lib.available }"
-          @click="lib.available && selectLibrary(lib.id)"
-        >
-          <div class="lib-option-left">
-            <div class="lib-option-name">
-              {{ lib.name }}
-            </div>
-            <div class="lib-option-desc">
-              {{ lib.desc }}
-            </div>
-          </div>
-          <div class="lib-option-right">
-            <span v-if="lib.id === learnStore.currentLibraryId" class="lib-current">当前</span>
-            <span v-else-if="!lib.available" class="lib-coming">即将推出</span>
-            <span v-else class="lib-arrow">▶</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+    <view v-if="parentGateVisible" class="gate-layer">
+      <ParentGate reason="settings" @verified="handleParentVerified" @cancel="parentGateVisible = false" />
+    </view>
+  </PaperPage>
 </template>
 
 <script lang="ts" setup>
 import { computed, onMounted, ref } from 'vue'
-import { useLearnStore } from '@/store'
+import AudioPrompt from '@/components/ui/AudioPrompt.vue'
+import OfflineNotice from '@/components/ui/OfflineNotice.vue'
+import PaperButton from '@/components/ui/PaperButton.vue'
+import PaperCard from '@/components/ui/PaperCard.vue'
+import PaperPage from '@/components/ui/PaperPage.vue'
+import PaperProgress from '@/components/ui/PaperProgress.vue'
+import ParentGate from '@/components/ui/ParentGate.vue'
+import UiIcon from '@/components/ui/UiIcon.vue'
+import { useLearnStore, useUiStore } from '@/store'
+import { getTaskState, getUiMode } from '@/utils/ui-mode'
 
 definePage({
   type: 'home',
-  style: {
-    navigationBarTitleText: '今日',
-  },
+  style: { navigationBarTitleText: '今日', navigationStyle: 'custom' },
 })
 
 const learnStore = useLearnStore()
+const uiStore = useUiStore()
+const uiMode = computed(() => getUiMode(uiStore.ageGroup))
+const parentGateVisible = ref(false)
+const starting = ref(false)
+const isOffline = computed(() => learnStore.syncStatus === 'failed')
 
-// 页面加载时尝试从 API 加载最新数据
+const currentUnit = computed(() => learnStore.currentUnit)
+const learnedCount = computed(() => learnStore.learnedCount)
+const streakDays = computed(() => learnStore.streakDays)
+const currentProgress = computed(() => currentUnit.value ? learnStore.getUnitProgress(currentUnit.value.id) : null)
+const progressPercent = computed(() => {
+  const total = currentUnit.value?.chars.length || 0
+  if (!total)
+    return 0
+  return Math.min(100, Math.round(((currentProgress.value?.charIndex || 0) / total) * 100))
+})
+const taskState = computed(() => getTaskState({
+  hasResume: Boolean(currentProgress.value?.charIndex && !currentProgress.value?.learnCompleted),
+  dueReviewCount: learnStore.todayReviewCount,
+  availableNewCount: currentUnit.value && !currentProgress.value?.learnCompleted ? 1 : 0,
+  isComplete: Boolean(currentProgress.value?.testCompleted),
+}))
+const taskTitle = computed(() => ({
+  first: '打开今天的第一课',
+  resume: '继续上次的学习',
+  review: '先复习，再学新字',
+  new: '开始今天的新字',
+  complete: '今天完成啦',
+  offline: '离线学习也可以继续',
+}[taskState.value]))
+const taskSummary = computed(() => {
+  if (uiMode.value.ageGroup === 'early')
+    return taskState.value === 'complete' ? '已经完成今天的学习' : '跟着声音和图片，一起学习吧'
+  const review = learnStore.todayReviewCount
+  const newCount = Math.max(0, learnStore.dailyCharCount || 3)
+  return taskState.value === 'complete' ? '可以把手机交还给家长了' : `复习 ${review} 个字 · 新学 ${newCount} 个字`
+})
+const taskAction = computed(() => taskState.value === 'resume' ? '继续学习' : taskState.value === 'complete' ? '查看学习记录' : '开始今天的学习')
+const currentUnitActionText = computed(() => {
+  const status = currentUnit.value ? learnStore.getUnitTaskStatus(currentUnit.value.id) : 'not_started'
+  return status === 'learning' ? '继续' : status === 'ready_for_test' ? '小测' : status === 'tested' ? '再看一遍' : '开始'
+})
+
 onMounted(() => {
   learnStore.loadLibraryFromApi()
   learnStore.loadCharsFromApi()
 })
 
-const currentStage = computed(() => learnStore.currentStage)
-const currentUnit = computed(() => learnStore.currentUnit)
-const learnedCount = computed(() => learnStore.learnedCount)
-const streakDays = computed(() => learnStore.streakDays)
-
-const showLibPicker = ref(false)
-
-const libraryList = [
-  { id: 'lib_1a_upper', name: '一年级上册', desc: '人教版部编版 · 257字', available: true },
-  { id: 'lib_1a_lower', name: '一年级下册', desc: '人教版部编版 · 即将上线', available: false },
-  { id: 'lib_2a_upper', name: '二年级上册', desc: '人教版部编版 · 即将上线', available: false },
-  { id: 'lib_2a_lower', name: '二年级下册', desc: '人教版部编版 · 即将上线', available: false },
-]
-
-function selectLibrary(libId: string) {
-  if (libId === learnStore.currentLibraryId) {
-    showLibPicker.value = false
+function startToday() {
+  if (starting.value)
+    return
+  if (taskState.value === 'complete') {
+    uni.navigateTo({ url: '/subpkg-learning/review/index' })
     return
   }
-  // 目前只有一个字库，切换逻辑预留
-  learnStore.currentLibraryId = libId
-  showLibPicker.value = false
+  starting.value = true
+  if (taskState.value === 'review') {
+    uni.navigateTo({ url: '/subpkg-learning/review/index' })
+  }
+  else {
+    startUnit()
+  }
+  setTimeout(() => {
+    starting.value = false
+  }, 240)
 }
 
-const currentUnitTaskStatus = computed(() => {
-  if (!currentUnit.value)
-    return 'not_started'
-  return learnStore.getUnitTaskStatus(currentUnit.value.id)
-})
-
-/** 当前单元已学进度文案 */
-const unitProgressText = computed(() => {
-  if (!currentUnit.value)
-    return ''
-
-  const progress = learnStore.getUnitProgress(currentUnit.value.id)
-  const total = currentUnit.value.chars.length
-
-  switch (currentUnitTaskStatus.value) {
-    case 'not_started':
-      return `共 ${total} 字`
-    case 'learning':
-      return `已学 ${progress.charIndex}/${total} 字`
-    case 'ready_for_test':
-      return '本单元已学完，去闯关吧'
-    case 'tested':
-      return progress.stars > 0 ? `已完成，获得 ${progress.stars} 星` : '本单元已完成'
-    default:
-      return ''
-  }
-})
-
-const currentUnitActionText = computed(() => {
-  switch (currentUnitTaskStatus.value) {
-    case 'not_started':
-      return '开始学习'
-    case 'learning':
-      return '继续学习'
-    case 'ready_for_test':
-      return '开始小测'
-    case 'tested':
-      return '再次挑战'
-    default:
-      return '开始学习'
-  }
-})
-
-/** 后续单元列表（排除当前单元） */
-const upcomingUnits = computed(() => {
-  if (!currentStage.value)
-    return []
-  return currentStage.value.units.filter(u => u.id !== currentUnit.value?.id).slice(0, 3)
-})
-
-function handleCurrentUnitClick() {
+function startUnit() {
   if (!currentUnit.value)
     return
-
-  const unitId = currentUnit.value.id
-
-  switch (currentUnitTaskStatus.value) {
-    case 'not_started':
-    case 'learning':
-      uni.navigateTo({
-        url: `/subpkg-learning/learn/index?unitId=${unitId}`,
-      })
-      break
-    case 'ready_for_test':
-    case 'tested':
-      uni.navigateTo({
-        url: `/subpkg-learning/learn/unit-test?unitId=${unitId}`,
-      })
-      break
-  }
-}
-
-function goToUnit(unitId: string) {
-  uni.navigateTo({
-    url: `/subpkg-learning/learn/index?unitId=${unitId}`,
-  })
+  const status = learnStore.getUnitTaskStatus(currentUnit.value.id)
+  const page = status === 'ready_for_test' || status === 'tested' ? 'unit-test' : 'index'
+  uni.navigateTo({ url: `/subpkg-learning/learn/${page}?unitId=${currentUnit.value.id}` })
 }
 
 function goToReview() {
-  uni.navigateTo({ url: '/subpkg-learning/review/index' })
+  if (learnStore.todayReviewCount > 0)
+    uni.navigateTo({ url: '/subpkg-learning/review/index' })
+}
+
+function handleParentVerified() {
+  parentGateVisible.value = false
+  uni.navigateTo({ url: '/pages/me/index?parent=1' })
 }
 </script>
 
 <style lang="scss" scoped>
-.page-container {
-  min-height: 100vh;
-  background-color: $uni-bg-color;
-  padding-bottom: 100rpx;
-}
+@use '../../style/tokens' as *;
 
-.top-bar {
-  padding: $uni-spacing-col-base $uni-spacing-row-lg;
-  background: $uni-bg-color;
+.home-page {
+  padding-top: calc(env(safe-area-inset-top) + 32rpx);
+}
+.home-header {
   display: flex;
+  align-items: flex-start;
   justify-content: space-between;
-  align-items: center;
-  position: sticky;
-  top: 0;
-  z-index: 10;
+  margin-bottom: 32rpx;
 }
-
-.level-selector {
-  background: #fff;
-  padding: $uni-spacing-col-sm $uni-spacing-row-base;
-  border-radius: 40rpx;
-  border: 2px solid $uni-color-primary;
-  font-weight: bold;
-  display: flex;
-  align-items: center;
-  gap: 10rpx;
-  font-size: $uni-font-size-sm;
+.home-eyebrow {
+  display: block;
+  color: $ink-muted;
+  font-size: $font-body-size;
 }
-
-.progress-ring {
-  width: 60rpx;
-  height: 60rpx;
-  border-radius: 50%;
-  border: 6rpx solid #eee;
-  border-top-color: $uni-color-error;
-}
-
-.stats-mini {
-  display: flex;
-  gap: 16rpx;
-  font-size: $uni-font-size-xs;
-  color: $uni-text-color-grey;
-}
-
-.island-scroll {
-  padding: $uni-spacing-col-base $uni-spacing-row-lg;
-}
-
-.unit-label {
-  font-size: $uni-font-size-xs;
-  color: $uni-text-color-grey;
-  margin-bottom: $uni-spacing-col-base;
-}
-
-.island-card {
-  background: #fff;
-  border-radius: $uni-border-radius-lg;
-  margin-bottom: $uni-spacing-col-lg;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  overflow: hidden;
-  transition: transform 0.2s;
-
-  &.active {
-    border: 2px solid $uni-color-primary;
-  }
-
-  &.locked {
-    filter: grayscale(1);
-    opacity: 0.7;
-  }
-
-  &.unlocked {
-    border: 1px solid #e0e0e0;
-  }
-}
-
-.island-visual {
-  height: 200rpx;
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: flex-end;
-
-  &.active-bg {
-    background: #fff9c4;
-  }
-  &.locked-bg {
-    background: #e0e0e0;
-  }
-  &.unlocked-bg {
-    background: #e8f5e9;
-  }
-}
-
-.island-icon {
-  font-size: 80rpx;
-  margin-bottom: 20rpx;
-}
-
-.island-info {
-  padding: $uni-spacing-col-lg;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.island-title {
-  font-weight: bold;
-  font-size: $uni-font-size-base;
-  color: $uni-text-color;
-}
-
-.island-desc {
-  font-size: $uni-font-size-xs;
-  color: $uni-text-color-grey;
+.home-title {
+  display: block;
   margin-top: 8rpx;
+  color: $ink-strong;
+  font-family: $font-display;
+  font-size: $font-display-md;
+  font-weight: 700;
 }
-
-.btn-start {
-  background: $uni-color-primary;
-  color: #fff;
-  padding: 12rpx 28rpx;
-  border-radius: 30rpx;
-  font-size: $uni-font-size-xs;
-  font-weight: bold;
+.home-meta {
+  display: block;
+  margin-top: 12rpx;
+  color: $ink-muted;
+  font-size: $font-label;
 }
-
-.lock-icon {
-  font-size: 40rpx;
-}
-
-.mt-4 {
-  margin-top: $uni-spacing-col-xl;
-}
-
-.review-card {
-  background: linear-gradient(135deg, #5dade2, #4a9bd9);
-  border-radius: $uni-border-radius-lg;
-  padding: 28rpx 32rpx;
-  margin-bottom: $uni-spacing-col-lg;
+.parent-entry {
+  width: $touch-target;
+  height: $touch-target;
   display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 2rpx solid $line;
+  border-radius: 50%;
+  color: $ink-muted;
+  background: $surface;
+}
+.today-card {
+  position: relative;
+  margin-bottom: 24rpx;
+  padding-top: 64rpx;
+  overflow: hidden;
+}
+.bookmark {
+  position: absolute;
+  top: 0;
+  left: 32rpx;
+  padding: 12rpx 24rpx;
+  color: $apricot-dark;
+  background: $apricot-soft;
+  font-size: $font-label;
+  font-weight: 700;
+}
+.today-card__body {
+  display: flex;
+  align-items: center;
   justify-content: space-between;
-  align-items: center;
-  color: #fff;
-  box-shadow: 0 4px 16px rgba(93, 173, 226, 0.3);
+  gap: 24rpx;
+  margin-bottom: 32rpx;
 }
-
-.review-left {
+.today-card__title {
+  display: block;
+  color: $ink-strong;
+  font-family: $font-display;
+  font-size: $font-display-md;
+  font-weight: 700;
+}
+.today-card__summary {
+  display: block;
+  margin-top: 12rpx;
+  color: $ink-muted;
+  font-size: $font-body-size;
+  line-height: 1.5;
+}
+.today-card__audio {
+  margin-top: 20rpx;
+}
+.today-card__mark {
+  width: 112rpx;
+  height: 112rpx;
   display: flex;
   align-items: center;
+  justify-content: center;
+  flex: none;
+  border-radius: 32rpx;
+  color: $apricot-dark;
+  background: $apricot-soft;
+}
+.facts-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 20rpx;
 }
-
-.review-icon {
-  font-size: 48rpx;
+.fact-card {
+  min-height: 188rpx;
+  padding: 24rpx;
 }
-
-.review-title {
-  font-size: $uni-font-size-base;
-  font-weight: bold;
+.fact-card--soft {
+  background: $surface-soft;
 }
-
-.review-desc {
-  font-size: $uni-font-size-xs;
-  opacity: 0.85;
-  margin-top: 4rpx;
+.fact-value {
+  display: block;
+  overflow: hidden;
+  color: $ink-strong;
+  font-family: $font-number;
+  font-size: 42rpx;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
-
-.review-btn {
-  background: rgba(255, 255, 255, 0.25);
-  padding: 12rpx 28rpx;
-  border-radius: 30rpx;
-  font-size: $uni-font-size-xs;
-  font-weight: bold;
+.fact-label {
+  display: block;
+  margin-top: 8rpx;
+  color: $ink-muted;
+  font-size: $font-label;
 }
-
-/* 字库选择弹窗 */
-.lib-mask {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: flex-end;
-  z-index: 999;
+.fact-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 4rpx;
+  min-height: 64rpx;
+  margin-top: 16rpx;
+  padding: 0;
+  border: 0;
+  color: $sky-dark;
+  background: transparent;
+  font-size: $font-label;
 }
-
-.lib-picker {
-  width: 100%;
-  background: #fff;
-  border-radius: 32rpx 32rpx 0 0;
-  padding: 40rpx 40rpx calc(40rpx + env(safe-area-inset-bottom));
-  animation: slide-up 0.25s ease-out;
+.fact-action[disabled] {
+  color: $disabled;
 }
-
-.lib-picker-title {
-  font-size: 32rpx;
-  font-weight: bold;
-  color: #333;
-  text-align: center;
-  margin-bottom: 30rpx;
+.home-progress {
+  margin-top: 40rpx;
+  padding: 0 8rpx;
 }
-
-.lib-option {
+.section-heading {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  padding: 28rpx 24rpx;
-  border-radius: 20rpx;
-  margin-bottom: 16rpx;
-  background: #f9f9f9;
-  transition: background 0.2s;
-
-  &.active {
-    background: #fff9e6;
-    border: 2px solid $uni-color-primary;
-  }
-
-  &.disabled {
-    opacity: 0.5;
-  }
+  color: $ink-strong;
+  font-size: $font-body-size;
+  font-weight: 700;
 }
-
-.lib-option-name {
-  font-size: 30rpx;
-  font-weight: bold;
-  color: #333;
+.section-heading__value {
+  color: $apricot-dark;
+  font-family: $font-number;
 }
-
-.lib-option-desc {
-  font-size: 22rpx;
-  color: #999;
-  margin-top: 6rpx;
+.progress-hint {
+  display: block;
+  margin-top: 16rpx;
+  color: $ink-muted;
+  font-size: $font-caption;
 }
-
-.lib-current {
-  font-size: 22rpx;
-  color: $uni-color-primary;
-  font-weight: bold;
-  background: #fff9e6;
-  padding: 4rpx 16rpx;
-  border-radius: 16rpx;
-}
-
-.lib-coming {
-  font-size: 22rpx;
-  color: #bbb;
-}
-
-.lib-arrow {
-  font-size: 24rpx;
-  color: #ccc;
-}
-
-@keyframes slide-up {
-  0% {
-    transform: translateY(100%);
-  }
-  100% {
-    transform: translateY(0);
-  }
+.gate-layer :deep(.parent-gate) {
+  z-index: 1100;
 }
 </style>

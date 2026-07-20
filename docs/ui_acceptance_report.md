@@ -317,3 +317,7 @@ v3 要求：按钮最小 88rpx x 88rpx，间距 24rpx+
 ---
 
 *报告完毕。建议整改完成后进行复验。*
+
+## Paper Classroom 复验记录
+
+2026-07-20 已完成 Paper Classroom UI 迁移批次，自动化门禁、页面状态和家长验证记录见 [`docs/ui_paper_classroom_acceptance.md`](ui_paper_classroom_acceptance.md)。旧版问题清单中的紫色复习主题、错误 Tab 名称、复习答题模式和正式 Emoji 图标已按新设计修复；真机视觉走查仍是提审前必做项。

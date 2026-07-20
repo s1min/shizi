@@ -1,5 +1,5 @@
 <template>
-  <view class="unit-page">
+  <view v-if="uiStore.isParentMode" class="unit-page">
     <view class="page-top-shell">
       <wd-navbar
         :left-arrow="showBack"
@@ -116,9 +116,14 @@
       @select="handleLibrarySelect"
     />
   </view>
+  <view v-else class="unit-page-gate">
+    <ParentGate reason="library" @verified="handleGateVerified" @cancel="handleGateCancel" />
+  </view>
 </template>
 
 <script lang="ts" setup>
+import ParentGate from '@/components/ui/ParentGate.vue'
+import { useUiStore } from '@/store/ui'
 import LibrarySummaryCard from './components/LibrarySummaryCard.vue'
 import UnitPageTabs from './components/UnitPageTabs.vue'
 import UnitStageSection from './components/UnitStageSection.vue'
@@ -134,6 +139,7 @@ const props = withDefaults(defineProps<{
   backUrl: '/pages/me/index',
   backIsTab: false,
 })
+const uiStore = useUiStore()
 
 definePage({
   style: {
@@ -163,6 +169,11 @@ const {
   handleUnitSecondary,
   handleWrongPrimary,
 } = useUnitListPage(props)
+
+function handleGateVerified() {}
+function handleGateCancel() {
+  uni.switchTab({ url: '/pages/me/index' })
+}
 </script>
 
 <style lang="scss" scoped>
@@ -187,6 +198,11 @@ const {
   background:
     radial-gradient(circle at 0% 0%, var(--page-bg-accent) 0%, rgba(255, 255, 255, 0) 28%),
     linear-gradient(180deg, #f9fbff 0%, var(--page-bg) 22%, #ffffff 100%);
+}
+
+.unit-page-gate {
+  min-height: 100vh;
+  background: var(--paper);
 }
 
 .page-top-shell {

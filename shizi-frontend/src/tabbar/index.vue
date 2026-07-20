@@ -11,23 +11,9 @@ defineOptions({
 })
 // #endif
 
-/**
- * 中间的鼓包tabbarItem的点击事件
- */
-function handleClickBulge() {
-  uni.showToast({
-    title: '点击了中间的鼓包tabbarItem',
-    icon: 'none',
-  })
-}
-
 function handleClick(index: number) {
   // 点击原来的不做操作
   if (index === tabbarStore.curIdx) {
-    return
-  }
-  if (tabbarList[index].isBulge) {
-    handleClickBulge()
     return
   }
   const url = tabbarList[index].pagePath
@@ -69,30 +55,18 @@ onMounted(() => {
   })
 })
 // #endif
-const activeColor = 'var(--wot-color-theme, #F5A623)'
-const inactiveColor = '#666'
-function getColorByIndex(index: number) {
-  return tabbarStore.curIdx === index ? activeColor : inactiveColor
-}
 </script>
 
 <template>
-  <view v-if="customTabbarEnable" class="h-50px pb-safe">
-    <view class="border-and-fixed bg-white" @touchmove.stop.prevent>
-      <view class="h-50px flex items-center">
+  <view v-if="customTabbarEnable && !tabbarStore.isHidden" class="paper-tabbar-wrap">
+    <view class="border-and-fixed" @touchmove.stop.prevent>
+      <view class="paper-tabbar">
         <view
           v-for="(item, index) in tabbarList" :key="index"
-          class="flex flex-1 flex-col items-center justify-center"
-          :style="{ color: getColorByIndex(index) }"
+          class="paper-tabbar__slot"
           @click="handleClick(index)"
         >
-          <view v-if="item.isBulge" class="relative">
-            <!-- 中间一个鼓包tabbarItem的处理 -->
-            <view class="bulge">
-              <TabbarItem :item="item" :index="index" class="text-center" is-bulge />
-            </view>
-          </view>
-          <TabbarItem v-else :item="item" :index="index" class="relative px-3 text-center" />
+          <TabbarItem :item="item" :index="index" />
         </view>
       </view>
 
@@ -108,27 +82,30 @@ function getColorByIndex(index: number) {
   left: 0;
   right: 0;
   z-index: 1000;
-  border-top: 1px solid #eee;
+  border-top: 1rpx solid var(--line, #eadbcb);
+  background: var(--paper, #fff8f0);
+  box-shadow: 0 -8rpx 24rpx rgba(112, 75, 34, 0.06);
   box-sizing: border-box;
 }
-// 中间鼓包的样式
-.bulge {
-  position: absolute;
-  top: -20px;
-  left: 50%;
-  transform-origin: top center;
-  transform: translateX(-50%) scale(0.5) translateY(-33%);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 250rpx;
-  height: 250rpx;
-  border-radius: 50%;
-  background-color: #fff;
-  box-shadow: inset 0 0 0 1px #fefefe;
 
-  &:active {
-    // opacity: 0.8;
-  }
+.paper-tabbar-wrap {
+  height: 112rpx;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.paper-tabbar {
+  display: flex;
+  height: 112rpx;
+  align-items: stretch;
+  padding: 8rpx 20rpx 0;
+  box-sizing: border-box;
+}
+
+.paper-tabbar__slot {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  align-items: stretch;
+  justify-content: center;
 }
 </style>

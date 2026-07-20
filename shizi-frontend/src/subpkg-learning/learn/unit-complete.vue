@@ -1,7 +1,7 @@
 <template>
-  <div class="complete-container">
+  <PaperPage class="complete-container" hide-tabbar safe-bottom>
     <button class="top-home-entry" @click="goHome">
-      <text class="top-home-icon">←</text>
+      <UiIcon class="top-home-icon" name="arrow-left" :size="28" />
       <text class="top-home-text">回首页</text>
     </button>
 
@@ -14,7 +14,7 @@
           :class="{ active: i <= stars }"
           :style="{ animationDelay: `${(i - 1) * 0.2}s` }"
         >
-          {{ i <= stars ? '⭐' : '☆' }}
+          <UiIcon :name="i <= stars ? 'check' : 'info'" :size="32" />
         </div>
       </div>
 
@@ -26,7 +26,7 @@
       </div>
     </div>
 
-    <div class="stats-card">
+    <PaperCard class="stats-card">
       <div class="stat-item">
         <div class="stat-val">
           {{ learnedChars.length }}
@@ -62,11 +62,20 @@
           连续天数
         </div>
       </div>
-    </div>
+    </PaperCard>
 
     <div class="char-wall">
       <div v-for="ch in learnedChars" :key="ch" class="char-tag">
         {{ ch }}
+      </div>
+    </div>
+
+    <div class="result-details">
+      <div class="detail-item">
+        <span>待巩固</span><strong>{{ needsReviewCount }}</strong>
+      </div>
+      <div class="detail-item">
+        <span>下次复习</span><strong>{{ nextReviewText }}</strong>
       </div>
     </div>
 
@@ -75,26 +84,26 @@
     </div>
 
     <div v-if="showPosterActions" class="action-area">
-      <button class="btn-share" @click="generatePoster">
+      <PaperButton variant="secondary" class="btn-share" @click="generatePoster">
         <text>生成打卡海报</text>
-      </button>
+      </PaperButton>
       <!-- #ifdef MP-WEIXIN -->
-      <button class="btn-share-wx" open-type="share">
+      <PaperButton variant="secondary" class="btn-share-wx" open-type="share">
         <text>分享给好友</text>
-      </button>
+      </PaperButton>
       <!-- #endif -->
-      <button class="btn-primary" @click="goNext">
+      <PaperButton variant="primary" class="btn-primary" @click="goNext">
         {{ hasNextUnit ? '下一单元' : '返回首页' }}
-      </button>
+      </PaperButton>
     </div>
 
     <div v-else class="action-area">
-      <button class="btn-primary" @click="goToUnitTest">
+      <PaperButton variant="primary" class="btn-primary" @click="goToUnitTest">
         开始单元小测
-      </button>
-      <button class="btn-secondary" @click="goHome">
+      </PaperButton>
+      <PaperButton variant="secondary" class="btn-secondary" @click="goHome">
         稍后再测
-      </button>
+      </PaperButton>
     </div>
 
     <!-- 海报弹窗 -->
@@ -108,27 +117,31 @@
         <!-- #endif -->
         <div class="poster-actions">
           <!-- #ifdef MP-WEIXIN -->
-          <button class="btn-save" @click="savePoster">
+          <PaperButton variant="primary" class="btn-save" @click="savePoster">
             保存到相册
-          </button>
+          </PaperButton>
           <!-- #endif -->
           <!-- #ifdef H5 -->
-          <button class="btn-save" @click="savePosterH5">
+          <PaperButton variant="primary" class="btn-save" @click="savePosterH5">
             保存图片
-          </button>
+          </PaperButton>
           <!-- #endif -->
-          <button class="btn-close-poster" @click="closePoster">
+          <PaperButton variant="ghost" class="btn-close-poster" @click="closePoster">
             关闭
-          </button>
+          </PaperButton>
         </div>
       </div>
     </div>
-  </div>
+  </PaperPage>
 </template>
 
 <script lang="ts" setup>
 import { onShareAppMessage, onShareTimeline } from '@dcloudio/uni-app'
 import { computed, getCurrentInstance, nextTick, onMounted, ref } from 'vue'
+import PaperButton from '@/components/ui/PaperButton.vue'
+import PaperCard from '@/components/ui/PaperCard.vue'
+import PaperPage from '@/components/ui/PaperPage.vue'
+import UiIcon from '@/components/ui/UiIcon.vue'
 import { useLearnStore } from '@/store'
 
 definePage({
@@ -159,6 +172,8 @@ const timeText = computed(() => {
 const showResultStats = computed(() => accuracyVal.value > 0 || timeSeconds.value > 0)
 const showPosterActions = computed(() => showResultStats.value)
 const pageTitle = computed(() => showResultStats.value ? '单元完成！' : '本单元学习完成')
+const needsReviewCount = computed(() => learnStore.wrongChars.filter(char => learnedChars.value.includes(char._id)).length)
+const nextReviewText = computed(() => needsReviewCount.value > 0 ? '明天' : '已安排')
 
 const todayStr = computed(() => {
   const d = new Date()
@@ -277,7 +292,7 @@ function drawPosterContent(ctx: any, w: number, h: number, dpr: number) {
   ctx.textAlign = 'center'
   for (let i = 0; i < 3; i++) {
     const x = w / 2 + (i - 1) * 50 * scale
-    ctx.fillText(i < stars.value ? '⭐' : '☆', x, starY)
+    ctx.fillText(i < stars.value ? '●' : '○', x, starY)
   }
 
   // 单元名
@@ -457,38 +472,41 @@ function savePosterH5() {
 </script>
 
 <style lang="scss" scoped>
+@use '../../style/tokens' as *;
+
 .complete-container {
-  min-height: 100vh;
-  background: linear-gradient(180deg, #fffaf0 0%, #ffffff 100%);
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: calc(env(safe-area-inset-top) + 24rpx) 32rpx 40rpx;
+  padding-top: $space-3;
+  padding-right: 0;
+  padding-bottom: $space-5;
+  padding-left: 0;
   box-sizing: border-box;
 }
 
 .top-home-entry {
   align-self: flex-start;
-  min-height: 56rpx;
+  min-height: $touch-target;
   padding: 0;
   margin-bottom: 32rpx;
   border: none;
   background: transparent;
   display: flex;
   align-items: center;
-  gap: 8rpx;
+  gap: $space-1;
 }
 
 .top-home-icon {
   font-size: 24rpx;
   line-height: 1;
-  color: #b7aa96;
+  color: $ink-muted;
 }
 
 .top-home-text {
-  font-size: 28rpx;
+  font-size: $font-body-size;
   line-height: 1;
-  color: #b7aa96;
+  color: $ink-muted;
 }
 
 .hero-section {
@@ -496,18 +514,18 @@ function savePosterH5() {
   flex-direction: column;
   align-items: center;
   text-align: center;
-  margin-top: 40rpx;
-  margin-bottom: 44rpx;
+  margin-top: $space-5;
+  margin-bottom: $space-5;
 }
 
 .stars-area {
   display: flex;
-  gap: 20rpx;
-  margin-bottom: 24rpx;
+  gap: $space-2;
+  margin-bottom: $space-3;
 }
 
 .star {
-  font-size: 80rpx;
+  color: $apricot;
   opacity: 0.3;
   transition: all 0.3s;
 
@@ -531,25 +549,25 @@ function savePosterH5() {
 .title {
   font-size: 56rpx;
   font-weight: bold;
-  color: #4a3728;
+  color: $ink-strong;
   margin-bottom: 16rpx;
 }
 
 .subtitle {
   font-size: 32rpx;
-  color: #7a6a58;
+  color: $ink-muted;
 }
 
 .stats-card {
   width: 100%;
-  background: rgba(255, 255, 255, 0.96);
-  border: 2rpx solid rgba(245, 166, 35, 0.08);
-  border-radius: 28rpx;
-  padding: 44rpx;
+  background: $surface;
+  border-color: $line;
+  border-radius: $radius-card;
+  padding: $space-5;
   display: flex;
   justify-content: space-around;
   align-items: center;
-  box-shadow: 0 8rpx 24rpx rgba(245, 166, 35, 0.08);
+  box-shadow: $shadow-card;
   margin-bottom: 40rpx;
 }
 
@@ -558,21 +576,21 @@ function savePosterH5() {
 }
 
 .stat-val {
-  font-size: 48rpx;
+  font-size: $font-display-md;
   font-weight: bold;
-  color: #f5a623;
+  color: $apricot-dark;
 }
 
 .stat-label {
   font-size: 24rpx;
-  color: #999;
+  color: $ink-muted;
   margin-top: 8rpx;
 }
 
 .stat-divider {
   width: 1px;
   height: 60rpx;
-  background: #eee;
+  background: $line;
 }
 
 .char-wall {
@@ -586,21 +604,21 @@ function savePosterH5() {
 .char-tag {
   width: 88rpx;
   height: 88rpx;
-  background: #fff9e6;
-  border: 2rpx solid #f5a623;
-  border-radius: 12rpx;
+  background: $apricot-soft;
+  border: 2rpx solid $line;
+  border-radius: $radius-sm;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 40rpx;
-  font-family: 'KaiTi', 'STKaiti', serif;
+  font-family: $font-hanzi;
   font-weight: bold;
-  color: #333;
+  color: $ink-strong;
 }
 
 .total-hint {
   font-size: 26rpx;
-  color: #bbb;
+  color: $ink-light;
   margin-bottom: 40rpx;
 }
 
@@ -609,7 +627,7 @@ function savePosterH5() {
   width: 100%;
   display: flex;
   flex-wrap: wrap;
-  gap: 24rpx;
+  gap: $space-2;
 }
 
 .btn-share {
@@ -617,10 +635,10 @@ function savePosterH5() {
   min-width: 40%;
   height: 84rpx;
   background: #fff;
-  border: 2rpx solid #f0d9b5;
-  border-radius: 28rpx;
-  font-size: 28rpx;
-  color: #9a815f;
+  border-color: $line-strong;
+  border-radius: $radius-card;
+  font-size: $font-body-size;
+  color: $apricot-dark;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -631,10 +649,10 @@ function savePosterH5() {
   min-width: 40%;
   height: 84rpx;
   background: #fff;
-  border: 2rpx solid #d5edda;
-  border-radius: 28rpx;
-  font-size: 28rpx;
-  color: #4d9d64;
+  border-color: rgba(130, 199, 133, 0.45);
+  border-radius: $radius-card;
+  font-size: $font-body-size;
+  color: $mint-dark;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -644,13 +662,7 @@ function savePosterH5() {
   flex: 1;
   min-width: 100%;
   height: 100rpx;
-  background: linear-gradient(135deg, #f5a623, #e8941a);
-  border: none;
-  border-radius: 48rpx;
-  font-size: 32rpx;
-  font-weight: bold;
-  color: #fff;
-  box-shadow: 0 12rpx 28rpx rgba(245, 166, 35, 0.28);
+  font-size: $font-body-lg;
 }
 
 .poster-mask {
@@ -659,7 +671,7 @@ function savePosterH5() {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.6);
+  background: $overlay;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -686,21 +698,34 @@ function savePosterH5() {
 }
 
 .btn-save {
-  padding: 20rpx 48rpx;
-  background: linear-gradient(135deg, #f5a623, #e8941a);
-  border: none;
-  border-radius: 40rpx;
-  font-size: 30rpx;
-  font-weight: bold;
-  color: #fff;
+  min-width: 240rpx;
 }
 
 .btn-close-poster {
-  padding: 20rpx 48rpx;
-  background: rgba(255, 255, 255, 0.3);
-  border: 2rpx solid rgba(255, 255, 255, 0.6);
-  border-radius: 40rpx;
-  font-size: 30rpx;
-  color: #fff;
+  min-width: 240rpx;
+}
+
+.result-details {
+  display: flex;
+  width: 100%;
+  gap: $space-2;
+  margin-bottom: $space-3;
+}
+.detail-item {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: $space-1;
+  padding: $space-3;
+  border: 2rpx solid $line;
+  border-radius: $radius-sm;
+  color: $ink-muted;
+  background: $surface;
+  font-size: $font-label;
+  text-align: center;
+}
+.detail-item strong {
+  color: $ink-strong;
+  font-size: $font-body-lg;
 }
 </style>

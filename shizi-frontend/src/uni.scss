@@ -20,24 +20,24 @@ $uni-color-primary: #f5a623;
 $uni-color-secondary: #5dade2;
 $uni-color-success: #82c785;
 $uni-color-warning: #faad14;
-$uni-color-error: #ff4d4f;
+$uni-color-error: #e97869;
 $uni-color-info: #909399;
 
 /* 文字基本颜色 */
 $uni-text-color: #4a3728; // 基本色
 $uni-text-color-inverse: #fff; // 反色
-$uni-text-color-grey: #999; // 辅助灰色，如加载更多的提示信息
-$uni-text-color-placeholder: #808080;
-$uni-text-color-disable: #c0c0c0;
+$uni-text-color-grey: #876f5a; // 辅助灰色，如加载更多的提示信息
+$uni-text-color-placeholder: #b19b86;
+$uni-text-color-disable: #c9bdb2;
 
 /* 背景颜色 */
 $uni-bg-color: #fff8f0;
-$uni-bg-color-grey: #f8f8f8;
-$uni-bg-color-hover: #f1f1f1; // 点击状态颜色
-$uni-bg-color-mask: rgb(0 0 0 / 40%); // 遮罩颜色
+$uni-bg-color-grey: #f6ebdd;
+$uni-bg-color-hover: #fff0d4; // 点击状态颜色
+$uni-bg-color-mask: rgb(53 39 29 / 38%); // 遮罩颜色
 
 /* 边框颜色 */
-$uni-border-color: #c8c7cc;
+$uni-border-color: #eadbcb;
 
 /* 尺寸变量 */
 
@@ -75,9 +75,9 @@ $uni-spacing-col-xl: 32px;
 $uni-opacity-disabled: 0.3; // 组件禁用态的透明度
 
 /* 文章场景相关 */
-$uni-color-title: #2c405a; // 文章标题颜色
+$uni-color-title: #35271d; // 文章标题颜色
 $uni-font-size-title: 24px;
-$uni-color-subtitle: #555; // 二级标题颜色
+$uni-color-subtitle: #4a3728; // 二级标题颜色
 $uni-font-size-subtitle: 20px;
-$uni-color-paragraph: #3f536e; // 文章段落颜色
+$uni-color-paragraph: #876f5a; // 文章段落颜色
 $uni-font-size-paragraph: 16px;

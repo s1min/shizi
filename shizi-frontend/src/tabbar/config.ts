@@ -29,8 +29,8 @@ export const nativeTabbarList: NativeTabBarItem[] = [
   {
     iconPath: 'static/tabbar/example.png',
     selectedIconPath: 'static/tabbar/exampleHL.png',
-    pagePath: 'pages/unit-list/index',
-    text: '学习单元',
+    pagePath: 'pages/loot/index',
+    text: '图鉴',
   },
   {
     iconPath: 'static/tabbar/personal.png',
@@ -49,10 +49,10 @@ export const customTabbarList: CustomTabBarItem[] = [
     icon: 'i-carbon-home',
   },
   {
-    text: '学习单元',
-    pagePath: 'pages/unit-list/index',
+    text: '图鉴',
+    pagePath: 'pages/loot/index',
     iconType: 'unocss',
-    icon: 'i-carbon-notebook',
+    icon: 'i-carbon-book',
   },
   {
     text: '我的',
@@ -87,12 +87,12 @@ export const tabbarList = customTabbarEnable ? customTabbarList : nativeTabbarLi
 const _tabbar: TabBar = {
   // 只有微信小程序支持 custom。App 和 H5 不生效
   custom: selectedTabbarStrategy === TABBAR_STRATEGY_MAP.CUSTOM_TABBAR,
-  color: '#999999',
-  selectedColor: '#F5A623', // 使用主色调
-  backgroundColor: '#FFFFFF',
-  borderStyle: 'black',
-  height: '50px',
-  fontSize: '10px',
+  color: '#876F5A',
+  selectedColor: '#F5A623',
+  backgroundColor: '#FFF8F0',
+  borderStyle: 'white',
+  height: '56px',
+  fontSize: '12px',
   iconWidth: '24px',
   spacing: '3px',
   list: _tabbarList as unknown as TabBar['list'],

@@ -1,18 +1,18 @@
 <template>
-  <div class="page-container">
+  <PaperPage class="legal-page" hide-tabbar>
     <SecondaryPageNavbar
       title="隐私政策"
       fallback-url="/pages/me/index"
       :fallback-is-tab="true"
     />
 
-    <div class="content">
-      <div class="title">
+    <view class="legal-page__content paper-content-width">
+      <text class="legal-page__title">
         趣字宝隐私政策
-      </div>
-      <div class="update-date">
+      </text>
+      <text class="legal-page__date">
         更新日期：2026年3月10日
-      </div>
+      </text>
 
       <div class="section">
         <div class="section-title">
@@ -136,12 +136,22 @@
           如果您对本隐私政策有任何疑问，请通过应用内的反馈功能联系我们。
         </div>
       </div>
-    </div>
-  </div>
+
+      <view class="legal-page__danger-zone">
+        <view class="legal-page__danger-heading">
+          数据删除说明
+        </view>
+        <view class="legal-page__danger-copy">
+          家长可在“我的 - 隐私与数据”中申请删除账号及相关学习记录。删除后通常无法恢复，请在确认前先完成必要的数据备份。
+        </view>
+      </view>
+    </view>
+  </PaperPage>
 </template>
 
 <script lang="ts" setup>
 import SecondaryPageNavbar from '@/components/navigation/SecondaryPageNavbar.vue'
+import PaperPage from '@/components/ui/PaperPage.vue'
 
 definePage({
   style: {
@@ -152,45 +162,72 @@ definePage({
 </script>
 
 <style lang="scss" scoped>
-.page-container {
-  min-height: 100vh;
-  background: #fff;
+@use '../../style/tokens' as *;
+
+.legal-page__content {
+  box-sizing: border-box;
+  padding-top: $space-5;
+  padding-bottom: $space-8;
 }
 
-.content {
-  padding: 24rpx 40rpx 40rpx;
-}
-
-.title {
-  font-size: 36rpx;
-  font-weight: bold;
-  color: #333;
+.legal-page__title,
+.legal-page__date {
+  display: block;
   text-align: center;
-  margin-bottom: 16rpx;
 }
 
-.update-date {
-  font-size: 24rpx;
-  color: #999;
-  text-align: center;
-  margin-bottom: 48rpx;
+.legal-page__title {
+  color: $ink-strong;
+  font-family: $font-display;
+  font-size: $font-title;
+  font-weight: 700;
+  line-height: $line-height-title;
+}
+
+.legal-page__date {
+  margin-top: $space-2;
+  margin-bottom: $space-7;
+  color: $ink-muted;
+  font-size: $font-label;
 }
 
 .section {
-  margin-bottom: 36rpx;
+  margin-bottom: $space-6;
 }
 
 .section-title {
-  font-size: 30rpx;
-  font-weight: bold;
-  color: #333;
-  margin-bottom: 16rpx;
+  margin-bottom: $space-3;
+  color: $ink-strong;
+  font-size: $font-title;
+  font-weight: 700;
+  line-height: $line-height-title;
 }
 
 .section-text {
-  font-size: 28rpx;
-  color: #666;
-  line-height: 1.8;
-  margin-bottom: 8rpx;
+  margin-bottom: $space-2;
+  color: $ink;
+  font-size: $font-body-size;
+  line-height: 1.75;
+}
+
+.legal-page__danger-zone {
+  margin-top: $space-7;
+  padding: $space-4;
+  border: 2rpx solid rgba(233, 120, 105, 0.4);
+  border-radius: $radius-card;
+  background: $coral-soft;
+}
+
+.legal-page__danger-heading {
+  color: $coral-dark;
+  font-size: $font-body-lg;
+  font-weight: 700;
+}
+
+.legal-page__danger-copy {
+  margin-top: $space-2;
+  color: $ink;
+  font-size: $font-body-size;
+  line-height: 1.75;
 }
 </style>

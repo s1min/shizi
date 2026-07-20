@@ -1,5 +1,5 @@
 <template>
-  <div class="learn-container">
+  <PaperPage class="learn-container" :hide-tabbar="true" :age-group="uiStore.ageGroup">
     <LearnFlowHeader
       :title="stepLabel"
       :current="currentCharIndex"
@@ -13,49 +13,52 @@
     <!-- 学习内容区域 -->
     <div class="learn-content">
       <!-- 步骤1: 字源动画 -->
-      <CharCard v-if="currentStep === 'origin'" :char="currentChar" @next="goToNextStep" />
+      <CharCard v-if="currentStep === 'origin'" :char="currentChar" :mode="uiMode" @next="goToNextStep" />
 
       <!-- 步骤2: 跟读互动 -->
       <SpeakPractice
         v-else-if="currentStep === 'speak'" :char="currentChar" :all-chars="unitChars"
-        @prev="goToPreviousStep" @next="goToNextStep"
+        :mode="uiMode" @prev="goToPreviousStep" @next="goToNextStep"
       />
 
       <!-- 步骤3: 描红练习 -->
       <TracingPractice
-        v-else-if="currentStep === 'trace'" :char="currentChar" @prev="goToPreviousStep"
+        v-else-if="currentStep === 'trace'" :char="currentChar" :mode="uiMode" @prev="goToPreviousStep"
         @next="goToNextStep"
       />
 
       <!-- 步骤4: 小测验 -->
       <QuizCard
-        v-else-if="currentStep === 'quiz'" :char="currentChar" :all-chars="unitChars" @prev="goToPreviousStep"
+        v-else-if="currentStep === 'quiz'" :char="currentChar" :all-chars="unitChars" :mode="uiMode" @prev="goToPreviousStep"
         @next="handleQuizComplete"
       />
 
       <!-- 单字学习完成 -->
       <div v-else-if="currentStep === 'complete'" class="complete-screen">
-        <div class="complete-icon">
-          🎉
+        <div class="complete-icon" aria-hidden="true">
+          ✓
         </div>
         <div class="complete-char">
           {{ currentChar._id }}
         </div>
         <div class="complete-desc">
-          太棒了！你已经学会了「{{ currentChar._id }}」
+          {{ uiMode.ageGroup === 'early' ? '这个字我们见过了' : `这个字我们见过了：「${currentChar._id}」` }}
         </div>
         <button class="btn-next" @click="nextChar">
           继续学习
         </button>
       </div>
     </div>
-  </div>
+  </PaperPage>
 </template>
 
 <script lang="ts" setup>
 import type { Character } from '@/types/character'
 import { computed, onMounted, ref, watch } from 'vue'
+import PaperPage from '@/components/ui/PaperPage.vue'
 import { useLearnStore } from '@/store'
+import { useUiStore } from '@/store/ui'
+import { getUiMode } from '@/utils/ui-mode'
 import CharCard from '../components/learn/CharCard.vue'
 import LearnFlowHeader from '../components/learn/LearnFlowHeader.vue'
 import QuizCard from '../components/learn/QuizCard.vue'
@@ -70,6 +73,8 @@ definePage({
 })
 
 const learnStore = useLearnStore()
+const uiStore = useUiStore()
+const uiMode = computed(() => getUiMode(uiStore.ageGroup))
 
 // 学习步骤
 type LearnStep = 'origin' | 'speak' | 'trace' | 'quiz' | 'complete'
@@ -296,8 +301,18 @@ onMounted(() => {
 }
 
 .complete-icon {
-  font-size: 160rpx;
-  margin-bottom: 24rpx;
+  width: 144rpx;
+  height: 144rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 24rpx;
+  border-radius: 50%;
+  color: #397745;
+  background: #ecf8ea;
+  border: 4rpx solid rgba(130, 199, 133, 0.45);
+  font-size: 88rpx;
+  font-weight: 800;
 }
 
 .complete-title {

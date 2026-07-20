@@ -25,9 +25,19 @@ export function isPageTabbar(path: string) {
 const tabbarStore = reactive({
   curIdx: uni.getStorageSync('app-tabbar-index') || 0,
   prevIdx: uni.getStorageSync('app-tabbar-index') || 0,
+  hiddenDepth: 0,
   setCurIdx(idx: number) {
     this.curIdx = idx
     uni.setStorageSync('app-tabbar-index', idx)
+  },
+  hide() {
+    this.hiddenDepth += 1
+  },
+  show() {
+    this.hiddenDepth = Math.max(0, this.hiddenDepth - 1)
+  },
+  get isHidden() {
+    return this.hiddenDepth > 0
   },
   setTabbarItemBadge(idx: number, badge: CustomTabBarItemBadge) {
     if (tabbarList[idx]) {

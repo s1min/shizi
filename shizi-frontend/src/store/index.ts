@@ -18,4 +18,5 @@ export default store
 export * from './learn'
 // 模块统一导出
 export * from './token'
+export * from './ui'
 export * from './user'

@@ -1,505 +1,285 @@
 <template>
-  <div class="page-container">
-    <div class="hero">
-      <button class="hero-back" @click="handleBack">
-        <text class="hero-back-icon">←</text>
-        <text class="hero-back-text">返回</text>
+  <PaperPage class="atlas-page">
+    <view class="atlas-header">
+      <text class="eyebrow">汉字学习册</text>
+      <text class="title">汉字图鉴</text>
+      <text class="summary">已掌握 {{ masteredCount }} · 已接触 {{ exposedCount }} / {{ totalCount }}</text>
+      <PaperProgress :percent="progressPercent" />
+    </view>
+
+    <view class="filter-row" role="tablist" aria-label="图鉴筛选">
+      <button v-for="item in filters" :key="item.value" class="filter-button" :class="{ active: filter === item.value }" @click="filter = item.value">
+        {{ item.label }}
       </button>
+    </view>
 
-      <div class="hero-title">
-        汉字图鉴
-      </div>
-      <div class="hero-stats">
-        已收集 {{ learnedChars.length }} / {{ totalCharCount }} 个汉字
-      </div>
-      <div class="hero-progress">
-        <div class="hero-progress-bg">
-          <div class="hero-progress-fill" :style="{ width: `${collectionPercent}%` }" />
-        </div>
-      </div>
-    </div>
+    <UiEmptyState v-if="filteredItems.length === 0" title="这里还没有字" description="完成一节学习后，汉字会出现在图鉴里。" action-text="开始今天的学习" @action="startLearning" />
+    <view v-else class="char-grid">
+      <button v-for="item in filteredItems" :key="item.charId" class="char-tile" :class="`char-tile--${item.status}`" :aria-label="`${item.charId}，${statusLabel(item.status)}`" @click="item.char && showDetail(item.char)">
+        <text class="char-glyph">{{ item.charId }}</text>
+        <text class="char-status">{{ statusLabel(item.status) }}</text>
+      </button>
+    </view>
 
-    <!-- 今日复习 -->
-    <div v-if="reviewChars.length > 0" class="section">
-      <div class="section-header">
-        <div class="section-title">
-          今日复习
-        </div>
-        <div class="section-action" @click="goToReview">
-          去复习 ▶
-        </div>
-      </div>
-      <div class="grid-wall">
-        <div
-          v-for="char in reviewChars.slice(0, 8)"
-          :key="char._id"
-          class="grid-item review"
-          @click="goToReview"
-        >
-          {{ char._id }}
-        </div>
-        <div v-if="reviewChars.length > 8" class="grid-item more" @click="goToReview">
-          +{{ reviewChars.length - 8 }}
-        </div>
-      </div>
-    </div>
-
-    <!-- 汉字图鉴（三态展示） -->
-    <div class="section">
-      <div class="section-header">
-        <div class="section-title">
-          汉字图鉴
-        </div>
-      </div>
-      <div class="grid-wall">
-        <div
-          v-for="item in allCharsWithState"
-          :key="item.charId"
-          class="grid-item" :class="[item.state]"
-          @click="item.state !== 'unlearned' && item.char && showCharDetail(item.char)"
-        >
-          <template v-if="item.state === 'unlearned'">
-            <div class="grid-char unlearned-char">
-              ?
-            </div>
-          </template>
-          <template v-else-if="item.state === 'learning'">
-            <div class="grid-char">
-              {{ item.charId }}
-            </div>
-            <div class="grid-pinyin">
-              {{ item.char?.pinyin }}
-            </div>
-          </template>
-          <template v-else>
-            <div class="grid-char">
-              {{ item.charId }}
-            </div>
-            <div class="grid-pinyin">
-              {{ item.char?.pinyin }}
-            </div>
-          </template>
-        </div>
-      </div>
-    </div>
-
-    <!-- 汉字详情弹窗 -->
-    <div v-if="detailChar" class="detail-mask" @click="detailChar = null">
-      <div class="detail-card" @click.stop>
-        <div class="detail-close" @click="detailChar = null">
-          ✕
-        </div>
-        <div class="detail-emoji">
-          {{ detailChar.teaching?.emoji_fallback || '📝' }}
-        </div>
-        <div class="detail-char">
-          {{ detailChar._id }}
-        </div>
-        <div class="detail-pinyin">
-          {{ detailChar.pinyin }}
-        </div>
-        <div class="detail-type">
-          <span class="type-tag">{{ detailChar.char_type }}</span>
-          <span class="stroke-info">{{ detailChar.strokes }} 画 · 部首「{{ detailChar.radical }}」</span>
-        </div>
-        <div v-if="detailChar.example_words?.length" class="detail-words">
-          <div class="words-label">
-            组词
-          </div>
-          <div class="words-list">
-            <span v-for="w in detailChar.example_words.slice(0, 4)" :key="w" class="word-tag">{{ w }}</span>
-          </div>
-        </div>
-        <div v-if="charRecord" class="detail-review">
-          <div class="review-info">
-            已复习 {{ charRecord.reviewCount }} 次
-          </div>
-        </div>
-        <button class="btn-replay" @click="replayOrigin(detailChar)">
-          重播字源动画
+    <view v-if="detailChar" class="detail-layer" @click="detailChar = null">
+      <view class="detail-sheet" @click.stop>
+        <button class="detail-close" aria-label="关闭字详情" @click="detailChar = null">
+          <UiIcon name="close" :size="36" />
         </button>
-      </div>
-    </div>
-  </div>
+        <text class="detail-kicker">字详情</text>
+        <text class="detail-char">{{ detailChar._id }}</text>
+        <text class="detail-pinyin">{{ detailChar.pinyin }}</text>
+        <view class="detail-line">
+          <text>状态</text><text>{{ statusLabel(getStatus(detailChar._id)) }}</text>
+        </view>
+        <view v-if="detailChar.example_words?.length" class="word-row">
+          <text class="detail-label">组词</text><view class="word-list">
+            <text v-for="word in detailChar.example_words.slice(0, 4)" :key="word" class="word-chip">{{ word }}</text>
+          </view>
+        </view>
+        <view class="detail-line">
+          <text>下次复习</text><text>{{ nextReviewLabel(detailChar._id) }}</text>
+        </view>
+        <PaperButton variant="review" @click="replayOrigin">
+          再看一遍字源
+        </PaperButton>
+      </view>
+    </view>
+  </PaperPage>
 </template>
 
 <script lang="ts" setup>
 import type { Character } from '@/types/character'
+import type { CharacterStatus } from '@/types/ui'
 import { computed, ref } from 'vue'
+import PaperButton from '@/components/ui/PaperButton.vue'
+import PaperPage from '@/components/ui/PaperPage.vue'
+import PaperProgress from '@/components/ui/PaperProgress.vue'
+import UiEmptyState from '@/components/ui/UiEmptyState.vue'
+import UiIcon from '@/components/ui/UiIcon.vue'
 import { useLearnStore } from '@/store'
-import { navigateBackOrTo } from '@/utils/navigation'
+import { getCharacterStatus } from '@/utils/ui-mode'
 
-definePage({
-  style: {
-    navigationBarTitleText: '图鉴',
-    navigationStyle: 'custom',
-  },
-})
+definePage({ style: { navigationBarTitleText: '图鉴', navigationStyle: 'custom' } })
 
+type AtlasFilter = 'all' | 'mastered' | 'needs_review'
 const learnStore = useLearnStore()
-
-const reviewChars = computed(() => learnStore.todayReviewChars)
-
-/** 字库总字数 */
-const totalCharCount = computed(() => {
-  return learnStore.library.stages.flatMap((s: any) => s.units).reduce((sum: number, u: any) => sum + u.chars.length, 0)
-})
-
-/** 已学汉字列表（按学习时间排序，最新的在前） */
-const learnedChars = computed(() => {
-  const records = learnStore.charRecords
-  return Object.keys(records)
-    .sort((a, b) => (records[b]?.learnedAt || 0) - (records[a]?.learnedAt || 0))
-    .map(id => learnStore.charMap.get(id))
-    .filter(Boolean) as Character[]
-})
-
-/** 收集进度百分比 */
-const collectionPercent = computed(() => {
-  return totalCharCount.value > 0 ? (learnedChars.value.length / totalCharCount.value) * 100 : 0
-})
-
-/** 字库中所有汉字的三态列表 */
-const allCharsWithState = computed(() => {
-  const records = learnStore.charRecords
-  const unitProgress = learnStore.unitProgressMap
-  const allUnits = learnStore.library.stages.flatMap((s: any) => s.units)
-
-  // 收集所有汉字及其所属单元
-  const result: { charId: string, state: 'learned' | 'learning' | 'unlearned', char: Character | undefined }[] = []
-
-  for (const unit of allUnits) {
-    const up = unitProgress[unit.id]
-    for (const charId of unit.chars) {
-      const hasRecord = !!records[charId]
-      let state: 'learned' | 'learning' | 'unlearned'
-      if (hasRecord && up?.completed) {
-        state = 'learned'
-      }
-      else if (hasRecord) {
-        state = 'learning'
-      }
-      else {
-        state = 'unlearned'
-      }
-      result.push({ charId, state, char: learnStore.charMap.get(charId) })
-    }
-  }
-  return result
-})
-
+const filter = ref<AtlasFilter>('all')
 const detailChar = ref<Character | null>(null)
+const filters: { value: AtlasFilter, label: string }[] = [
+  { value: 'all', label: '全部' },
+  { value: 'mastered', label: '已掌握' },
+  { value: 'needs_review', label: '待巩固' },
+]
 
-const charRecord = computed(() => {
-  if (!detailChar.value)
-    return null
-  return learnStore.charRecords[detailChar.value._id] || null
+const allItems = computed(() => {
+  const ids = learnStore.library.stages.flatMap(stage => stage.units).flatMap(unit => unit.chars)
+  return ids.map(charId => ({ charId, char: learnStore.charMap.get(charId), status: getCharacterStatus(learnStore.charRecords[charId]) }))
 })
+const totalCount = computed(() => allItems.value.length)
+const masteredCount = computed(() => allItems.value.filter(item => item.status === 'mastered' || item.status === 'stable').length)
+const exposedCount = computed(() => allItems.value.filter(item => item.status !== 'unseen').length)
+const progressPercent = computed(() => totalCount.value ? masteredCount.value / totalCount.value * 100 : 0)
+const filteredItems = computed(() => allItems.value.filter((item) => {
+  if (filter.value === 'mastered')
+    return item.status === 'mastered' || item.status === 'stable'
+  if (filter.value === 'needs_review')
+    return item.status === 'needs_review' || item.status === 'emerging'
+  return true
+}))
 
-function handleBack() {
-  navigateBackOrTo('/pages/me/index', true)
+function getStatus(charId: string): CharacterStatus {
+  return getCharacterStatus(learnStore.charRecords[charId])
 }
-
-function showCharDetail(char: Character) {
+function statusLabel(status: CharacterStatus) {
+  return ({ unseen: '未接触', exposed: '已接触', emerging: '待巩固', needs_review: '待巩固', mastered: '已掌握', stable: '稳定' } as Record<CharacterStatus, string>)[status]
+}
+function nextReviewLabel(charId: string) {
+  const at = learnStore.charRecords[charId]?.nextReviewAt
+  if (!at)
+    return '完成学习后安排'
+  const days = Math.max(0, Math.ceil((at - Date.now()) / 86400000))
+  return days === 0 ? '今天' : `${days} 天后`
+}
+function showDetail(char: Character) {
   detailChar.value = char
 }
-
-function goToReview() {
-  uni.navigateTo({ url: '/subpkg-learning/review/index' })
-}
-
-function replayOrigin(char: Character | null) {
-  if (!char)
+function replayOrigin() {
+  if (!detailChar.value)
     return
+  const charId = detailChar.value._id
   detailChar.value = null
-  // 跳转到学习页，只看字源动画
-  uni.navigateTo({ url: `/subpkg-learning/learn/index?unitId=replay&charId=${char._id}` })
+  uni.navigateTo({ url: `/subpkg-learning/learn/index?unitId=replay&charId=${charId}` })
+}
+function startLearning() {
+  uni.switchTab({ url: '/pages/home/index' })
 }
 </script>
 
 <style lang="scss" scoped>
-.page-container {
+@use '../../style/tokens' as *;
+.atlas-page {
   min-height: 100vh;
-  background-color: #fff8f0;
-  padding-bottom: 100rpx;
+  padding: $space-4 $page-gutter $space-8;
+  background: $paper;
 }
-
-.hero {
-  background: linear-gradient(135deg, #f5a623, #e8941a);
-  padding: calc(env(safe-area-inset-top) + 24rpx) 40rpx 60rpx;
-  color: #fff;
+.atlas-header {
+  padding: $space-4 0 $space-5;
 }
-
-.hero-back {
-  display: inline-flex;
-  align-items: center;
-  gap: 8rpx;
-  padding: 12rpx 20rpx;
-  margin-bottom: 28rpx;
-  border: none;
-  border-radius: 999rpx;
-  background: rgba(255, 255, 255, 0.2);
-  color: #fff;
+.eyebrow {
+  display: block;
+  color: $ink-muted;
+  font-size: $font-label;
 }
-
-.hero-back-icon {
-  font-size: 24rpx;
-  line-height: 1;
+.title {
+  display: block;
+  margin-top: $space-1;
+  color: $ink-strong;
+  font-family: $font-display;
+  font-size: 56rpx;
+  font-weight: 700;
 }
-
-.hero-back-text {
-  font-size: 24rpx;
-  line-height: 1;
+.summary {
+  display: block;
+  margin: $space-2 0 $space-4;
+  color: $ink;
+  font-size: $font-body-size;
 }
-
-.hero-title {
-  font-size: 48rpx;
-  font-weight: bold;
-  margin-bottom: 10rpx;
-}
-
-.hero-stats {
-  font-size: 26rpx;
-  opacity: 0.85;
-}
-
-.hero-progress {
-  margin-top: 20rpx;
-}
-
-.hero-progress-bg {
-  height: 12rpx;
-  background: rgba(255, 255, 255, 0.3);
-  border-radius: 6rpx;
-  overflow: hidden;
-}
-
-.hero-progress-fill {
-  height: 100%;
-  background: #fff;
-  border-radius: 6rpx;
-  transition: width 0.3s ease;
-}
-
-.section {
-  padding: 30rpx 40rpx;
-}
-
-.section-header {
+.filter-row {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24rpx;
+  gap: $space-2;
+  margin-bottom: $space-4;
 }
-
-.section-title {
-  font-weight: bold;
-  font-size: 32rpx;
-  color: #4a3728;
+.filter-button {
+  min-height: $touch-target;
+  padding: 0 $space-4;
+  border: 2rpx solid $line;
+  border-radius: $radius-pill;
+  color: $ink-muted;
+  background: $surface;
+  font-size: $font-body-size;
 }
-
-.section-action {
-  font-size: 24rpx;
-  color: #5dade2;
-  font-weight: bold;
+.filter-button.active {
+  border-color: $sky;
+  color: $sky-dark;
+  background: $sky-soft;
+  font-weight: 700;
 }
-
-.grid-wall {
+.char-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 20rpx;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: $space-2;
 }
-
-.grid-item {
-  aspect-ratio: 1;
-  background: #fff;
-  border-radius: 24rpx;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  font-size: 48rpx;
-  font-family: 'KaiTi', 'STKaiti', serif;
-  border: 2px solid #eee;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
-
-  &.review {
-    border-color: #5dade2;
-    background: #e8f4fd;
-    color: #4a9bd9;
-  }
-
-  &.learned {
-    border-color: #f5a623;
-    background: #fffbea;
-  }
-
-  &.learning {
-    border-color: #5dade2;
-    background: #fff;
-  }
-
-  &.unlearned {
-    border-color: #e0e0e0;
-    background: #f0f0f0;
-    color: #bdbdbd;
-  }
-
-  &.more {
-    border-color: #5dade2;
-    background: #e8f4fd;
-    color: #5dade2;
-    font-size: 28rpx;
-    font-family: inherit;
-    font-weight: bold;
-  }
+.char-tile {
+  min-height: 156rpx;
+  padding: $space-2;
+  border: 2rpx solid $line;
+  border-radius: $radius-card;
+  color: $ink;
+  background: $surface;
+  box-shadow: $shadow-card;
 }
-
-.grid-char {
-  font-size: 48rpx;
-  line-height: 1.2;
+.char-tile--mastered,
+.char-tile--stable {
+  border-color: rgba(130, 199, 133, 0.55);
+  background: $mint-soft;
 }
-
-.grid-pinyin {
-  font-size: 18rpx;
-  color: #999;
-  font-family: inherit;
+.char-tile--needs_review,
+.char-tile--emerging {
+  border-color: rgba(233, 120, 105, 0.55);
+  background: $coral-soft;
 }
-
-.unlearned-char {
-  font-size: 48rpx;
-  color: #bdbdbd;
-  font-family: inherit;
+.char-glyph {
+  display: block;
+  color: $ink-strong;
+  font-family: $font-hanzi;
+  font-size: 64rpx;
+  line-height: 1.15;
 }
-
-/* 详情弹窗 */
-.detail-mask {
+.char-status {
+  display: block;
+  margin-top: $space-1;
+  color: $ink-muted;
+  font-size: $font-caption;
+}
+.detail-layer {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  inset: 0;
+  z-index: 20;
   display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 999;
+  align-items: flex-end;
+  background: $overlay;
 }
-
-.detail-card {
-  width: 580rpx;
-  background: #fff;
-  border-radius: 32rpx;
-  padding: 60rpx 40rpx 40rpx;
-  text-align: center;
+.detail-sheet {
   position: relative;
-  animation: pop-in 0.25s ease-out;
+  width: 100%;
+  box-sizing: border-box;
+  padding: $space-6 $page-gutter calc($space-5 + env(safe-area-inset-bottom));
+  border-radius: $radius-sheet $radius-sheet 0 0;
+  background: $surface;
 }
-
 .detail-close {
   position: absolute;
-  top: 20rpx;
-  right: 24rpx;
-  font-size: 36rpx;
-  color: #ccc;
-  padding: 10rpx;
-}
-
-.detail-emoji {
-  font-size: 80rpx;
-  margin-bottom: 16rpx;
-}
-
-.detail-char {
-  font-size: 120rpx;
-  font-weight: bold;
-  font-family: 'KaiTi', 'STKaiti', serif;
-  color: #4a3728;
-  line-height: 1.2;
-}
-
-.detail-pinyin {
-  font-size: 36rpx;
-  color: #666;
-  margin-bottom: 24rpx;
-}
-
-.detail-type {
+  top: $space-2;
+  right: $space-2;
+  width: $touch-target;
+  height: $touch-target;
   display: flex;
-  justify-content: center;
   align-items: center;
-  gap: 16rpx;
-  margin-bottom: 30rpx;
-}
-
-.type-tag {
-  background: #fff3e0;
-  color: #f5a623;
-  padding: 6rpx 20rpx;
-  border-radius: 20rpx;
-  font-size: 22rpx;
-  font-weight: bold;
-}
-
-.stroke-info {
-  font-size: 22rpx;
-  color: #999;
-}
-
-.detail-words {
-  margin-bottom: 24rpx;
-}
-
-.words-label {
-  font-size: 22rpx;
-  color: #999;
-  margin-bottom: 12rpx;
-}
-
-.words-list {
-  display: flex;
   justify-content: center;
-  gap: 16rpx;
+  border: 0;
+  background: transparent;
+  color: $ink-muted;
+}
+.detail-kicker {
+  display: block;
+  color: $ink-muted;
+  font-size: $font-label;
+}
+.detail-char {
+  display: block;
+  margin-top: $space-1;
+  color: $ink-strong;
+  font-family: $font-hanzi;
+  font-size: 144rpx;
+  line-height: 1;
+  text-align: center;
+}
+.detail-pinyin {
+  display: block;
+  margin: $space-2 0 $space-4;
+  color: $sky-dark;
+  font-size: 36rpx;
+  text-align: center;
+}
+.detail-line {
+  display: flex;
+  justify-content: space-between;
+  padding: $space-3 0;
+  border-top: 1rpx solid $line;
+  color: $ink;
+  font-size: $font-body-size;
+}
+.word-row {
+  padding: $space-3 0;
+  border-top: 1rpx solid $line;
+}
+.detail-label {
+  display: block;
+  margin-bottom: $space-2;
+  color: $ink-muted;
+  font-size: $font-label;
+}
+.word-list {
+  display: flex;
   flex-wrap: wrap;
+  gap: $space-2;
 }
-
-.word-tag {
-  background: #f5f5f5;
-  padding: 8rpx 24rpx;
-  border-radius: 20rpx;
-  font-size: 26rpx;
-  color: #4a3728;
-}
-
-.detail-review {
-  margin-top: 16rpx;
-}
-
-.review-info {
-  font-size: 22rpx;
-  color: #5dade2;
-}
-
-.btn-replay {
-  margin-top: 24rpx;
-  width: 100%;
-  height: 80rpx;
-  background: linear-gradient(135deg, #f5a623, #e8941a);
-  border: none;
-  border-radius: 40rpx;
-  font-size: 28rpx;
-  font-weight: bold;
-  color: #fff;
-}
-
-@keyframes pop-in {
-  0% {
-    transform: scale(0.8);
-    opacity: 0;
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
+.word-chip {
+  padding: $space-1 $space-2;
+  border-radius: $radius-pill;
+  color: $ink;
+  background: $apricot-soft;
+  font-size: $font-label;
 }
 </style>

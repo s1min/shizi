@@ -298,4 +298,11 @@
   - usage guide: `docs/github_issues_workflow.md`
 - Operational effect:
   - bug reporting source is unified on GitHub Issues;
-  - local JSON sync enables direct AI-assisted fix workflow without manual copy/paste from web UI.
+- local JSON sync enables direct AI-assisted fix workflow without manual copy/paste from web UI.
+
+### C Phase Update (Paper Classroom UI Migration)
+- Unified child-facing visual language to Paper Classroom tokens and shared page/components.
+- Top-level navigation is now 今日 / 图鉴 / 我的; learning and review hide the TabBar.
+- Parent-start/child-handoff rules are implemented for 3-4, 5-6 and 7-8 age modes.
+- Review, unit test, unit completion, atlas, parent center, report and failure states were migrated.
+- H5/MP builds, type-check and targeted ESLint pass. Device screenshots and real-device interaction evidence remain required before submission.

@@ -1,5 +1,6 @@
 <template>
   <div class="speak-practice">
+    <ChildInstruction :mode="mode" text="听一听，再选出正确的读音" icon="speaker" />
     <div class="sound-stage">
       <div class="char-panel" :class="{ answered }">
         <div class="char-glow" />
@@ -7,7 +8,7 @@
           {{ char._id }}
         </div>
         <button class="sound-entry" :class="{ playing: isPlaying }" @click="playDemo">
-          <wd-icon name="sound" size="26px" />
+          <UiIcon name="speaker" :size="40" />
         </button>
       </div>
     </div>
@@ -34,10 +35,19 @@
             :class="{ playing: playingOptionPinyin === opt.pinyin }"
             @click.stop="playOption(opt.pinyin)"
           >
-            <wd-icon name="sound" size="22px" />
+            <UiIcon name="speaker" :size="34" />
           </button>
           <div class="option-main">
-            {{ opt.pinyin }}
+            <template v-if="mode.useImageOptions">
+              <image v-if="opt.image" class="option-image" :src="opt.image" mode="aspectFit" />
+              <view v-else class="option-image option-image--hanzi" aria-hidden="true">
+                {{ opt.char }}
+              </view>
+              <text v-if="mode.ageGroup !== 'early'" class="option-pinyin">{{ opt.pinyin }}</text>
+            </template>
+            <template v-else>
+              {{ opt.pinyin }}
+            </template>
           </div>
         </div>
       </div>
@@ -48,11 +58,7 @@
       class="feedback-bar"
       :class="isCorrect ? 'correct' : 'wrong'"
     >
-      <wd-icon
-        class="feedback-icon"
-        :name="isCorrect ? 'check' : 'close'"
-        size="20px"
-      />
+      <UiIcon class="feedback-icon" :name="isCorrect ? 'check' : 'error'" :size="28" />
       <div class="feedback-content">
         <text class="feedback-title">{{ isCorrect ? '答对啦' : '再听一次' }}</text>
         <text class="feedback-text">{{ isCorrect ? char.pinyin : `正确读音：${char.pinyin}` }}</text>
@@ -77,12 +83,16 @@
 
 <script lang="ts" setup>
 import type { Character } from '@/types/character'
+import type { UiMode } from '@/types/ui'
 import { onMounted, ref, watch } from 'vue'
+import UiIcon from '@/components/ui/UiIcon.vue'
 import { speakText, stopSpeak } from '@/utils/tts'
+import ChildInstruction from './ChildInstruction.vue'
 
 const props = defineProps<{
   char: Character
   allChars?: Character[]
+  mode: UiMode
 }>()
 
 const emit = defineEmits<{
@@ -101,6 +111,8 @@ const canProceed = ref(false)
 
 interface PinyinOption {
   pinyin: string
+  char: string
+  image?: string
   isCorrect: boolean
 }
 
@@ -131,9 +143,9 @@ function generateOptions() {
   }
 
   const all: PinyinOption[] = [
-    { pinyin: correctPinyin, isCorrect: true },
-    { pinyin: distractors[0], isCorrect: false },
-    { pinyin: distractors[1], isCorrect: false },
+    { pinyin: correctPinyin, char: props.char._id, image: props.char.teaching?.image_asset || '', isCorrect: true },
+    { pinyin: distractors[0], char: props.allChars?.find(char => char.pinyin === distractors[0])?._id || distractors[0], isCorrect: false },
+    { pinyin: distractors[1], char: props.allChars?.find(char => char.pinyin === distractors[1])?._id || distractors[1], isCorrect: false },
   ]
 
   for (let i = all.length - 1; i > 0; i--) {
@@ -269,21 +281,13 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
-.speak-practice {
-  --cream: #fffaf1;
-  --cream-deep: #fff1db;
-  --gold: #f5a623;
-  --gold-deep: #e28d12;
-  --ink: #4a3728;
-  --brown-soft: #8f7558;
-  --blue: #5dade2;
-  --green: #82c785;
-  --red: #ff8a80;
+@use '../../../style/tokens' as *;
 
+.speak-practice {
   flex: 1;
   display: flex;
   flex-direction: column;
-  color: var(--ink);
+  color: $ink;
 }
 
 .sound-stage {
@@ -334,7 +338,9 @@ onMounted(() => {
   box-shadow:
     0 8rpx 16rpx rgba(232, 177, 68, 0.14),
     inset 0 4rpx 0 rgba(255, 255, 255, 0.72);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 
   &::after {
     border: none;
@@ -391,7 +397,10 @@ onMounted(() => {
   box-shadow:
     0 4rpx 12rpx rgba(223, 185, 108, 0.05),
     inset 0 0 0 4rpx rgba(240, 222, 190, 0.72);
-  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    background 0.18s ease;
 
   &:active {
     transform: scale(0.985);
@@ -467,6 +476,25 @@ onMounted(() => {
   text-align: center;
 }
 
+.option-image {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: $radius-sm;
+}
+.option-image--hanzi {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $sky-dark;
+  font-family: $font-hanzi;
+  font-size: 48rpx;
+  font-weight: 800;
+}
+.option-pinyin {
+  color: $ink-muted;
+  font-size: $font-label;
+}
+
 .feedback-bar {
   margin-top: 16rpx;
   padding: 16rpx 24rpx;
@@ -498,11 +526,11 @@ onMounted(() => {
 }
 
 .feedback-bar.correct .feedback-icon {
-  background: var(--green);
+  color: $mint-dark;
 }
 
 .feedback-bar.wrong .feedback-icon {
-  background: var(--red);
+  color: $coral-dark;
 }
 
 .feedback-content {

@@ -1,5 +1,6 @@
 <template>
   <div class="quiz-card">
+    <ChildInstruction :mode="mode" :text="quizHint" icon="info" />
     <div class="question-card learning-quiz-question-card">
       <div class="question-meta learning-quiz-question-meta">
         <div class="quiz-type learning-quiz-type">
@@ -18,14 +19,14 @@
         </template>
 
         <template v-else-if="quizType === 'image-to-char'">
-          <div class="question-image learning-quiz-image">
-            {{ char.teaching?.emoji_fallback || '❓' }}
+          <div class="question-image learning-quiz-image" aria-hidden="true">
+            <UiIcon name="book" :size="72" />
           </div>
         </template>
 
         <template v-else-if="quizType === 'audio-to-char'">
           <button class="btn-audio learning-quiz-audio-btn" @click="playAudio">
-            <text class="audio-icon learning-quiz-audio-icon">{{ isPlaying ? '🔊' : '🔈' }}</text>
+            <UiIcon :name="isPlaying ? 'pause' : 'speaker'" :size="40" />
             <text>{{ isPlaying ? '播放中...' : '再听一遍' }}</text>
           </button>
         </template>
@@ -54,7 +55,7 @@
         >
           <template v-if="quizType === 'char-to-image'">
             <div class="option-image learning-quiz-option-image">
-              {{ option.emoji }}
+              <UiIcon name="book" :size="52" />
             </div>
           </template>
 
@@ -71,7 +72,7 @@
       <div class="feedback-card learning-quiz-feedback-card" :class="feedbackState">
         <div class="feedback-main learning-quiz-feedback-main">
           <div class="feedback-icon-wrap learning-quiz-feedback-icon-wrap">
-            <text class="feedback-icon-large learning-quiz-feedback-icon">{{ isCorrect ? '🎉' : '💡' }}</text>
+            <UiIcon :name="isCorrect ? 'check' : 'error'" :size="40" />
           </div>
           <div class="feedback-copy learning-quiz-feedback-copy">
             <div class="feedback-title learning-quiz-feedback-title">
@@ -90,7 +91,7 @@
         上一步
       </button>
       <button class="btn-next learning-quiz-btn-primary" :class="{ disabled: !showResult }" :disabled="!showResult" @click="handleNext">
-        完成小测
+        继续
       </button>
     </div>
   </div>
@@ -98,20 +99,23 @@
 
 <script lang="ts" setup>
 import type { Character } from '@/types/character'
+import type { UiMode } from '@/types/ui'
 import { computed, onMounted, ref, watch } from 'vue'
+import UiIcon from '@/components/ui/UiIcon.vue'
 import { speakText } from '@/utils/tts'
+import ChildInstruction from './ChildInstruction.vue'
 
 type QuizType = 'char-to-image' | 'image-to-char' | 'audio-to-char' | 'pinyin-to-char'
 
 interface Option {
   char?: string
-  emoji?: string
   isCorrect: boolean
 }
 
 const props = defineProps<{
   char: Character
   allChars: Character[]
+  mode: UiMode
 }>()
 
 const emit = defineEmits<{
@@ -153,11 +157,11 @@ const feedbackState = computed(() => {
 })
 
 const feedbackTitle = computed(() =>
-  isCorrect.value ? '答对啦！' : '再看一看这个字',
+  isCorrect.value ? '你找到了' : '再看一看这个字',
 )
 
 const feedbackDesc = computed(() =>
-  isCorrect.value ? '已经记住这个字了，继续下一步吧。' : '先听一听正确发音，再完成这一题。',
+  isCorrect.value ? '这一次认出来了，继续吧。' : '先听一听正确发音，这个字会进入待巩固。',
 )
 
 function initQuiz() {
@@ -165,17 +169,25 @@ function initQuiz() {
   showResult.value = false
   isCorrect.value = false
 
-  // 根据汉字类型选择合适的题型
-  const charType = props.char.char_type
-  const hasEmoji = !!props.char.teaching?.emoji_fallback
-
-  if (charType === '象形' && hasEmoji) {
-    // 象形字优先用图片题
-    quizType.value = Math.random() > 0.5 ? 'char-to-image' : 'image-to-char'
+  if (props.mode.ageGroup === 'early') {
+    quizType.value = 'char-to-image'
   }
-  else {
-    // 其他类型用拼音或听音
+  else if (props.mode.ageGroup === 'school') {
     quizType.value = Math.random() > 0.5 ? 'pinyin-to-char' : 'audio-to-char'
+  }
+  // 学前模式根据汉字内容选择题型。
+  else {
+    const charType = props.char.char_type
+    const hasEmoji = !!props.char.teaching?.emoji_fallback
+
+    if (charType === '象形' && hasEmoji) {
+    // 象形字优先用图片题
+      quizType.value = Math.random() > 0.5 ? 'char-to-image' : 'image-to-char'
+    }
+    else {
+    // 其他类型用拼音或听音
+      quizType.value = Math.random() > 0.5 ? 'pinyin-to-char' : 'audio-to-char'
+    }
   }
 
   // 生成选项
@@ -219,12 +231,10 @@ function generateOptions() {
   const allOptions: Option[] = [
     {
       char: correctChar._id,
-      emoji: correctChar.teaching?.emoji_fallback || '❓',
       isCorrect: true,
     },
     ...distractors.map(c => ({
       char: c._id,
-      emoji: c.teaching?.emoji_fallback || '❓',
       isCorrect: false,
     })),
   ]

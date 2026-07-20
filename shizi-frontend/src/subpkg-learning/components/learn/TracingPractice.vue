@@ -1,12 +1,13 @@
 <template>
   <div class="tracing-practice">
+    <ChildInstruction :mode="mode" text="先看笔顺，再试着写一写" icon="book" />
     <!-- 汉字展示区 -->
     <div class="char-header">
       <div class="char-preview">
         {{ char._id }}
       </div>
       <div class="char-info">
-        <div class="pinyin">
+        <div v-if="mode.showPinyin" class="pinyin">
           {{ char.pinyin }}
         </div>
         <div class="stroke-count">
@@ -68,7 +69,7 @@
       </button>
       <button v-if="!quizMode" class="btn-action btn-quiz" @click="startQuizMode">
         <wd-icon name="edit" size="24px" />
-        <text>测试</text>
+        <text>开始写</text>
       </button>
       <button v-else class="btn-action btn-next-stroke" @click="confirmStroke">
         <wd-icon name="check" size="24x" />
@@ -86,29 +87,36 @@
       <button class="btn-secondary" @click="emit('prev')">
         上一步
       </button>
+      <button v-if="mode.ageGroup === 'early'" class="btn-skip" @click="handleSkip">
+        <text>可以跳过</text>
+      </button>
       <button
         class="btn-continue"
         :class="{ disabled: practiceCount < 1 }"
         :disabled="practiceCount < 1"
         @click="handleNext"
       >
-        下一步
+        完成书写练习
       </button>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
+/* eslint-disable style/max-statements-per-line, ts/no-redeclare, ts/ban-ts-comment */
 // @ts-nocheck
 import type { Character } from '@/types/character'
-import { computed, getCurrentInstance, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
-import { loadFullCharData } from '@/utils/stroke-loader'
+import type { UiMode } from '@/types/ui'
 // #ifdef H5
 import HanziWriter from 'hanzi-writer'
+import { computed, getCurrentInstance, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
+import { loadFullCharData } from '@/utils/stroke-loader'
+import ChildInstruction from './ChildInstruction.vue'
 // #endif
 
 const props = defineProps<{
   char: Character
+  mode: UiMode
 }>()
 
 const emit = defineEmits<{
@@ -148,9 +156,9 @@ function initHanziWriter() {
       showCharacter: true,
       strokeAnimationSpeed: 1,
       delayBetweenStrokes: 150,
-      strokeColor: '#333',
-      outlineColor: '#DDD',
-      drawingColor: '#333',
+      strokeColor: '#5DADE2',
+      outlineColor: '#EADBCB',
+      drawingColor: '#F5A623',
       drawingWidth: 6,
       showHintAfterMisses: 2,
       highlightOnComplete: true,
@@ -620,9 +628,11 @@ onUnmounted(() => {
 // #endif
 
 const handleNext = () => emit('next')
+const handleSkip = () => emit('next')
 </script>
 
 <style lang="scss" scoped>
+@use '../../../style/tokens' as *;
 .tracing-practice {
   width: 100%;
   color: #4a3728;
@@ -813,6 +823,20 @@ const handleNext = () => emit('next')
     transform: scale(0.96);
     box-shadow: 0 4rpx 8rpx rgba(214, 153, 41, 0.08);
   }
+}
+
+.btn-skip {
+  min-height: $touch-target;
+  margin: $space-2 auto 0;
+  padding: 0 $space-3;
+  border: 0;
+  color: $ink-muted;
+  background: transparent;
+  font-size: $font-label;
+  text-decoration: underline;
+}
+.btn-skip::after {
+  border: 0;
 }
 
 .btn-clear {

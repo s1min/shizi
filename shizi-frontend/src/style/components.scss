@@ -1,0 +1,205 @@
+@use './tokens' as *;
+
+.paper-card {
+  box-sizing: border-box;
+  padding: $space-4;
+  border: 2rpx solid rgba(234, 219, 203, 0.76);
+  border-radius: $radius-card;
+  color: $ink;
+  background: $surface;
+  box-shadow: $shadow-card;
+}
+
+.paper-card--interactive {
+  cursor: pointer;
+  touch-action: manipulation;
+  transition:
+    box-shadow $motion-fast $ease-standard,
+    transform $motion-fast $ease-standard,
+    opacity $motion-fast $ease-standard;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.paper-card--interactive:active,
+.paper-card--interactive.is-pressed {
+  box-shadow: $shadow-press;
+  transform: scale(0.98);
+}
+
+.paper-card--interactive[aria-disabled='true'],
+.paper-card--interactive.is-disabled,
+.paper-card--interactive.disabled {
+  cursor: default;
+  pointer-events: none;
+  opacity: 0.45;
+  box-shadow: none;
+  transform: none;
+}
+
+.paper-button {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: $space-2;
+  min-width: 220rpx;
+  min-height: $touch-target;
+  margin: 0;
+  padding: $space-2 $space-4;
+  border: 2rpx solid transparent;
+  border-radius: $radius-pill;
+  color: $ink;
+  background: $surface;
+  font-family: $font-body;
+  font-size: $font-body-lg;
+  font-weight: 700;
+  line-height: $line-height-title;
+  text-align: center;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition:
+    box-shadow $motion-fast $ease-standard,
+    transform $motion-fast $ease-standard,
+    opacity $motion-fast $ease-standard;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.paper-button::after {
+  border: 0;
+}
+
+.paper-button:active,
+.paper-button.is-pressed {
+  box-shadow: $shadow-press;
+  transform: translateY(2rpx) scale(0.99);
+}
+
+.paper-button[disabled],
+.paper-button[aria-disabled='true'],
+.paper-button.is-disabled,
+.paper-button.disabled {
+  cursor: default;
+  pointer-events: none;
+  opacity: 0.45;
+  box-shadow: none;
+  transform: none;
+}
+
+.paper-button--primary {
+  width: 100%;
+  color: $surface;
+  background: $apricot;
+  box-shadow: 0 10rpx 22rpx rgba(184, 110, 8, 0.22);
+}
+
+.paper-button--secondary {
+  border-color: $line-strong;
+  color: $apricot-dark;
+  background: $surface;
+  box-shadow: $shadow-card;
+}
+
+.paper-button--review {
+  border-color: rgba(93, 173, 226, 0.36);
+  color: $sky-dark;
+  background: $sky-soft;
+}
+
+.paper-button--success {
+  color: $surface;
+  background: $mint;
+}
+
+.paper-button--danger {
+  color: $surface;
+  background: $coral;
+}
+
+.paper-button--ghost {
+  border-color: transparent;
+  color: $ink-muted;
+  background: transparent;
+}
+
+.paper-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: $space-1;
+  min-height: 48rpx;
+  padding: 4rpx $space-2;
+  border: 2rpx solid $line;
+  border-radius: $radius-pill;
+  color: $ink-muted;
+  background: $surface-soft;
+  font-size: $font-label;
+  font-weight: 600;
+  line-height: $line-height-label;
+}
+
+.paper-status-badge--review {
+  border-color: rgba(93, 173, 226, 0.34);
+  color: $sky-dark;
+  background: $sky-soft;
+}
+
+.paper-status-badge--success {
+  border-color: rgba(130, 199, 133, 0.4);
+  color: $mint-dark;
+  background: $mint-soft;
+}
+
+.paper-status-badge--danger {
+  border-color: rgba(233, 120, 105, 0.38);
+  color: $coral-dark;
+  background: $coral-soft;
+}
+
+.paper-progress {
+  position: relative;
+  width: 100%;
+  height: 16rpx;
+  overflow: hidden;
+  border-radius: $radius-pill;
+  background: $paper-deep;
+}
+
+.paper-progress::before {
+  display: block;
+  width: var(--paper-progress, 0%);
+  height: 100%;
+  border-radius: inherit;
+  background: var(--paper-progress-color, #{$apricot});
+  transition: width $motion-base $ease-standard;
+  content: '';
+}
+
+.paper-skeleton {
+  overflow: hidden;
+  border-radius: $radius-sm;
+  background: linear-gradient(90deg, $paper-deep 20%, $surface-soft 38%, $paper-deep 56%);
+  background-size: 220% 100%;
+  animation: paper-skeleton-shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes paper-skeleton-shimmer {
+  from {
+    background-position: 100% 0;
+  }
+
+  to {
+    background-position: -100% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .paper-card--interactive,
+  .paper-button,
+  .paper-progress::before {
+    transition-duration: 1ms;
+  }
+
+  .paper-skeleton {
+    background: $paper-deep;
+    animation: none;
+  }
+}

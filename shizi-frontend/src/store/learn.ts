@@ -397,6 +397,7 @@ export const useLearnStore = defineStore(
 
     // ===== 云端同步 =====
     const syncing = ref(false)
+    const syncStatus = ref<'idle' | 'syncing' | 'synced' | 'failed'>('idle')
 
     /** 将本地数据打包为同步格式 */
     function toSyncData(): ILearningProgress {
@@ -479,16 +480,20 @@ export const useLearnStore = defineStore(
     async function syncFromCloud() {
       try {
         syncing.value = true
+        syncStatus.value = 'syncing'
         const cloud = await getProgress()
         if (cloud) {
           mergeFromCloud(cloud)
         }
       }
       catch (e) {
+        syncStatus.value = 'failed'
         console.warn('拉取云端进度失败', e)
       }
       finally {
         syncing.value = false
+        if (syncStatus.value === 'syncing')
+          syncStatus.value = 'synced'
       }
     }
 
@@ -496,6 +501,7 @@ export const useLearnStore = defineStore(
     async function syncToCloud() {
       try {
         syncing.value = true
+        syncStatus.value = 'syncing'
         const result = await syncProgress(toSyncData())
         // 如果服务端返回了更新的数据，合并回来
         if (result && result.clientUpdatedAt > Date.now() - 1000) {
@@ -503,10 +509,13 @@ export const useLearnStore = defineStore(
         }
       }
       catch (e) {
+        syncStatus.value = 'failed'
         console.warn('推送云端进度失败', e)
       }
       finally {
         syncing.value = false
+        if (syncStatus.value === 'syncing')
+          syncStatus.value = 'synced'
       }
     }
 
@@ -626,6 +635,7 @@ export const useLearnStore = defineStore(
       getUnitWrongChars,
       // 云端同步
       syncing,
+      syncStatus,
       syncFromCloud,
       syncToCloud,
       setCurrentLibrary,

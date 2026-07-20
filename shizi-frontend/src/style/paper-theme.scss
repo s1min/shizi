@@ -1,0 +1,105 @@
+@use './tokens' as *;
+
+.paper-page {
+  position: relative;
+  box-sizing: border-box;
+  min-height: 100vh;
+  overflow-x: hidden;
+  padding-right: $page-gutter;
+  padding-left: $page-gutter;
+  color: $ink;
+  font-family: $font-body;
+  background-color: $paper;
+  background-image: radial-gradient(circle, rgba(74, 55, 40, 0.055) 1rpx, transparent 1.5rpx);
+  background-position: 0 0;
+  background-size: 24rpx 24rpx;
+}
+
+.paper-safe-top {
+  padding-top: env(safe-area-inset-top);
+}
+
+.paper-safe-bottom {
+  padding-bottom: calc(#{$safe-bottom-min} + env(safe-area-inset-bottom));
+}
+
+.paper-tabbar-safe-bottom {
+  padding-bottom: calc(#{$tabbar-height} + #{$safe-bottom-min} + env(safe-area-inset-bottom));
+}
+
+.paper-bookmark {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-height: 48rpx;
+  padding: 0 $space-3 8rpx;
+  border-radius: 0 0 $radius-sm $radius-sm;
+  color: $ink-strong;
+  background: $apricot-soft;
+  font-size: $font-label;
+  font-weight: 700;
+  line-height: $line-height-label;
+}
+
+.paper-bookmark::after {
+  position: absolute;
+  right: 0;
+  bottom: -12rpx;
+  left: 0;
+  height: 16rpx;
+  background: inherit;
+  clip-path: polygon(0 0, 50% 100%, 100% 0);
+  content: '';
+}
+
+.paper-section-title {
+  margin: 0;
+  color: $ink-strong;
+  font-family: $font-display;
+  font-size: $font-title;
+  font-weight: 700;
+  line-height: $line-height-title;
+}
+
+.paper-grid {
+  position: relative;
+  background-color: $surface-soft;
+  background-image:
+    linear-gradient(
+      to right,
+      transparent calc(50% - 1rpx),
+      rgba(234, 219, 203, 0.86) 50%,
+      transparent calc(50% + 1rpx)
+    ),
+    linear-gradient(
+      to bottom,
+      transparent calc(50% - 1rpx),
+      rgba(234, 219, 203, 0.86) 50%,
+      transparent calc(50% + 1rpx)
+    ),
+    linear-gradient(45deg, transparent calc(50% - 1rpx), rgba(234, 219, 203, 0.42) 50%, transparent calc(50% + 1rpx)),
+    linear-gradient(-45deg, transparent calc(50% - 1rpx), rgba(234, 219, 203, 0.42) 50%, transparent calc(50% + 1rpx));
+  border: 2rpx solid $paper-grid;
+}
+
+.paper-content-width {
+  width: 100%;
+  max-width: 920rpx;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.paper-bottom-action-safe {
+  padding-bottom: calc(144rpx + env(safe-area-inset-bottom));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .paper-page *,
+  .paper-page *::before,
+  .paper-page *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 1ms !important;
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

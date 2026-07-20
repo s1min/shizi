@@ -1,10 +1,8 @@
 <template>
-  <div class="review-container">
+  <PaperPage class="review-container" hide-tabbar safe-bottom>
     <!-- 完成结算 -->
     <div v-if="finished" class="finish-screen">
-      <div class="finish-icon">
-        🎉
-      </div>
+      <UiIcon class="finish-icon" name="check" :size="72" />
       <div class="finish-title">
         {{ finishTitle }}
       </div>
@@ -37,43 +35,38 @@
       <div class="finish-msg">
         {{ encourageText }}
       </div>
-      <button class="btn-back" @click="goBack">
+      <PaperButton variant="secondary" class="btn-back" @click="goBack">
         {{ backButtonText }}
-      </button>
+      </PaperButton>
     </div>
 
     <!-- 闪卡复习 -->
     <template v-else>
       <div class="progress-header" :style="headerStyle">
-        <div class="mode-badge">
+        <div class="paper-status-badge paper-status-badge--review">
           {{ reviewBadgeText }}
         </div>
         <div class="progress-row">
-          <div class="progress-bg">
-            <div class="progress-fill" :style="{ width: `${progressPercent}%` }" />
-          </div>
+          <div class="paper-progress progress-bg" :style="{ '--paper-progress': `${progressPercent}%`, '--paper-progress-color': 'var(--sky)' }" />
           <div class="progress-text">
             {{ charIndex + 1 }}/{{ reviewChars.length }}
           </div>
-          <button class="exit-entry" @click="handleClose">
+          <PaperButton variant="ghost" class="exit-entry" @click="handleClose">
             退出复习
-          </button>
+          </PaperButton>
         </div>
       </div>
 
       <div v-if="currentChar" class="flashcard-area">
         <!-- 闪卡 -->
-        <div class="flashcard" :class="{ flipped }" @click="flipCard">
+        <div class="flashcard paper-card" :class="{ flipped }" @click="flipCard">
           <!-- 正面：大字 -->
           <div class="card-front">
-            <div class="card-emoji">
-              {{ currentChar.teaching?.emoji_fallback }}
-            </div>
             <div class="card-char">
               {{ currentChar._id }}
             </div>
             <div class="card-hint">
-              点击翻转查看读音
+              点击翻转查看拼音和组词
             </div>
           </div>
           <!-- 背面：拼音 + 组词 -->
@@ -97,37 +90,38 @@
 
         <!-- 底部操作按钮 -->
         <div v-if="flipped" class="action-buttons">
-          <button class="btn-action btn-dont-know" @click="handleDontKnow">
+          <PaperButton variant="review" class="btn-action btn-dont-know" @click="handleDontKnow">
             不认识
-          </button>
-          <button class="btn-action btn-know" @click="handleKnow">
+          </PaperButton>
+          <PaperButton variant="success" class="btn-action btn-know" @click="handleKnow">
             认识
-          </button>
+          </PaperButton>
         </div>
       </div>
 
       <!-- 无待复习 -->
       <div v-if="reviewChars.length === 0" class="empty-screen">
-        <div class="empty-icon">
-          ✅
-        </div>
+        <UiIcon class="empty-icon" name="check" :size="72" />
         <div class="empty-title">
           {{ emptyTitle }}
         </div>
         <div class="empty-desc">
           {{ emptyDesc }}
         </div>
-        <button class="btn-back" @click="goBack">
+        <PaperButton variant="secondary" class="btn-back" @click="goBack">
           {{ backButtonText }}
-        </button>
+        </PaperButton>
       </div>
     </template>
-  </div>
+  </PaperPage>
 </template>
 
 <script lang="ts" setup>
 import type { Character } from '@/types/character'
 import { computed, onMounted, ref } from 'vue'
+import PaperButton from '@/components/ui/PaperButton.vue'
+import PaperPage from '@/components/ui/PaperPage.vue'
+import UiIcon from '@/components/ui/UiIcon.vue'
 import { useLearnStore } from '@/store'
 import { getCustomNavBarMetrics } from '@/utils/navbar'
 import { navigateBackOrTo } from '@/utils/navigation'
@@ -305,75 +299,45 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
+@use '../../style/tokens' as *;
+
 .review-container {
-  min-height: 100vh;
-  background: linear-gradient(180deg, #e8f4fd 0%, #ffffff 100%);
   display: flex;
   flex-direction: column;
 }
 
 .progress-header {
-  padding: 24rpx 32rpx 24rpx;
+  padding: $space-3 0 $space-3;
   display: flex;
   flex-direction: column;
-  gap: 18rpx;
-  background: rgba(255, 255, 255, 0.96);
-  border-bottom-left-radius: 28rpx;
-  border-bottom-right-radius: 28rpx;
-  box-shadow: 0 10rpx 28rpx rgba(93, 173, 226, 0.1);
-}
-
-.mode-badge {
-  align-self: flex-start;
-  padding: 8rpx 20rpx;
-  border-radius: 999rpx;
-  background: rgba(93, 173, 226, 0.12);
-  color: #5f89a8;
-  font-size: 22rpx;
-  font-weight: 600;
+  gap: $space-2;
+  border-bottom: 2rpx solid $line;
 }
 
 .progress-row {
   display: flex;
   align-items: center;
-  gap: 20rpx;
+  gap: $space-2;
 }
 
 .progress-bg {
   flex: 1;
   min-width: 0;
-  height: 16rpx;
-  background: rgba(93, 173, 226, 0.18);
-  border-radius: 999rpx;
-  overflow: hidden;
-}
-
-.progress-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #7ec3ea, #5dade2);
-  border-radius: 999rpx;
-  transition: width 0.3s ease;
 }
 
 .progress-text {
-  min-width: 76rpx;
+  min-width: 96rpx;
   text-align: right;
-  font-size: 24rpx;
+  font-size: $font-label;
   font-weight: 600;
-  color: #7c91a6;
+  color: $ink-muted;
 }
 
 .exit-entry {
   flex-shrink: 0;
-  min-width: 132rpx;
-  height: 60rpx;
-  padding: 0 20rpx;
-  border: 2rpx solid rgba(155, 178, 198, 0.35);
-  border-radius: 999rpx;
-  background: rgba(255, 255, 255, 0.88);
-  font-size: 24rpx;
-  color: #7f98ad;
-  line-height: 56rpx;
+  min-width: 160rpx;
+  font-size: $font-label;
+  color: $ink-muted;
   text-align: center;
 }
 
@@ -383,31 +347,32 @@ onMounted(() => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 32rpx 40rpx 40rpx;
+  padding: $space-4 0 $space-5;
 }
 
 .flashcard {
   width: 100%;
-  max-width: 580rpx;
+  max-width: 640rpx;
   min-height: 680rpx;
   perspective: 1000px;
   cursor: pointer;
-  margin-bottom: 64rpx;
+  margin-bottom: $space-5;
+  padding: 0;
+  border-color: $line;
+  box-shadow: $shadow-raised;
 }
 
 .card-front,
 .card-back {
   width: 100%;
   min-height: 680rpx;
-  background: rgba(255, 255, 255, 0.96);
-  border: 2rpx solid rgba(93, 173, 226, 0.08);
-  border-radius: 36rpx;
-  box-shadow: 0 12rpx 36rpx rgba(93, 173, 226, 0.14);
+  background: $surface;
+  border-radius: $radius-sheet;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 72rpx 40rpx;
+  padding: $space-7 $space-5;
   backface-visibility: hidden;
   transition: transform 0.5s ease;
 }
@@ -427,37 +392,32 @@ onMounted(() => {
   transform: rotateY(0deg);
 }
 
-.card-emoji {
-  font-size: 80rpx;
-  margin-bottom: 20rpx;
-}
-
 .card-char {
   font-size: 248rpx;
   font-weight: bold;
-  font-family: 'KaiTi', 'STKaiti', serif;
-  color: #4a3728;
+  font-family: $font-hanzi;
+  color: $ink-strong;
   line-height: 1.15;
 }
 
 .card-hint {
-  font-size: 28rpx;
-  color: #8da3b5;
-  margin-top: 40rpx;
+  color: $ink-light;
+  margin-top: $space-5;
+  font-size: $font-body-size;
 }
 
 .card-char-back {
   font-size: 168rpx;
   font-weight: bold;
-  font-family: 'KaiTi', 'STKaiti', serif;
-  color: #4a3728;
+  font-family: $font-hanzi;
+  color: $ink-strong;
   line-height: 1.2;
 }
 
 .card-pinyin {
   font-size: 52rpx;
-  color: #5dade2;
-  margin: 20rpx 0 44rpx;
+  color: $sky-dark;
+  margin: $space-2 0 $space-5;
   font-weight: bold;
 }
 
@@ -467,8 +427,8 @@ onMounted(() => {
 
 .words-label {
   font-size: 24rpx;
-  color: #999;
-  margin-bottom: 16rpx;
+  color: $ink-muted;
+  margin-bottom: $space-2;
   text-align: center;
 }
 
@@ -476,44 +436,31 @@ onMounted(() => {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 16rpx;
+  gap: $space-2;
 }
 
 .word-tag {
-  background: #fff8f0;
-  border: 2rpx solid #f5a623;
-  padding: 8rpx 24rpx;
-  border-radius: 24rpx;
-  font-size: 28rpx;
-  color: #4a3728;
+  background: $sky-soft;
+  border: 2rpx solid rgba(93, 173, 226, 0.28);
+  padding: $space-1 $space-3;
+  border-radius: $radius-pill;
+  font-size: $font-body-size;
+  color: $sky-dark;
 }
 
 .action-buttons {
   display: flex;
-  gap: 32rpx;
+  gap: $space-3;
   width: 100%;
-  max-width: 580rpx;
+  max-width: 640rpx;
   animation: fade-in 0.3s ease;
 }
 
 .btn-action {
   flex: 1;
-  height: 100rpx;
-  border: none;
-  border-radius: 28rpx;
-  font-size: 34rpx;
-  font-weight: bold;
-  color: #fff;
-}
-
-.btn-dont-know {
-  background: linear-gradient(135deg, #8fb6d9, #769fc5);
-  box-shadow: 0 10rpx 24rpx rgba(118, 159, 197, 0.28);
-}
-
-.btn-know {
-  background: linear-gradient(135deg, #82c785, #6ab06d);
-  box-shadow: 0 10rpx 24rpx rgba(130, 199, 133, 0.28);
+  min-width: 240rpx;
+  flex: 1 1 240rpx;
+  font-size: $font-body-lg;
 }
 
 @keyframes fade-in {
@@ -534,90 +481,83 @@ onMounted(() => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 60rpx;
+  padding: $space-7 $space-4;
   text-align: center;
 }
 
 .finish-icon {
-  font-size: 120rpx;
-  margin-bottom: 30rpx;
+  margin-bottom: $space-3;
+  color: $mint-dark;
 }
 
 .finish-title {
-  font-size: 48rpx;
+  font-size: $font-display-md;
   font-weight: bold;
-  color: #4a3728;
-  margin-bottom: 60rpx;
+  color: $ink-strong;
+  margin-bottom: $space-6;
 }
 
 .finish-stats {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 24rpx;
+  gap: $space-2;
   width: 100%;
-  margin-bottom: 40rpx;
+  margin-bottom: $space-4;
 }
 
 .stat-item {
-  background: rgba(255, 255, 255, 0.92);
-  border-radius: 24rpx;
-  padding: 24rpx 16rpx;
+  background: $surface;
+  border: 2rpx solid $line;
+  border-radius: $radius-card;
+  padding: $space-3 $space-2;
   text-align: center;
 }
 
 .stat-val {
-  font-size: 56rpx;
+  font-size: $font-display-md;
   font-weight: bold;
-  color: #5dade2;
+  color: $sky-dark;
 
   &.know {
-    color: #82c785;
+    color: $mint-dark;
   }
   &.dont-know {
-    color: #769fc5;
+    color: $coral-dark;
   }
 }
 
 .stat-label {
   font-size: 24rpx;
-  color: #999;
-  margin-top: 8rpx;
+  color: $ink-muted;
+  margin-top: $space-1;
 }
 
 .finish-msg {
   font-size: 28rpx;
-  color: #666;
-  margin-bottom: 80rpx;
+  color: $ink-muted;
+  margin-bottom: $space-7;
 }
 
 .btn-back {
+  max-width: 520rpx;
   width: 100%;
-  max-width: 420rpx;
-  height: 92rpx;
-  background: linear-gradient(135deg, #5dade2, #4a9bd9);
-  border: none;
-  border-radius: 46rpx;
-  font-size: 32rpx;
-  font-weight: bold;
-  color: #fff;
-  box-shadow: 0 10rpx 24rpx rgba(93, 173, 226, 0.28);
 }
 
 .empty-icon {
-  font-size: 120rpx;
-  margin-bottom: 30rpx;
+  margin-bottom: $space-3;
+  color: $mint-dark;
 }
 
 .empty-title {
-  font-size: 36rpx;
+  font-size: $font-title;
   font-weight: bold;
-  color: #4a3728;
-  margin-bottom: 16rpx;
+  color: $ink-strong;
+  margin-bottom: $space-2;
 }
 
 .empty-desc {
-  font-size: 28rpx;
-  color: #999;
-  margin-bottom: 60rpx;
+  font-size: $font-body-size;
+  color: $ink-muted;
+  margin-bottom: $space-6;
 }
 </style>

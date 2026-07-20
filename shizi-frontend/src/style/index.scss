@@ -1,32 +1,18 @@
-// 测试用的 iconfont，可生效
-// @import './iconfont.css';
-
-.test {
-  // 可以通过 @apply 多个样式封装整体样式
-  @apply mt-4 ml-4;
-
-  padding-top: 4px;
-  color: red;
-}
-
-// 测试用的 iconfont，可生效
-// @import './iconfont.css';
-
-.test {
-  // 可以通过 @apply 多个样式封装整体样式
-  @apply mt-4 ml-4;
-
-  padding-top: 4px;
-  color: red;
-}
+@use './tokens';
+@use './paper-theme';
+@use './components';
 
 :root,
 page {
-  // 修改按主题色
-  // --wot-color-theme: #37c2bc;
-
-  // 修改按钮背景色
-  // --wot-button-primary-bg-color: green;
+  --wot-color-theme: var(--apricot);
+  --wot-button-primary-bg-color: var(--apricot);
+  --wot-button-primary-color: var(--surface);
+  --wot-color-success: var(--mint);
+  --wot-color-danger: var(--coral);
+  --wot-color-content: var(--ink);
+  --wot-color-secondary: var(--ink-muted);
+  --wot-color-border-light: var(--line);
+  --wot-color-bg: var(--paper);
 }
 
 .learning-quiz-question-card {

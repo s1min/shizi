@@ -1,67 +1,53 @@
 <template>
-  <div class="login-container">
-    <button class="top-back-entry" @click="goBack">
-      <text class="top-back-icon">←</text>
+  <PaperPage class="login-page">
+    <button class="login-back" aria-label="返回" @click="goBack">
+      <UiIcon name="arrow-left" :size="36" />
     </button>
-
-    <div class="logo-area">
-      <div class="logo-icon">
-        趣
-      </div>
-      <div class="app-name">
-        趣字宝
-      </div>
-      <div class="app-desc">
-        让识字变得有趣
-      </div>
-    </div>
-
+    <view class="login-hero">
+      <view class="book-mark">
+        <text>趣</text>
+      </view>
+      <text class="login-title">趣字宝</text>
+      <text class="login-subtitle">每天认识几个字，慢慢记住它们</text>
+      <view class="book-illustration">
+        <UiIcon name="book" :size="96" />
+      </view>
+    </view>
     <!-- #ifdef MP-WEIXIN -->
-    <div class="action-area">
-      <button class="btn-wx-login" :loading="loading" @click="handleWxLogin">
+    <view class="login-actions">
+      <button class="paper-login-button" :loading="loading" @click="handleWxLogin">
         微信一键登录
       </button>
-      <div class="login-tip">
-        登录后可云端同步学习进度
-      </div>
-    </div>
+      <text class="login-hint">登录后可云端同步学习进度</text>
+    </view>
     <!-- #endif -->
-
     <!-- #ifdef H5 -->
-    <div class="action-area">
-      <div class="trial-card">
-        <div class="trial-title">
-          体验模式
-        </div>
-        <div class="trial-desc">
-          H5 环境暂不支持微信登录，学习数据将保存在本地
-        </div>
-      </div>
-      <button class="btn-trial" @click="handleTrialMode">
+    <view class="login-actions">
+      <PaperCard class="trial-card">
+        <text class="trial-title">体验模式</text><text class="trial-desc">当前数据仅保存在本机，登录后可跨设备同步。</text>
+      </PaperCard>
+      <PaperButton @click="handleTrialMode">
         开始体验
-      </button>
-    </div>
+      </PaperButton>
+    </view>
     <!-- #endif -->
-
-    <div class="skip-area" @click="handleSkip">
-      <text class="skip-text">暂不登录</text>
-    </div>
-  </div>
+    <button class="login-skip" @click="handleSkip">
+      暂不登录
+    </button>
+    <text class="login-legal">继续使用即代表家长已阅读并同意 <navigator url="/pages/privacy/index">隐私政策</navigator> 和 <navigator url="/pages/agreement/index">用户协议</navigator></text>
+  </PaperPage>
 </template>
 
 <script lang="ts" setup>
 import { ref } from 'vue'
+import PaperButton from '@/components/ui/PaperButton.vue'
+import PaperCard from '@/components/ui/PaperCard.vue'
+import PaperPage from '@/components/ui/PaperPage.vue'
+import UiIcon from '@/components/ui/UiIcon.vue'
 import { useTokenStore } from '@/store'
 
-definePage({
-  style: {
-    navigationBarTitleText: '登录',
-    navigationStyle: 'custom',
-  },
-})
-
+definePage({ style: { navigationBarTitleText: '登录', navigationStyle: 'custom' } })
 const loading = ref(false)
-
 // #ifdef MP-WEIXIN
 async function handleWxLogin() {
   if (loading.value)
@@ -69,12 +55,10 @@ async function handleWxLogin() {
   loading.value = true
   try {
     const result = await useTokenStore().wxLogin()
-    if (result.needOnboarding) {
+    if (result.needOnboarding)
       uni.redirectTo({ url: '/pages/onboarding/index' })
-    }
-    else {
+    else
       goBack()
-    }
   }
   catch (e) {
     console.error('微信登录失败', e)
@@ -84,161 +68,144 @@ async function handleWxLogin() {
   }
 }
 // #endif
-
 // #ifdef H5
 function handleTrialMode() {
   goBack()
 }
 // #endif
-
 function handleSkip() {
   goBack()
 }
-
 function goBack() {
   const pages = getCurrentPages()
-  if (pages.length > 1) {
+  if (pages.length > 1)
     uni.navigateBack()
-  }
-  else {
+  else
     uni.switchTab({ url: '/pages/home/index' })
-  }
 }
 </script>
 
 <style lang="scss" scoped>
-.login-container {
-  min-height: 100vh;
-  background: linear-gradient(180deg, #fff9e6 0%, #ffffff 50%, #fff3e0 100%);
+@use '../../style/tokens' as *;
+.login-page {
   display: flex;
+  min-height: 100vh;
   flex-direction: column;
-  align-items: center;
-  padding: calc(env(safe-area-inset-top) + 24rpx) 60rpx 80rpx;
+  padding-top: calc(env(safe-area-inset-top) + 24rpx);
 }
-
-.top-back-entry {
-  align-self: flex-start;
-  width: 72rpx;
-  height: 72rpx;
+.login-back {
+  width: $touch-target;
+  height: $touch-target;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 80rpx;
-  border: none;
+  padding: 0;
+  border: 2rpx solid $line;
   border-radius: 50%;
-  background: rgba(0, 0, 0, 0.06);
-  color: #8a8174;
+  color: $ink-muted;
+  background: $surface;
 }
-
-.top-back-icon {
-  font-size: 32rpx;
-  line-height: 1;
-}
-
-.logo-area {
+.login-hero {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 120rpx;
+  margin-top: 56rpx;
 }
-
-.logo-icon {
+.book-mark {
   width: 160rpx;
   height: 160rpx;
-  background: linear-gradient(135deg, #f5a623, #e8941a);
-  border-radius: 40rpx;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 80rpx;
-  font-weight: bold;
-  color: #fff;
-  font-family: 'KaiTi', 'STKaiti', serif;
-  box-shadow: 0 12rpx 32rpx rgba(245, 166, 35, 0.3);
-  margin-bottom: 32rpx;
+  border-radius: 40rpx 40rpx 16rpx 40rpx;
+  color: $surface;
+  background: $apricot;
+  box-shadow: $shadow-raised;
+  font-family: $font-hanzi;
+  font-size: 88rpx;
 }
-
-.app-name {
-  font-size: 48rpx;
-  font-weight: bold;
-  color: #333;
-  margin-bottom: 12rpx;
+.login-title {
+  margin-top: 28rpx;
+  color: $ink-strong;
+  font-family: $font-display;
+  font-size: 56rpx;
+  font-weight: 700;
 }
-
-.app-desc {
-  font-size: 28rpx;
-  color: #999;
+.login-subtitle {
+  margin-top: 12rpx;
+  color: $ink-muted;
+  font-size: $font-body-size;
 }
-
-.action-area {
-  width: 100%;
+.book-illustration {
+  width: 240rpx;
+  height: 144rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 48rpx;
+  border-bottom: 4rpx solid $paper-grid;
+  border-radius: 20rpx;
+  color: $apricot-dark;
+  background: $apricot-soft;
+  transform: rotate(-3deg);
+}
+.login-actions {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 24rpx;
+  gap: 20rpx;
+  margin-top: 96rpx;
 }
-
-.btn-wx-login {
+.paper-login-button {
   width: 100%;
-  height: 96rpx;
-  background: linear-gradient(135deg, #07c160, #06ad56);
-  border: none;
-  border-radius: 48rpx;
-  font-size: 34rpx;
-  font-weight: bold;
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 8rpx 24rpx rgba(7, 193, 96, 0.3);
+  min-height: $touch-target;
+  border: 0;
+  border-radius: $radius-pill;
+  color: white;
+  background: #07c160;
+  font-size: $font-body-lg;
+  font-weight: 700;
 }
-
-.login-tip {
-  font-size: 24rpx;
-  color: #bbb;
+.login-hint,
+.login-legal {
+  color: $ink-muted;
+  font-size: $font-caption;
 }
-
 .trial-card {
   width: 100%;
-  background: #fff;
-  border-radius: 24rpx;
-  padding: 40rpx;
   text-align: center;
-  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.06);
 }
-
-.trial-title {
-  font-size: 32rpx;
-  font-weight: bold;
-  color: #f5a623;
-  margin-bottom: 16rpx;
-}
-
+.trial-title,
 .trial-desc {
-  font-size: 26rpx;
-  color: #999;
+  display: block;
+}
+.trial-title {
+  color: $apricot-dark;
+  font-size: $font-body-lg;
+  font-weight: 700;
+}
+.trial-desc {
+  margin-top: 12rpx;
+  color: $ink-muted;
+  font-size: $font-label;
   line-height: 1.5;
 }
-
-.btn-trial {
-  width: 100%;
-  height: 96rpx;
-  background: linear-gradient(135deg, #f5a623, #e8941a);
-  border: none;
-  border-radius: 48rpx;
-  font-size: 34rpx;
-  font-weight: bold;
-  color: #fff;
-  box-shadow: 0 8rpx 24rpx rgba(245, 166, 35, 0.4);
+.login-skip {
+  min-height: $touch-target;
+  margin-top: 28rpx;
+  border: 0;
+  color: $ink-muted;
+  background: transparent;
+  font-size: $font-body-size;
 }
-
-.skip-area {
-  margin-top: 60rpx;
-  padding: 20rpx;
+.login-legal {
+  margin-top: auto;
+  padding: 40rpx 0 24rpx;
+  text-align: center;
+  line-height: 1.6;
 }
-
-.skip-text {
-  font-size: 28rpx;
-  color: #bbb;
+.login-legal navigator {
+  display: inline;
+  color: $apricot-dark;
 }
 </style>

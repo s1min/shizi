@@ -1,0 +1,128 @@
+// Paper Classroom semantic tokens. Components should use these instead of raw colors.
+$paper: #fff8f0;
+$paper-deep: #f6ebdd;
+$paper-grid: #eadbcb;
+$surface: #fff;
+$surface-soft: #fffcf8;
+
+$ink: #4a3728;
+$ink-strong: #35271d;
+$ink-muted: #876f5a;
+$ink-light: #b19b86;
+
+$apricot: #f5a623;
+$apricot-dark: #b86e08;
+$apricot-soft: #fff0d4;
+$sky: #5dade2;
+$sky-dark: #266c98;
+$sky-soft: #eaf6fc;
+$mint: #82c785;
+$mint-dark: #397745;
+$mint-soft: #ecf8ea;
+$coral: #e97869;
+$coral-dark: #a94339;
+$coral-soft: #fff0ed;
+
+$line: #eadbcb;
+$line-strong: #d8c3ae;
+$disabled: #c9bdb2;
+$overlay: rgba(53, 39, 29, 0.38);
+
+$font-display: 'Baloo 2', 'Noto Sans SC', sans-serif;
+$font-body: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+$font-hanzi: 'KaiTi', 'STKaiti', 'Noto Serif SC', serif;
+$font-number: 'DIN Alternate', 'Noto Sans SC', sans-serif;
+
+$font-display-xl: 104rpx;
+$font-display-lg: 72rpx;
+$font-display-md: 52rpx;
+$font-title: 36rpx;
+$font-body-lg: 32rpx;
+$font-body-size: 28rpx;
+$font-label: 24rpx;
+$font-caption: 22rpx;
+
+$line-height-display-xl: 1;
+$line-height-display-lg: 1.15;
+$line-height-display-md: 1.25;
+$line-height-title: 1.35;
+$line-height-body-lg: 1.5;
+$line-height-body: 1.55;
+$line-height-label: 1.45;
+$line-height-caption: 1.4;
+
+$space-1: 8rpx;
+$space-2: 16rpx;
+$space-3: 24rpx;
+$space-4: 32rpx;
+$space-5: 40rpx;
+$space-6: 48rpx;
+$space-7: 64rpx;
+$space-8: 80rpx;
+
+$radius-sm: 16rpx;
+$radius-card: 28rpx;
+$radius-sheet: 36rpx;
+$radius-pill: 999rpx;
+
+$shadow-card:
+  0 10rpx 28rpx rgba(112, 75, 34, 0.08),
+  0 2rpx 0 rgba(255, 255, 255, 0.8) inset;
+$shadow-raised:
+  0 14rpx 32rpx rgba(112, 75, 34, 0.12),
+  0 2rpx 0 rgba(255, 255, 255, 0.72) inset;
+$shadow-press:
+  0 4rpx 12rpx rgba(112, 75, 34, 0.08),
+  0 1rpx 0 rgba(112, 75, 34, 0.1) inset;
+
+$motion-fast: 150ms;
+$motion-base: 220ms;
+$motion-slow: 300ms;
+$ease-standard: cubic-bezier(0.2, 0, 0, 1);
+$ease-enter: cubic-bezier(0, 0, 0.2, 1);
+$ease-exit: cubic-bezier(0.4, 0, 1, 1);
+
+$touch-target: 88rpx;
+$page-gutter: 32rpx;
+$tabbar-height: 112rpx;
+$safe-bottom-min: 24rpx;
+
+:root,
+page {
+  --paper: #{$paper};
+  --paper-deep: #{$paper-deep};
+  --paper-grid: #{$paper-grid};
+  --surface: #{$surface};
+  --surface-soft: #{$surface-soft};
+  --ink: #{$ink};
+  --ink-strong: #{$ink-strong};
+  --ink-muted: #{$ink-muted};
+  --ink-light: #{$ink-light};
+  --apricot: #{$apricot};
+  --apricot-dark: #{$apricot-dark};
+  --apricot-soft: #{$apricot-soft};
+  --sky: #{$sky};
+  --sky-dark: #{$sky-dark};
+  --sky-soft: #{$sky-soft};
+  --mint: #{$mint};
+  --mint-dark: #{$mint-dark};
+  --mint-soft: #{$mint-soft};
+  --coral: #{$coral};
+  --coral-dark: #{$coral-dark};
+  --coral-soft: #{$coral-soft};
+  --line: #{$line};
+  --line-strong: #{$line-strong};
+  --disabled: #{$disabled};
+  --overlay: #{$overlay};
+  --font-display: #{$font-display};
+  --font-body: #{$font-body};
+  --font-hanzi: #{$font-hanzi};
+  --font-number: #{$font-number};
+  --shadow-card: #{$shadow-card};
+  --shadow-raised: #{$shadow-raised};
+  --shadow-press: #{$shadow-press};
+  --motion-fast: #{$motion-fast};
+  --motion-base: #{$motion-base};
+  --motion-slow: #{$motion-slow};
+  --ease-standard: #{$ease-standard};
+}

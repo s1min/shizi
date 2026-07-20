@@ -1,8 +1,8 @@
 <template>
   <view class="secondary-page-navbar" :style="navBarStyle">
     <view class="secondary-page-navbar__content" :style="navBarContentStyle">
-      <button class="secondary-page-navbar__back" @click="handleBack">
-        <text class="secondary-page-navbar__back-icon">←</text>
+      <button class="secondary-page-navbar__back" aria-label="返回" @click="handleBack">
+        <UiIcon name="arrow-left" :size="40" label="返回" />
       </button>
       <view class="secondary-page-navbar__title">
         {{ title }}
@@ -14,6 +14,7 @@
 
 <script lang="ts" setup>
 import { computed } from 'vue'
+import UiIcon from '@/components/ui/UiIcon.vue'
 import { getCustomNavBarMetrics } from '@/utils/navbar'
 import { navigateBackOrTo } from '@/utils/navigation'
 
@@ -42,51 +43,55 @@ function handleBack() {
 </script>
 
 <style lang="scss" scoped>
+@use '../../style/tokens' as *;
+
 .secondary-page-navbar {
   position: sticky;
   top: 0;
   z-index: 10;
-  background: #fff;
+  background: $paper;
+  border-bottom: 1rpx solid $line;
   box-sizing: border-box;
 }
 
 .secondary-page-navbar__content {
   display: grid;
-  grid-template-columns: 72rpx 1fr 72rpx;
+  grid-template-columns: $touch-target 1fr $touch-target;
   align-items: center;
   padding: 0 24rpx;
   box-sizing: border-box;
 }
 
 .secondary-page-navbar__back {
-  width: 72rpx;
-  height: 72rpx;
+  width: $touch-target;
+  height: $touch-target;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0;
   border: none;
   background: transparent;
-  color: #333;
-}
+  color: $ink;
+  border-radius: $radius-sm;
 
-.secondary-page-navbar__back-icon {
-  font-size: 36rpx;
-  line-height: 1;
+  &:active {
+    background: $paper-deep;
+  }
 }
 
 .secondary-page-navbar__title {
   text-align: center;
   font-size: 32rpx;
   font-weight: 600;
-  color: #333;
+  color: $ink-strong;
+  font-family: $font-body;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .secondary-page-navbar__placeholder {
-  width: 72rpx;
-  height: 72rpx;
+  width: $touch-target;
+  height: $touch-target;
 }
 </style>

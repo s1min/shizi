@@ -1,5 +1,5 @@
 <template>
-  <div class="test-container">
+  <PaperPage class="test-container" hide-tabbar safe-bottom>
     <LearnFlowHeader
       title="单元测试"
       :current="currentIndex + 1"
@@ -10,6 +10,9 @@
     />
 
     <div v-if="!testDone && currentQuestion" class="question-area">
+      <div class="remaining-label">
+        还剩 {{ Math.max(questions.length - currentIndex, 0) }} 题
+      </div>
       <div class="question-card learning-quiz-question-card">
         <div class="question-meta learning-quiz-question-meta">
           <div class="quiz-type learning-quiz-type">
@@ -27,10 +30,10 @@
           <div v-else-if="currentQuestion.type === 'image-to-char'" class="question-image learning-quiz-image">
             {{ currentQuestion.targetEmoji }}
           </div>
-          <button v-else-if="currentQuestion.type === 'audio-to-char'" class="btn-audio learning-quiz-audio-btn" @click="playQuestionAudio">
-            <text class="audio-icon learning-quiz-audio-icon">{{ isPlaying ? '🔊' : '🔈' }}</text>
+          <PaperButton v-else-if="currentQuestion.type === 'audio-to-char'" variant="secondary" class="btn-audio learning-quiz-audio-btn" @click="playQuestionAudio">
+            <UiIcon class="audio-icon learning-quiz-audio-icon" :name="isPlaying ? 'speaker' : 'play'" :size="36" />
             <text>{{ isPlaying ? '播放中...' : '再听一遍' }}</text>
-          </button>
+          </PaperButton>
           <div v-else-if="currentQuestion.type === 'pinyin-to-char'" class="question-pinyin learning-quiz-pinyin">
             {{ currentQuestion.targetPinyin }}
           </div>
@@ -70,7 +73,7 @@
       <div class="feedback-card learning-quiz-feedback-card" :class="feedbackState">
         <div class="feedback-main learning-quiz-feedback-main">
           <div class="feedback-icon-wrap learning-quiz-feedback-icon-wrap">
-            <text class="feedback-icon-large learning-quiz-feedback-icon">{{ feedbackIcon }}</text>
+            <UiIcon class="feedback-icon-large learning-quiz-feedback-icon" :name="feedbackIcon" :size="48" />
           </div>
           <div class="feedback-copy learning-quiz-feedback-copy">
             <div class="feedback-title learning-quiz-feedback-title">
@@ -82,17 +85,17 @@
           </div>
         </div>
         <div v-if="feedbackState === 'retryable-error'" class="feedback-actions learning-quiz-actions">
-          <button class="btn-modal-secondary learning-quiz-btn-secondary" @click="skipCurrentQuestion">
+          <PaperButton variant="secondary" class="btn-modal-secondary learning-quiz-btn-secondary" @click="skipCurrentQuestion">
             先看下一题
-          </button>
-          <button class="btn-modal-primary learning-quiz-btn-primary" @click="retryCurrentQuestion">
+          </PaperButton>
+          <PaperButton variant="primary" class="btn-modal-primary learning-quiz-btn-primary" @click="retryCurrentQuestion">
             再试一次
-          </button>
+          </PaperButton>
         </div>
         <div v-else-if="feedbackState === 'final-error'" class="feedback-actions learning-quiz-actions single">
-          <button class="btn-modal-primary learning-quiz-btn-primary" @click="goNextFromFinalError">
+          <PaperButton variant="primary" class="btn-modal-primary learning-quiz-btn-primary" @click="goNextFromFinalError">
             继续下一题
-          </button>
+          </PaperButton>
         </div>
       </div>
     </div>
@@ -165,20 +168,23 @@
       </div>
 
       <div class="result-actions">
-        <button v-if="!passed" class="btn-retry" @click="retryTest">
+        <PaperButton v-if="!passed" variant="secondary" class="btn-retry" @click="retryTest">
           再练一次
-        </button>
-        <button class="btn-primary" @click="goToComplete">
+        </PaperButton>
+        <PaperButton variant="primary" class="btn-primary" @click="goToComplete">
           {{ passed ? '进入下一步' : '先去学习页' }}
-        </button>
+        </PaperButton>
       </div>
     </div>
-  </div>
+  </PaperPage>
 </template>
 
 <script lang="ts" setup>
 import type { Character } from '@/types/character'
 import { computed, onMounted, onUnmounted, ref } from 'vue'
+import PaperButton from '@/components/ui/PaperButton.vue'
+import PaperPage from '@/components/ui/PaperPage.vue'
+import UiIcon from '@/components/ui/UiIcon.vue'
 import { useLearnStore } from '@/store'
 import { navigateBackOrTo } from '@/utils/navigation'
 import { speakText } from '@/utils/tts'
@@ -298,14 +304,14 @@ const formattedTime = computed(() => {
   const sec = s % 60
   return m > 0 ? `${m}分${sec}秒` : `${sec}秒`
 })
-const feedbackIcon = computed(() => {
+const feedbackIcon = computed<'check' | 'info' | 'error'>(() => {
   if (feedbackState.value === 'success')
-    return '🎉'
+    return 'check'
   if (feedbackState.value === 'retryable-error')
-    return '💡'
+    return 'info'
   if (feedbackState.value === 'final-error')
-    return '🌱'
-  return ''
+    return 'error'
+  return 'info'
 })
 const feedbackTitle = computed(() => {
   if (feedbackState.value === 'success')
@@ -473,10 +479,10 @@ function buildQuestion(char: Character, type: QuizType, distractors: Character[]
     targetEmoji: char.teaching?.emoji_fallback,
     targetPinyin: char.pinyin,
     options: shuffle([
-      { char: char._id, emoji: char.teaching?.emoji_fallback || '❓', isCorrect: true },
+      { char: char._id, emoji: char.teaching?.emoji_fallback || '图', isCorrect: true },
       ...distractors.map(d => ({
         char: d._id,
-        emoji: d.teaching?.emoji_fallback || '❓',
+        emoji: d.teaching?.emoji_fallback || '图',
         isCorrect: false,
       })),
     ]),
@@ -634,6 +640,106 @@ onUnmounted(() => {
 </script>
 
 <style lang="scss" scoped>
+@use '../../style/tokens' as *;
+
+/* Paper Classroom overrides keep the quiz layout while replacing the legacy warm gradients. */
+.test-container {
+  background: $paper;
+  color: $ink;
+}
+.question-area,
+.result-page {
+  padding-right: 0;
+  padding-left: 0;
+}
+.question-area {
+  gap: $space-3;
+}
+.remaining-label {
+  color: $sky-dark;
+  font-size: $font-body-lg;
+  font-weight: 700;
+}
+.question-card,
+.result-summary-card,
+.wrong-review {
+  border: 2rpx solid $line;
+  border-radius: $radius-card;
+  background: $surface;
+  box-shadow: $shadow-card;
+}
+.result-badge {
+  border-radius: $radius-pill;
+  color: $sky-dark;
+  background: $sky-soft;
+}
+.result-title {
+  color: $ink-strong;
+  font-size: $font-display-md;
+}
+.result-score,
+.wrong-title {
+  color: $ink-muted;
+}
+.result-stats {
+  border-radius: $radius-sm;
+  background: $surface-soft;
+}
+.result-stat-value {
+  color: $ink-strong;
+}
+.result-stat-label,
+.result-next-hint,
+.wrong-desc,
+.wrong-pinyin {
+  color: $ink-muted;
+}
+.result-stat-divider {
+  background: $line;
+}
+.wrong-char {
+  border-color: $line;
+  border-radius: $radius-sm;
+  background: $surface;
+  color: $ink-strong;
+  font-family: $font-hanzi;
+  box-shadow: $shadow-card;
+}
+.result-actions {
+  gap: $space-2;
+}
+.btn-retry,
+.btn-primary,
+.btn-modal-primary,
+.btn-modal-secondary {
+  min-height: $touch-target;
+  border-radius: $radius-pill;
+  font-size: $font-body-lg;
+}
+.btn-retry {
+  background: $surface;
+  border: 2rpx solid $line-strong;
+  color: $apricot-dark;
+}
+.btn-primary,
+.btn-modal-primary {
+  background: $apricot;
+  color: $surface;
+}
+.btn-modal-secondary {
+  background: $surface;
+  border: 2rpx solid $line-strong;
+  color: $apricot-dark;
+}
+.feedback-card {
+  border: 2rpx solid $line;
+  border-radius: $radius-card;
+  background: $surface;
+  box-shadow: $shadow-raised;
+}
+.learning-quiz-audio-btn {
+  min-height: $touch-target;
+}
 .test-container {
   min-height: 100vh;
   background:
@@ -863,5 +969,58 @@ onUnmounted(() => {
 .btn-retry::after,
 .btn-primary::after {
   border: none;
+}
+
+/* Keep legacy learning selectors functional while applying shared paper tokens. */
+.test-container {
+  min-height: 100vh;
+  background: $paper;
+}
+.question-area,
+.result-page {
+  padding-right: 0;
+  padding-left: 0;
+}
+.question-card,
+.result-summary-card,
+.wrong-review,
+.feedback-card {
+  border: 2rpx solid $line;
+  border-radius: $radius-card;
+  background: $surface;
+  box-shadow: $shadow-card;
+}
+.result-badge {
+  border-radius: $radius-pill;
+  color: $sky-dark;
+  background: $sky-soft;
+}
+.result-star {
+  color: $disabled;
+}
+.result-star.active {
+  color: $apricot;
+}
+.btn-retry {
+  background: $surface;
+  border: 2rpx solid $line-strong;
+  color: $apricot-dark;
+  box-shadow: $shadow-card;
+}
+.btn-primary,
+.btn-modal-primary {
+  background: $apricot;
+  color: $surface;
+  box-shadow: 0 10rpx 22rpx rgba(184, 110, 8, 0.22);
+}
+.btn-modal-secondary {
+  background: $surface;
+  border: 2rpx solid $line-strong;
+  color: $apricot-dark;
+}
+.remaining-label {
+  color: $sky-dark;
+  font-size: $font-body-lg;
+  font-weight: 700;
 }
 </style>

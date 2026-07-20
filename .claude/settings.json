@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm --dir \"/d/MyDir/shizi/shizi-frontend\" exec eslint src/pages/unit-list/index.vue src/pages/unit-list/components/UnitStageSection.vue src/pages/unit-list/components/LibrarySummaryCard.vue src/pages/unit-list/components/UnitTaskCard.vue)",
+      "Bash(pnpm --dir \"/d/MyDir/shizi/shizi-frontend\" exec eslint src/pages/unit-list/index.vue src/pages/unit-list/components/LibrarySummaryCard.vue src/pages/unit-list/components/UnitTaskCard.vue src/pages/unit-list/components/UnitStageSection.vue)",
+      "Bash(pnpm --dir \"/d/MyDir/shizi/shizi-frontend\" run build)",
+      "Bash(pnpm --dir \"/d/MyDir/shizi/shizi-frontend\" exec vitest --run)"
+    ]
+  }
+}
