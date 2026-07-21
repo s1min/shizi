@@ -107,20 +107,20 @@
       <div class="menu-item" @click="goToMedals">
         <div class="menu-left">
           <div class="menu-icon medal">
-            🏅
+            <wd-icon name="star-filled" size="28px" />
           </div>
           <text>勋章墙</text>
         </div>
-        <text class="arrow">></text>
+        <wd-icon name="arrow-right" size="18px" class="arrow" />
       </div>
       <div class="menu-item" @click="goToLoot">
         <div class="menu-left">
           <div class="menu-icon card">
-            🎴
+            <wd-icon name="books" size="28px" />
           </div>
           <text>汉字图鉴</text>
         </div>
-        <text class="arrow">></text>
+        <wd-icon name="arrow-right" size="18px" class="arrow" />
       </div>
 
       <div class="menu-group-title mt-4">
@@ -129,11 +129,11 @@
       <div class="menu-item" @click="showLearningReport">
         <div class="menu-left">
           <div class="menu-icon report">
-            📊
+            <wd-icon name="chart-bar" size="28px" />
           </div>
           <text>学习日报</text>
         </div>
-        <text class="arrow">></text>
+        <wd-icon name="arrow-right" size="18px" class="arrow" />
       </div>
 
       <!-- 学习设置 -->
@@ -143,25 +143,25 @@
       <div class="menu-item" @click="showDailyCharPicker">
         <div class="menu-left">
           <div class="menu-icon setting">
-            📖
+            <wd-icon name="time" size="28px" />
           </div>
           <text>每日新字数</text>
         </div>
         <div class="menu-right">
           <text class="menu-val">{{ learnStore.dailyCharCount }}字/天</text>
-          <text class="arrow">></text>
+          <wd-icon name="arrow-right" size="18px" class="arrow" />
         </div>
       </div>
       <div class="menu-item" @click="showReminderPicker">
         <div class="menu-left">
           <div class="menu-icon setting">
-            ⏰
+            <wd-icon name="time" size="28px" />
           </div>
           <text>学习提醒</text>
         </div>
         <div class="menu-right">
           <text class="menu-val">{{ learnStore.reminderTime }}</text>
-          <text class="arrow">></text>
+          <wd-icon name="arrow-right" size="18px" class="arrow" />
         </div>
       </div>
 
@@ -173,11 +173,11 @@
         <div class="menu-item logout-item" @click="handleLogout">
           <div class="menu-left">
             <div class="menu-icon logout-icon">
-              🚪
+              <wd-icon name="logout" size="28px" />
             </div>
             <text class="logout-text">退出登录</text>
           </div>
-          <text class="arrow">></text>
+          <wd-icon name="arrow-right" size="18px" class="arrow" />
         </div>
       </template>
 
@@ -188,35 +188,35 @@
       <div class="menu-item" @click="goToPrivacy">
         <div class="menu-left">
           <div class="menu-icon about">
-            🔒
+            <wd-icon name="file" size="28px" />
           </div>
           <text>隐私政策</text>
         </div>
-        <text class="arrow">></text>
+        <wd-icon name="arrow-right" size="18px" class="arrow" />
       </div>
       <div class="menu-item" @click="goToAgreement">
         <div class="menu-left">
           <div class="menu-icon about">
-            📄
+            <wd-icon name="file" size="28px" />
           </div>
           <text>用户协议</text>
         </div>
-        <text class="arrow">></text>
+        <wd-icon name="arrow-right" size="18px" class="arrow" />
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
+import { computed } from 'vue'
+import { useLearnStore, useTokenStore, useUserStore } from '@/store'
+
 definePage({
   style: {
     navigationBarTitleText: '我的',
     navigationStyle: 'custom',
   },
 })
-
-import { computed } from 'vue'
-import { useLearnStore, useTokenStore, useUserStore } from '@/store'
 
 const learnStore = useLearnStore()
 const tokenStore = useTokenStore()
@@ -549,4 +549,3 @@ function showReminderPicker() {
   margin-top: 40rpx;
 }
 </style>
-

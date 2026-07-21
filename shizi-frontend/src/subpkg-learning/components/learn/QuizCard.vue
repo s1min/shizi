@@ -30,7 +30,7 @@
       <!-- 题型C: 听音选字 -->
       <template v-else-if="quizType === 'audio-to-char'">
         <button class="btn-audio" @click="playAudio">
-          <text class="audio-icon">{{ isPlaying ? '🔊' : '🔈' }}</text>
+          <wd-icon :name="isPlaying ? 'sound' : 'notification'" size="24px" />
           <text>{{ isPlaying ? '播放中...' : '再听一遍' }}</text>
         </button>
         <div class="question-hint">
@@ -81,7 +81,7 @@
     <!-- 结果反馈（底部横条，不遮挡选项） -->
     <div v-if="showResult" class="result-bar" :class="isCorrect ? 'correct' : 'wrong'">
       <div class="result-left">
-        <text class="result-icon">{{ isCorrect ? '🎉' : '❌' }}</text>
+        <wd-icon :name="isCorrect ? 'check-circle-filled' : 'close-circle-filled'" size="24px" />
         <text class="result-text">{{ isCorrect ? '答对了！' : `正确答案是「${char._id}」` }}</text>
       </div>
       <button class="btn-next" @click="handleNext">

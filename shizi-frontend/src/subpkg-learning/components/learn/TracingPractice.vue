@@ -61,19 +61,19 @@
     <!-- 操作按钮 -->
     <div class="action-bar">
       <button class="btn-action btn-clear" @click="clearCanvas">
-        <text class="btn-icon">🗑️</text>
+        <wd-icon class="btn-icon" name="delete" size="20px" />
         <text>清除</text>
       </button>
       <button class="btn-action btn-demo" :disabled="isAnimating" @click="playStrokeDemo">
-        <text class="btn-icon">{{ isAnimating ? '⏸️' : '▶️' }}</text>
+        <wd-icon class="btn-icon" :name="isAnimating ? 'pause' : 'play'" size="20px" />
         <text>{{ isAnimating ? '播放中' : '示范' }}</text>
       </button>
       <button v-if="!quizMode" class="btn-action btn-quiz" @click="startQuizMode">
-        <text class="btn-icon">✍️</text>
+        <wd-icon class="btn-icon" name="edit" size="20px" />
         <text>测试</text>
       </button>
       <button v-if="quizMode" class="btn-action btn-next-stroke" @click="confirmStroke">
-        <text class="btn-icon">✓</text>
+        <wd-icon class="btn-icon" name="check" size="20px" />
         <text>下一笔</text>
       </button>
     </div>
@@ -81,7 +81,7 @@
     <!-- 练习次数提示 -->
     <div class="practice-hint">
       已练习 {{ practiceCount }} 次
-      <text v-if="practiceCount >= 2" class="hint-done">✓ 完成</text>
+      <wd-icon v-if="practiceCount >= 2" class="hint-done" name="check" size="16px" />
     </div>
 
     <!-- 下一步按钮 -->

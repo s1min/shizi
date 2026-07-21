@@ -3,11 +3,13 @@
     <!-- Top Bar -->
     <div class="top-bar">
       <div class="level-selector" @click="showLibPicker = true">
-        📚 {{ learnStore.library.name }} ▼
+        <wd-icon name="books" size="16px" />
+        {{ learnStore.library.name }}
+        <wd-icon name="arrow-down" size="14px" />
       </div>
       <div class="stats-mini">
-        <span>📝 {{ learnedCount }}字</span>
-        <span>🔥 {{ streakDays }}天</span>
+        <span><wd-icon name="edit" size="14px" /> {{ learnedCount }}字</span>
+        <span><wd-icon name="star-filled" size="14px" /> {{ streakDays }}天</span>
       </div>
     </div>
 
@@ -20,7 +22,7 @@
       >
         <div class="review-left">
           <div class="review-icon">
-            🔔
+            <wd-icon name="notification" size="28px" />
           </div>
           <div>
             <div class="review-title">
@@ -32,7 +34,7 @@
           </div>
         </div>
         <div class="review-btn">
-          开始 ▶
+          开始 <wd-icon name="play" size="14px" />
         </div>
       </div>
 
@@ -44,7 +46,7 @@
       <div v-if="currentUnit" class="island-card active" @click="goToLearning">
         <div class="island-visual active-bg">
           <div class="island-icon">
-            🏞️
+            <wd-icon name="location" size="48px" color="#fff" />
           </div>
         </div>
         <div class="island-info">
@@ -76,7 +78,7 @@
       >
         <div class="island-visual" :class="learnStore.isUnitUnlocked(unit.id) ? 'unlocked-bg' : 'locked-bg'">
           <div class="island-icon">
-            {{ learnStore.isUnitUnlocked(unit.id) ? '🏝️' : '🔒' }}
+            <wd-icon name="location" size="48px" color="#fff" />
           </div>
         </div>
         <div class="island-info">
@@ -89,7 +91,8 @@
             </div>
           </div>
           <div class="lock-icon">
-            {{ learnStore.getUnitProgress(unit.id).completed ? `⭐${learnStore.getUnitProgress(unit.id).stars}` : (learnStore.isUnitUnlocked(unit.id) ? '▶' : '🔒') }}
+            <wd-icon v-if="learnStore.getUnitProgress(unit.id).completed" name="star-filled" size="18px" color="#f5a623" />
+            <wd-icon v-else :name="learnStore.isUnitUnlocked(unit.id) ? 'play' : 'lock-off'" size="18px" />
           </div>
         </div>
       </div>
@@ -119,7 +122,7 @@
           <div class="lib-option-right">
             <span v-if="lib.id === learnStore.currentLibraryId" class="lib-current">当前</span>
             <span v-else-if="!lib.available" class="lib-coming">即将推出</span>
-            <span v-else class="lib-arrow">▶</span>
+            <wd-icon v-else name="arrow-right" size="16px" class="lib-arrow" />
           </div>
         </div>
       </div>
@@ -128,15 +131,15 @@
 </template>
 
 <script lang="ts" setup>
+import { computed, onMounted, ref } from 'vue'
+import { useLearnStore } from '@/store'
+
 definePage({
   type: 'home',
-style: {
+  style: {
     navigationBarTitleText: '今日',
   },
 })
-
-import { computed, onMounted, ref } from 'vue'
-import { useLearnStore } from '@/store'
 
 const learnStore = useLearnStore()
 
@@ -474,4 +477,3 @@ function goToReview() {
   }
 }
 </style>
-

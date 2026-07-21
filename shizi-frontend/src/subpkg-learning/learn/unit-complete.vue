@@ -1,7 +1,7 @@
 <template>
   <div class="complete-container">
     <button class="top-home-entry" @click="goHome">
-      <text class="top-home-icon">←</text>
+      <wd-icon name="arrow-left" size="18px" />
       <text class="top-home-text">首页</text>
     </button>
 
@@ -13,7 +13,7 @@
         :class="{ active: i <= stars }"
         :style="{ animationDelay: `${(i - 1) * 0.2}s` }"
       >
-        {{ i <= stars ? '⭐' : '☆' }}
+        <wd-icon :name="i <= stars ? 'star-filled' : 'star'" size="52px" />
       </div>
     </div>
 

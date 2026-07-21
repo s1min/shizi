@@ -8,7 +8,7 @@
 
 - 1 `原生 tabbar`，使用 `switchTab` 切换 `tabbar`，`tabbar` 页面有缓存。
   - 优势：原生自带的 `tabbar`，最先渲染，有缓存。
-  - 劣势：只能使用 2 组图片来切换选中和非选中状态，修改颜色只能重新换图片（或者用 iconfont）。
+  - 劣势：只能使用 2 组图片来切换选中和非选中状态，修改颜色只能重新换图片（或者用 wot-design-uni）。
 
 - 2 `有缓存自定义 tabbar`，使用 `switchTab` 切换 `tabbar`，`tabbar` 页面有缓存。使用了第三方 UI 库的 `tabbar` 组件，并隐藏了原生 `tabbar` 的显示。
   - 优势：可以随意配置自己想要的 `svg icon`，切换字体颜色方便。有缓存。可以实现各种花里胡哨的动效等。
@@ -48,19 +48,19 @@
     // 注意 unocss 图标需要如下处理：（二选一）
     // 1）在fg-tabbar.vue页面上引入一下并注释掉（见tabbar/index.vue代码第2行）
     // 2）配置到 unocss.config.ts 的 safelist 中
-    iconType: 'unocss',
-    icon: 'i-carbon-code',
+    iconType: 'uiLib',
+    icon: 'home',
   }
   ```
 
-- iconfont 图标
+- wot-design-uni 图标
 
  ```js
   {
     // ... 其他配置
-    // 注意 iconfont 图标需要额外加上 'iconfont'，如下
-    iconType: 'iconfont',
-    icon: 'iconfont icon-my',
+    // 注意 wot-design-uni 图标需要额外加上 'wot-design-uni'，如下
+    iconType: 'wot-design-uni',
+    icon: 'wot-design-uni icon-my',
   }
   ```
 
@@ -71,7 +71,7 @@
     // ... 其他配置
     // 使用 ‘image’时，需要配置 icon + iconActive 2张图片（不推荐）
     // 既然已经用了自定义tabbar了，就不建议用图片了，所以不推荐
-    iconType: 'image',
+    iconType: 'uiLib',
     icon: '/static/tabbar/home.png',
     iconActive: '/static/tabbar/homeHL.png',
   }

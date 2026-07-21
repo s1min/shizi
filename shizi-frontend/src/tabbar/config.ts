@@ -45,20 +45,20 @@ export const customTabbarList: CustomTabBarItem[] = [
   {
     text: '今日',
     pagePath: 'pages/home/index',
-    iconType: 'unocss',
-    icon: 'i-carbon-home',
+    iconType: 'uiLib',
+    icon: 'home',
   },
   {
     text: '图鉴',
     pagePath: 'pages/loot/index',
-    iconType: 'unocss',
-    icon: 'i-carbon-book',
+    iconType: 'uiLib',
+    icon: 'books',
   },
   {
     text: '我的',
     pagePath: 'pages/me/index',
-    iconType: 'unocss',
-    icon: 'i-carbon-user',
+    iconType: 'uiLib',
+    icon: 'user',
   },
 ]
 

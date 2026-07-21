@@ -15,7 +15,7 @@
           {{ char._id }}
         </div>
         <div class="char-pinyin">
-          <span class="speaker-icon" @click.stop="speakChar">🔊</span>
+          <wd-icon class="speaker-icon" name="sound" size="20px" @click.stop="speakChar" />
           <span>{{ char.pinyin }}</span>
         </div>
       </div>

@@ -25,7 +25,7 @@
         @click="lib.available && (selectedId = lib.id)"
       >
         <div class="lib-icon">
-          {{ lib.icon }}
+          <wd-icon :name="lib.icon" size="40px" />
         </div>
         <div class="lib-info">
           <div class="lib-name">
@@ -36,7 +36,7 @@
           </div>
         </div>
         <div v-if="selectedId === lib.id && lib.available" class="lib-check">
-          ✓
+          <wd-icon name="check" size="20px" color="#fff" />
         </div>
         <div v-else-if="!lib.available" class="lib-coming">
           即将上线
@@ -68,8 +68,8 @@ const selectedId = ref('lib_1a_upper')
 const saving = ref(false)
 
 const libraries = [
-  { id: 'lib_1a_upper', name: '一年级上册', desc: '人教版语文，100个常用汉字', icon: '📘', available: true },
-  { id: 'lib_1a_lower', name: '一年级下册', desc: '人教版语文，157个常用汉字', icon: '📗', available: false },
+  { id: 'lib_1a_upper', name: '一年级上册', desc: '人教版语文，100个常用汉字', icon: 'books', available: true },
+  { id: 'lib_1a_lower', name: '一年级下册', desc: '人教版语文，157个常用汉字', icon: 'books', available: false },
 ]
 
 function applySelectedLibrary(libraryId: string) {

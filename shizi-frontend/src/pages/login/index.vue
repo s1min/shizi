@@ -1,7 +1,7 @@
 <template>
   <div class="login-container">
     <button class="top-back-entry" @click="goBack">
-      <text class="top-back-icon">←</text>
+      <wd-icon name="arrow-left" size="20px" />
     </button>
 
     <div class="logo-area">

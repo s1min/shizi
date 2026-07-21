@@ -3,7 +3,7 @@
     <!-- 完成结算 -->
     <div v-if="finished" class="finish-screen">
       <div class="finish-icon">
-        🎉
+        <wd-icon name="check-circle-filled" size="48px" />
       </div>
       <div class="finish-title">
         复习完成！
@@ -52,7 +52,7 @@
           {{ charIndex + 1 }}/{{ reviewChars.length }}
         </div>
         <div class="close-btn" @click="handleClose">
-          ✕
+          <wd-icon name="close" size="20px" />
         </div>
       </div>
 

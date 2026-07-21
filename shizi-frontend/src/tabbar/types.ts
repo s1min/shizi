@@ -16,17 +16,15 @@ export interface CustomTabBarItem {
   text: string
   pagePath: RemoveLeadingSlashFromUnion<_LocationUrl>
   /** 图标类型，不建议用 image 模式，因为需要配置 2 张图，更麻烦 */
-  iconType: 'uiLib' | 'unocss' | 'iconfont' | 'image'
+  iconType: 'uiLib'
   /**
    * icon 的路径
    * - uiLib: wot-design-uni 图标的 icon prop
    * - unocss: unocss 图标的类名
-   * - iconfont: iconfont 图标的类名
-   * - image: 图片的路径
+   * - uiLib: wot-design-uni 图标的名称
    */
   icon: string
   /** 只有在 image 模式下才需要，传递的是高亮的图片 */
-  iconActive?: string
   /** badge 显示一个数字或 小红点 */
   badge?: CustomTabBarItemBadge
   /** 是否是中间的鼓包tabbarItem */

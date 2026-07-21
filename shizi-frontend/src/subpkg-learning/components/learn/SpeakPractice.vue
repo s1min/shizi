@@ -16,7 +16,7 @@
         {{ demoPlayed ? '选择正确的读音' : '点击听发音' }}
       </div>
       <button class="btn-play" :class="{ playing: isPlaying }" @click="playDemo">
-        <text class="play-icon">{{ isPlaying ? '🔊' : '🔈' }}</text>
+        <wd-icon :name="isPlaying ? 'sound' : 'notification'" size="28px" />
       </button>
     </div>
 
@@ -35,13 +35,13 @@
         @click="selectOption(idx)"
       >
         <text class="option-pinyin">{{ opt.pinyin }}</text>
-        <text class="option-play" @click.stop="playOption(idx)">🔈</text>
+        <wd-icon class="option-play" name="sound" size="18px" @click.stop="playOption(idx)" />
       </button>
     </div>
 
     <!-- 结果反馈 -->
     <div v-if="answered" class="feedback-bar" :class="isCorrect ? 'correct' : 'wrong'">
-      <text class="feedback-icon">{{ isCorrect ? '✓' : '✕' }}</text>
+      <wd-icon class="feedback-icon" :name="isCorrect ? 'check' : 'close'" size="20px" />
       <text class="feedback-text">{{ isCorrect ? '选对了！' : `正确读音：${char.pinyin}` }}</text>
     </div>
 

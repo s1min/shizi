@@ -3,7 +3,7 @@
     <!-- 顶部进度 -->
     <div class="test-header">
       <div class="close-btn" @click="handleClose">
-        ✕
+        <wd-icon name="close" size="20px" />
       </div>
       <div class="progress-bg">
         <div class="progress-fill" :style="{ width: `${progressPercent}%` }" />
@@ -31,7 +31,7 @@
         </div>
         <!-- 听音选字 -->
         <button v-else-if="currentQuestion.type === 'audio-to-char'" class="btn-audio" @click="playQuestionAudio">
-          <text class="audio-icon">{{ isPlaying ? '🔊' : '🔈' }}</text>
+          <wd-icon :name="isPlaying ? 'sound' : 'notification'" size="24px" />
           <text>{{ isPlaying ? '播放中...' : '再听一遍' }}</text>
         </button>
         <!-- 拼音选字 -->
@@ -78,7 +78,7 @@
     <!-- 答题反馈（底部横条） -->
     <div v-if="showFeedback" class="feedback-bar" :class="lastCorrect ? 'correct' : 'wrong'">
       <div class="feedback-left">
-        <text class="feedback-icon">{{ lastCorrect ? '🎉' : '❌' }}</text>
+        <wd-icon :name="lastCorrect ? 'check-circle-filled' : 'close-circle-filled'" size="24px" />
         <text class="feedback-text">{{ lastCorrect ? '答对了！' : `正确答案是「${currentQuestion?.targetChar}」` }}</text>
       </div>
       <button class="btn-feedback-next" @click="goNext">
@@ -90,7 +90,7 @@
     <div v-if="testDone" class="result-page">
       <div class="result-stars">
         <span v-for="i in 3" :key="i" class="star" :class="{ active: i <= resultStars }">
-          {{ i <= resultStars ? '⭐' : '☆' }}
+          <wd-icon :name="i <= resultStars ? 'star-filled' : 'star'" size="40px" />
         </span>
       </div>
       <div class="result-title">

@@ -9,7 +9,7 @@
         {{ currentStep }}/{{ totalSteps }}
       </div>
       <div class="close-btn" @click="handleClose">
-        ✕
+        <wd-icon name="close" size="20px" />
       </div>
     </div>
 
@@ -48,7 +48,7 @@
       <!-- 单字学习完成 -->
       <div v-else-if="step === 'complete'" class="complete-screen">
         <div class="complete-icon">
-          🎉
+          <wd-icon name="check-circle-filled" size="48px" />
         </div>
         <div class="complete-title">
           太棒了！
@@ -68,20 +68,20 @@
 </template>
 
 <script lang="ts" setup>
+import type { Character } from '@/types/character'
+import { computed, onMounted, ref } from 'vue'
+import { useLearnStore } from '@/store'
+import CharCard from '../components/learn/CharCard.vue'
+import QuizCard from '../components/learn/QuizCard.vue'
+import SpeakPractice from '../components/learn/SpeakPractice.vue'
+import TracingPractice from '../components/learn/TracingPractice.vue'
+
 definePage({
   style: {
     navigationBarTitleText: '学习',
     navigationStyle: 'custom',
   },
 })
-
-import type { Character } from '@/types/character'
-import { computed, onMounted, ref } from 'vue'
-import CharCard from '../components/learn/CharCard.vue'
-import QuizCard from '../components/learn/QuizCard.vue'
-import SpeakPractice from '../components/learn/SpeakPractice.vue'
-import TracingPractice from '../components/learn/TracingPractice.vue'
-import { useLearnStore } from '@/store'
 
 const learnStore = useLearnStore()
 
@@ -275,4 +275,3 @@ onMounted(() => {
   box-shadow: 0 8rpx 24rpx rgba(245, 166, 35, 0.4);
 }
 </style>
-

@@ -2,7 +2,7 @@
   <div class="page-container">
     <div class="hero">
       <button class="hero-back" @click="handleBack">
-        <text class="hero-back-icon">←</text>
+        <wd-icon name="arrow-left" size="18px" />
         <text class="hero-back-text">返回</text>
       </button>
 
@@ -87,7 +87,7 @@
     <div v-if="detailChar" class="detail-mask" @click="detailChar = null">
       <div class="detail-card" @click.stop>
         <div class="detail-close" @click="detailChar = null">
-          ✕
+          <wd-icon name="close" size="20px" />
         </div>
         <div class="detail-emoji">
           {{ detailChar.teaching?.emoji_fallback || '📝' }}
